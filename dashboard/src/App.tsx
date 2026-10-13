@@ -427,16 +427,16 @@ const Dashboard = () => {
 
         layer.bindTooltip(`
             <div style="font-family: sans-serif; padding: 6px; min-width: 140px;">
-                <div style="font-size: 10px; font-weight: 900; color: #888; text-transform: uppercase; margin-bottom: 2px;">${parentName}</div>
-                <div style="font-size: 13px; font-weight: 800; color: #111; line-height: 1.2;">${props.name || 'N/A'}</div>
+                <div style="font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 2px;">${parentName}</div>
+                <div style="font-size: 13px; font-weight: 700; color: #111; line-height: 1.2;">${props.name || 'N/A'}</div>
                 ${!isIgnored ? `
                 <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                    <span style="font-size: 10px; font-weight: 900; color: #444; text-transform: uppercase;">${t(selectedMetric.label)}</span>
-                    <span style="font-size: 11px; font-weight: 900; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); white-space: nowrap;">
+                    <span style="font-size: 10px; font-weight: 700; color: #444; text-transform: uppercase;">${t(selectedMetric.label)}</span>
+                    <span style="font-size: 11px; font-weight: 700; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); white-space: nowrap;">
                         ${formattedVal}${selectedMetric.unit ? ' ' + selectedMetric.unit(effectiveMode.id, val) : ''}
                     </span>
                 </div>
-                ` : `<div style="margin-top: 8px; font-size: 9px; font-weight: 900; color: #bbb; text-transform: uppercase;">${t('common.no_data')}</div>`}
+                ` : `<div style="margin-top: 8px; font-size: 9px; font-weight: 700; color: #bbb; text-transform: uppercase;">${t('common.no_data')}</div>`}
             </div>
         `, { sticky: true, opacity: 0.98, direction: 'top', offset: [0, -10] });
 

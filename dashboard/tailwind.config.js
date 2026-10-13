@@ -9,6 +9,10 @@ export default {
             fontFamily: {
                 sans: ['Lexend', 'system-ui', 'sans-serif'],
             },
+            fontWeight: {
+                black: '700',
+                extrabold: '700',
+            },
             colors: {
                 primary: {
                     DEFAULT: '#001d06',

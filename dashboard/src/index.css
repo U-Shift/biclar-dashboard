@@ -2,6 +2,8 @@
 
 @theme {
   --font-sans: 'Lexend', system-ui, -apple-system, sans-serif;
+  --font-weight-black: 700;
+  --font-weight-extrabold: 700;
   --color-primary: #001d06;
   --color-primary-light: #00330b;
   --color-secondary: #ffdd00;
