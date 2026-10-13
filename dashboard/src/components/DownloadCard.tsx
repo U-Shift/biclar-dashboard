@@ -16,7 +16,7 @@ export const DownloadCard = ({ title, id, group_id, region_id, isDark, level, fi
                     target="_blank"
                     rel="noopener noreferrer"
                     download={`${filename}.json`}
-                    className="w-full py-2.5 rounded-xl bg-sky-900 hover:bg-sky-800 text-white text-[12px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center text-center"
+                    className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-light text-white text-[12px] font-black uppercase tracking-widest shadow-md shadow-primary/20 transition-all cursor-pointer flex items-center justify-center text-center"
                 >
                     GeoJSON
                 </a>
@@ -25,7 +25,7 @@ export const DownloadCard = ({ title, id, group_id, region_id, isDark, level, fi
                     target="_blank"
                     rel="noopener noreferrer"
                     download={`${filename}.csv`}
-                    className="w-full py-2.5 rounded-xl border border-sky-900/30 text-sky-900 hover:bg-sky-800 hover:text-white text-[12px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center text-center"
+                    className="w-full py-2.5 rounded-xl border border-primary/30 text-primary dark:text-secondary-green dark:border-secondary-green/30 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white text-[12px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center text-center"
                 >
                     CSV
                 </a>

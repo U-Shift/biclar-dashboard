@@ -206,11 +206,11 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                         <label className="flex items-center gap-2 cursor-pointer group">
                             <div
                                 onClick={() => setForceConsistency(!forceConsistency)}
-                                className={`w-10 h-5 rounded-full relative transition-colors ${forceConsistency ? 'bg-sky-900' : (isDarkMode ? 'bg-neutral-800' : 'bg-neutral-200')}`}
+                                className={`w-10 h-5 rounded-full relative transition-colors ${forceConsistency ? 'bg-primary ring-1 ring-secondary-yellow/30' : (isDarkMode ? 'bg-neutral-800' : 'bg-neutral-200')}`}
                             >
                                 <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${forceConsistency ? 'translate-x-5' : ''}`} />
                             </div>
-                            <span className="text-[10px] lg:text-[12px] font-bold uppercase tracking-wider text-neutral-500 group-hover:text-sky-800 transition-colors hidden lg:inline">{t('ahp.force_consistency')}</span>
+                            <span className="text-[10px] lg:text-[12px] font-bold uppercase tracking-wider text-neutral-500 group-hover:text-primary dark:group-hover:text-secondary-green transition-colors hidden lg:inline">{t('ahp.force_consistency')}</span>
                         </label>
                     </div>
                     <button onClick={onClose} className={`p-2 rounded-full transition-colors ${isDarkMode ? 'hover:bg-neutral-800' : 'hover:bg-neutral-100'}`}>
@@ -223,19 +223,19 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                     {!isComplete ? (
                         <div className="space-y-8 lg:space-y-12">
                             <div className="text-center space-y-2">
-                                <p className={`text-[10px] lg:text-[12px] font-black uppercase tracking-widest ${isDarkMode ? 'text-sky-700' : 'text-sky-900'}`}>
+                                <p className={`text-[10px] lg:text-[12px] font-black uppercase tracking-widest ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`}>
                                     {t('ahp.comparison_step', { current: currentStep + 1, total: pairs.length })}
                                 </p>
                                 <h3 className="text-base lg:text-lg font-medium">{t('ahp.question')}</h3>
                             </div>
 
                             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-6">
-                                <div className={`w-full lg:flex-1 text-center lg:text-right p-4 rounded-xl border-2 transition-colors ${selections[currentStep] < 0 ? 'border-sky-800 bg-sky-800/10 text-sky-800' : (isDarkMode ? 'border-neutral-800' : 'border-neutral-100')}`}>
+                                <div className={`w-full lg:flex-1 text-center lg:text-right p-4 rounded-xl border-2 transition-colors ${selections[currentStep] < 0 ? 'border-primary bg-primary/10 text-primary dark:border-secondary-green dark:bg-secondary-yellow/10 dark:text-secondary-green' : (isDarkMode ? 'border-neutral-800' : 'border-neutral-100')}`}>
                                     <p className="font-bold text-sm lg:text-base uppercase tracking-wider">{t(metrics[pairs[currentStep][0]].label)}</p>
                                     <p className="text-[10px] lg:text-[12px] opacity-60 mt-1">{t(metrics[pairs[currentStep][0]].description || '')}</p>
                                 </div>
                                 <div className="hidden lg:block text-neutral-400 font-black italic">VS</div>
-                                <div className={`w-full lg:flex-1 text-center lg:text-left p-4 rounded-xl border-2 transition-colors ${selections[currentStep] > 0 ? 'border-sky-800 bg-sky-800/10 text-sky-800' : (isDarkMode ? 'border-neutral-800' : 'border-neutral-100')}`}>
+                                <div className={`w-full lg:flex-1 text-center lg:text-left p-4 rounded-xl border-2 transition-colors ${selections[currentStep] > 0 ? 'border-primary bg-primary/10 text-primary dark:border-secondary-green dark:bg-secondary-yellow/10 dark:text-secondary-green' : (isDarkMode ? 'border-neutral-800' : 'border-neutral-100')}`}>
                                     <p className="font-bold text-sm lg:text-base uppercase tracking-wider">{t(metrics[pairs[currentStep][1]].label)}</p>
                                     <p className="text-[10px] lg:text-[12px] opacity-60 mt-1">{t(metrics[pairs[currentStep][1]].description || '')}</p>
                                 </div>
@@ -247,10 +247,10 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                     min="-8" max="8" step="1"
                                     value={selections[currentStep]}
                                     onChange={handleSliderChange}
-                                    className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-sky-800 outline-none ${isDarkMode ? 'bg-neutral-800' : 'bg-neutral-200'}`}
+                                    className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-primary outline-none ${isDarkMode ? 'bg-neutral-800' : 'bg-neutral-200'}`}
                                 />
                                 <div className="text-center h-6">
-                                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] lg:text-[12px] font-bold uppercase tracking-widest ${selections[currentStep] !== 0 ? 'bg-sky-800 text-white' : (isDarkMode ? 'bg-neutral-800 text-neutral-400' : 'bg-neutral-100 text-neutral-500')}`}>
+                                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] lg:text-[12px] font-bold uppercase tracking-widest ${selections[currentStep] !== 0 ? 'bg-primary text-secondary-yellow shadow-md border border-secondary-yellow/30' : (isDarkMode ? 'bg-neutral-800 text-neutral-400' : 'bg-neutral-100 text-neutral-500')}`}>
                                         {getIntensityLabel(selections[currentStep])}
                                     </span>
                                 </div>
@@ -277,7 +277,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                                 <span>{pct}%</span>
                                             </div>
                                             <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-neutral-800' : 'bg-neutral-100'}`}>
-                                                <div className="h-full bg-sky-800 transition-all duration-1000 ease-out" style={{ width: `${pct}%` }} />
+                                                <div className="h-full bg-primary transition-all duration-1000 ease-out" style={{ width: `${pct}%` }} />
                                             </div>
                                         </div>
                                     );
@@ -309,7 +309,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                                 </span>
                                                 <button
                                                     onClick={() => setCurrentStep(item.index)}
-                                                    className="px-2 py-1 rounded bg-sky-800 text-white font-black uppercase tracking-tighter hover:bg-sky-700 transition-colors shrink-0"
+                                                    className="px-2 py-1 rounded bg-primary text-secondary-yellow font-black uppercase tracking-tighter hover:bg-primary-light transition-colors shrink-0"
                                                 >
                                                     {t('common.fix')}
                                                 </button>
@@ -338,7 +338,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                                     value={role}
                                                     onChange={(e) => setRole(e.target.value)}
                                                     disabled={isSubmitting}
-                                                    className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-sky-800 ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
+                                                    className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-primary ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
                                                 >
                                                     <option value="">-- {t('ahp.role_label')} --</option>
                                                     <option value="student">{t('ahp.role_student')}</option>
@@ -356,7 +356,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                                         onChange={(e) => setOtherRole(e.target.value)}
                                                         disabled={isSubmitting}
                                                         placeholder={t('ahp.role_other_placeholder')}
-                                                        className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-sky-800 ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
+                                                        className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-primary ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
                                                     />
                                                 </div>
                                             )}
@@ -369,7 +369,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                                     onChange={(e) => setMunicipality(e.target.value)}
                                                     disabled={isSubmitting}
                                                     placeholder={t('ahp.municipality_placeholder')}
-                                                    className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-sky-800 ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
+                                                    className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-primary ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
                                                 />
                                             </div>
 
@@ -379,7 +379,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                                     value={gender}
                                                     onChange={(e) => setGender(e.target.value)}
                                                     disabled={isSubmitting}
-                                                    className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-sky-800 ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
+                                                    className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-primary ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
                                                 >
                                                     <option value="">-- {t('ahp.gender_label')} --</option>
                                                     <option value="female">{t('ahp.gender_female')}</option>
@@ -395,7 +395,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                                     value={transport}
                                                     onChange={(e) => setTransport(e.target.value)}
                                                     disabled={isSubmitting}
-                                                    className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-sky-800 ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
+                                                    className={`w-full p-2.5 rounded-lg text-sm outline-none border transition-colors focus:border-primary ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'}`}
                                                 >
                                                     <option value="">-- {t('ahp.transport_label')} --</option>
                                                     <option value="car">{t('ahp.transport_car')}</option>
@@ -415,7 +415,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                                     <button
                                                         onClick={handleSubmitResearch}
                                                         disabled={isSubmitDisabled}
-                                                        className={`w-full py-2.5 rounded-xl text-[10px] lg:text-[12px] font-bold uppercase tracking-widest transition-all ${isSubmitDisabled ? 'opacity-50 cursor-not-allowed bg-sky-900 text-white' : 'bg-sky-900 hover:bg-sky-800 text-white shadow-lg shadow-sky-800/30'}`}
+                                                        className={`w-full py-2.5 rounded-xl text-[10px] lg:text-[12px] font-bold uppercase tracking-widest transition-all ${isSubmitDisabled ? 'opacity-50 cursor-not-allowed bg-primary/40 text-white' : 'bg-primary hover:bg-primary-light text-white shadow-lg shadow-primary/30 border border-secondary-yellow/20'}`}
                                                     >
                                                         {isSubmitting ? t('ahp.submitting') : t('ahp.submit_button')}
                                                     </button>
@@ -443,7 +443,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
 
                             <button
                                 onClick={() => setCurrentStep(currentStep + 1)}
-                                className="flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] lg:text-[12px] font-bold uppercase tracking-widest bg-sky-900 hover:bg-sky-800 text-white shadow-lg shadow-sky-800/30 transition-all"
+                                className="flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] lg:text-[12px] font-bold uppercase tracking-widest bg-primary hover:bg-primary-light text-white shadow-lg shadow-primary/30 border border-secondary-green/20 transition-all"
                             >
                                 {currentStep === pairs.length - 1 ? t('common.calculate') : t('common.next')} <ChevronRight className="w-4 h-4" />
                             </button>
@@ -463,7 +463,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                             {(!forceConsistency || (results && results.CR <= 0.1)) && (
                                 <button
                                     onClick={handleApply}
-                                    className="flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] lg:text-[12px] font-bold uppercase tracking-widest bg-sky-900 hover:bg-sky-800 text-white shadow-lg shadow-sky-800/30 transition-all"
+                                    className="flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] lg:text-[12px] font-bold uppercase tracking-widest bg-primary hover:bg-primary-light text-white shadow-lg shadow-primary/30 border border-secondary-yellow/20 transition-all"
                                 >
                                     {t('ahp.apply_weights')}
                                 </button>

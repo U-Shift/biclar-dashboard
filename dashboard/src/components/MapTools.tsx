@@ -55,14 +55,14 @@ export const MapToolsUI: React.FC<MapToolsProps> = ({
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl border transition-all ${isDarkMode ? 'bg-neutral-900/50 border-neutral-800' : 'bg-white/50 border-neutral-200'}`}
                 >
                     <div className="flex items-center gap-3">
-                        <div className={`p-1.5 rounded-lg ${isDarkMode ? 'bg-neutral-800 text-sky-400' : 'bg-neutral-100 text-sky-700'}`}>
+                        <div className={`p-1.5 rounded-lg ${isDarkMode ? 'bg-neutral-800 text-secondary-green' : 'bg-neutral-100 text-primary'}`}>
                             <Layers className="w-3.5 h-3.5" />
                         </div>
                         <span className={`text-[12px] font-black uppercase tracking-widest ${isDarkMode ? 'text-neutral-300' : 'text-neutral-700'}`}>
                             {t('metrics.categories.cos_builtarea_title')}
                         </span>
                     </div>
-                    <div className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${showBuiltArea ? 'bg-sky-800' : (isDarkMode ? 'bg-neutral-700' : 'bg-neutral-300')}`}>
+                    <div className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${showBuiltArea ? 'bg-primary ring-1 ring-secondary-yellow/30' : (isDarkMode ? 'bg-neutral-700' : 'bg-neutral-300')}`}>
                         <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${showBuiltArea ? 'translate-x-5 shadow-[-2px_0_4_px_rgba(0,0,0,0.2)]' : 'translate-x-0 shadow-[2px_0_4px_rgba(0,0,0,0.1)]'}`} />
                     </div>
                 </button>
@@ -116,7 +116,7 @@ export const MapToolsUI: React.FC<MapToolsProps> = ({
                     onChange?.();
                 }}
             >
-                <div className={`p-1.5 rounded-lg ${isDarkMode ? 'bg-neutral-800 text-sky-400' : 'bg-neutral-100 text-sky-700'}`}>
+                <div className={`p-1.5 rounded-lg ${isDarkMode ? 'bg-neutral-800 text-secondary-green' : 'bg-neutral-100 text-primary'}`}>
                     <Layers className="w-4 h-4" />
                 </div>
                 <div className="flex flex-col text-left">
@@ -125,7 +125,7 @@ export const MapToolsUI: React.FC<MapToolsProps> = ({
                     </span>
                 </div>
                 <button
-                    className={`w-10 h-5 rounded-full relative transition-colors duration-300 ml-2 ${showBuiltArea ? 'bg-sky-800' : (isDarkMode ? 'bg-neutral-700' : 'bg-neutral-300')}`}
+                    className={`w-10 h-5 rounded-full relative transition-colors duration-300 ml-2 ${showBuiltArea ? 'bg-primary ring-1 ring-secondary-yellow/30' : (isDarkMode ? 'bg-neutral-700' : 'bg-neutral-300')}`}
                 >
                     <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${showBuiltArea ? 'translate-x-5 shadow-[-2px_0_4_px_rgba(0,0,0,0.2)]' : 'translate-x-0 shadow-[2px_0_4px_rgba(0,0,0,0.1)]'}`} />
                 </button>

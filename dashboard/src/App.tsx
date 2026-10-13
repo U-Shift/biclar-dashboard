@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, GeoJSON, Pane, useMap } from 'react-leaflet';
+import { MapContainer, GeoJSON, Pane, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import * as maplibregl from 'maplibre-gl';
@@ -14,7 +14,7 @@ if (maplibregl.setWorkerUrl) {
 if (typeof window !== 'undefined' && !(window as any).maplibregl) {
     (window as any).maplibregl = maplibregl;
 }
-import { Loader2, Activity, Layers, Globe, Info, X, Menu } from 'lucide-react';
+import { Loader2, Activity, Layers, Globe, Info, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
@@ -125,21 +125,21 @@ const Dashboard = () => {
         let tileLayerObj: L.Layer;
 
         if (layerDef.id === 'carto') {
-            const styleUrl = layerDef.getUrl(isDarkMode);
+            const styleUrl = (layerDef as any).getUrl ? (layerDef as any).getUrl(isDarkMode) : layerDef.url;
             tileLayerObj = (L as any).maplibreGL({
                 style: styleUrl,
             }).addTo(mapInstance);
 
             const container = (tileLayerObj as any).getContainer?.();
             if (container) {
-                container.style.opacity = String(layerDef.getOpacity(isDarkMode));
+                container.style.opacity = String((layerDef as any).getOpacity ? (layerDef as any).getOpacity(isDarkMode) : 1);
             }
         } else {
-            const url = 'getUrl' in layerDef && typeof layerDef.getUrl === 'function'
-                ? layerDef.getUrl(isDarkMode)
+            const url = 'getUrl' in layerDef && typeof (layerDef as any).getUrl === 'function'
+                ? (layerDef as any).getUrl(isDarkMode)
                 : layerDef.url;
             tileLayerObj = L.tileLayer(url!, {
-                attribution: layerDef.attribution(isDarkMode),
+                attribution: typeof layerDef.attribution === 'function' ? (layerDef.attribution as any)(isDarkMode) : layerDef.attribution,
             }).addTo(mapInstance);
         }
 
@@ -588,7 +588,7 @@ const Dashboard = () => {
 
     if (dataState.loading) return (
         <div className={`h-screen w-screen ${isDarkMode ? 'bg-neutral-950' : 'bg-neutral-50'} flex flex-col items-center justify-center gap-2`}>
-            <Loader2 className="w-12 h-12 text-sky-800 animate-spin" />
+            <Loader2 className={`w-12 h-12 ${isDarkMode ? 'text-secondary-cyan' : 'text-primary'} animate-spin`} />
             <div className="flex flex-col items-center gap-1">
                 <p className={`font-black uppercase tracking-[0.2em] text-[12px] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>{t('common.loading')}</p>
                 <p className={`font-medium text-[10px] ${isDarkMode ? 'text-neutral-600' : 'text-neutral-500'}`}>{t('common.loading_note')}</p>
@@ -706,13 +706,13 @@ const Dashboard = () => {
                         {isMobile && (
                             <button
                                 onClick={() => setShowLegendMobile(false)}
-                                className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-sky-900 text-white flex items-center justify-center shadow-lg z-10 transition-transform hover:scale-110 active:scale-95"
+                                className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary hover:bg-primary-light text-white flex items-center justify-center shadow-lg z-10 transition-transform hover:scale-110 active:scale-95"
                             >
                                 <X className="w-4 h-4" />
                             </button>
                         )}
                         <div className={`p-6 rounded-[32px] border pointer-events-auto shadow-2xl backdrop-blur-xl ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-100'}`}>
-                            <h4 className="flex items-center gap-2.5 text-[12px] font-black text-sky-800 mb-5 uppercase tracking-[0.1em]">
+                            <h4 className={`flex items-center gap-2.5 text-[12px] font-black ${isDarkMode ? 'text-secondary-cyan' : 'text-primary'} mb-5 uppercase tracking-[0.1em]`}>
                                 <Activity className="w-3.5 h-3.5" /> {nutFilter !== REGION_KEYS[0] ? t('map.local_rescaling') : t('map.global_scale')}
                             </h4>
                             <div className="space-y-5">

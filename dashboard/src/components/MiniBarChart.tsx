@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCont
 import { MetricDef } from '../types';
 import { ModeId } from '../constants';
 
-export const MiniBarChart = ({ data, metric, selectedMode, isDark, type, onSelect }: { data: any[], metric: MetricDef, selectedMode?: ModeId, isDark: boolean, type?: 'highest' | 'lowest', onSelect?: (id: string | number) => void }) => {
+export const MiniBarChart = ({ data, metric, selectedMode, isDark, type: _type, onSelect }: { data: any[], metric: MetricDef, selectedMode?: ModeId, isDark: boolean, type?: 'highest' | 'lowest', onSelect?: (id: string | number) => void }) => {
 
     // Enhance data with a max value for the "ghost" bar that holds labels
     const minValue = useMemo(() => Math.min(...data.map(d => d.value), 0), [data]);
@@ -15,7 +15,7 @@ export const MiniBarChart = ({ data, metric, selectedMode, isDark, type, onSelec
             <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 35, top: 0, bottom: 0 }}>
                 <XAxis type="number" hide domain={[minValue, maxValue]} />
                 <YAxis dataKey="name" type="category" hide />
-                <RechartsTooltip cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }} wrapperStyle={{ pointerEvents: 'auto' }} content={({ active, payload }) => {
+                <RechartsTooltip cursor={{ fill: 'rgba(28, 171, 206, 0.08)' }} wrapperStyle={{ pointerEvents: 'auto' }} content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                         const d = payload[0].payload;
                         return (

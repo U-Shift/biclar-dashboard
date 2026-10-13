@@ -41,8 +41,8 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 
     return (
         <div data-tour="sidebar-right" className={`
-            ${isMobile 
-                ? 'fixed inset-0 w-full max-h-none rounded-none z-[1005]' 
+            ${isMobile
+                ? 'fixed inset-0 w-full max-h-none rounded-none z-[1005]'
                 : 'absolute top-4 right-4 w-[360px] max-h-[calc(100vh-22rem)] rounded-[32px] z-[1001]'}
             flex flex-col ${isDarkMode ? 'bg-neutral-900/95 border-neutral-800' : 'bg-white/95 border-neutral-200'} 
             border shadow-2xl backdrop-blur-xl transition-all overflow-hidden
@@ -54,7 +54,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                     <section className="animate-in fade-in slide-in-from-right-4 duration-300">
                         <div className="flex items-center justify-between mb-5">
                             <h3 className="text-[12px] font-black opacity-30 uppercase tracking-[0.3em] flex items-center gap-2">
-                                <MapPin className="w-3.5 h-3.5 text-sky-800" /> {t('sidebar.area_details')}
+                                <MapPin className={`w-3.5 h-3.5 ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`} /> {t('sidebar.area_details')}
                             </h3>
                             <button
                                 onClick={() => setSelectedFeature(null)}
@@ -66,7 +66,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                         <div className="pt-1">
                             <div className="mb-6 flex justify-between items-end gap-3">
                                 <div className="flex-1 min-w-0">
-                                    <span className={`text-[13px] font-black ${isDarkMode ? 'text-sky-700' : 'text-sky-900'} uppercase tracking-[0.2em] block truncate`}>
+                                    <span className={`text-[13px] font-black ${isDarkMode ? 'text-secondary-green' : 'text-primary'} uppercase tracking-[0.2em] block truncate`}>
                                         {(() => {
                                             const parentLevel = (LEVEL_CONFIG as any)[viewLevel].parent;
                                             return (parentLevel && selectedFeature.group_id)
@@ -170,7 +170,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
                                                                             <span className="font-bold opacity-60 uppercase">{t(`modes.${p.name.toLowerCase()}`)}</span>
                                                                         </div>
-                                                                        <span className="font-black text-sky-800">{p.value.toFixed(0)}%</span>
+                                                                        <span className={`font-black ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`}>{p.value.toFixed(0)}%</span>
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -181,17 +181,17 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                 <Bar dataKey="car" stackId="a" fill={isColorBlindMode ? "#D55E00" : "#ef4444"} radius={[4, 0, 0, 4]}>
                                                     <LabelList dataKey="car" position="insideLeft" formatter={(v: any) => (typeof v === 'number' && v > 15) ? `${v.toFixed(0)}%` : ''} style={{ fontSize: '11px', fill: 'white', fontWeight: 'bold' }} />
                                                 </Bar>
-                                                <Bar dataKey="pt" stackId="a" fill={isColorBlindMode ? "#0072B2" : "#075985"} />
+                                                <Bar dataKey="pt" stackId="a" fill={isColorBlindMode ? "#0072B2" : "#8EA271"} />
                                                 <Bar dataKey="walk" stackId="a" fill={isColorBlindMode ? "#009E73" : "#10b981"} />
-                                                <Bar dataKey="bike" stackId="a" fill={isColorBlindMode ? "#F0E442" : "#eab308"} radius={[0, 4, 4, 0]} />
+                                                <Bar dataKey="bike" stackId="a" fill={isColorBlindMode ? "#F0E442" : "#ffdd00"} radius={[0, 4, 4, 0]} />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     </div>
                                     <div className="flex justify-between mt-2 px-1">
                                         <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#D55E00' : '#ef4444' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.car')}</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#0072B2' : '#075985' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.pt')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#0072B2' : '#8EA271' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.pt')}</span></div>
                                         <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#009E73' : '#10b981' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.walk')}</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#F0E442' : '#eab308' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.bike')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#F0E442' : '#ffdd00' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.bike')}</span></div>
                                     </div>
                                 </div>
                             )}
@@ -216,7 +216,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                     className="flex justify-between items-center text-[12px] hover:bg-neutral-800/30 p-1.5 rounded-lg transition-colors cursor-pointer"
                                                 >
                                                     <span className="opacity-50 w-36">{f.name}</span>
-                                                    <span className="font-bold text-sky-800">
+                                                    <span className={`font-bold ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`}>
                                                         {!isIgnored ?
                                                             selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, selectedMode.id)
                                                             : '—'
@@ -236,7 +236,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                 {!selectedFeature && !isMobile && (
                     <section className="animate-in fade-in slide-in-from-right-4 duration-300">
                         <h3 className="text-[12px] font-black opacity-30 uppercase tracking-[0.3em] mb-5 flex items-center gap-2">
-                            <TrendingUp className="w-3.5 h-3.5 text-sky-800" /> {t('sidebar.regional_contrast')}
+                            <TrendingUp className={`w-3.5 h-3.5 ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`} /> {t('sidebar.regional_contrast')}
                         </h3>
                         <div className="space-y-8">
                             <div>
@@ -287,7 +287,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 
 
 
-const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any, selectedVariations: any, viewLevel: any, isColorBlindMode: boolean) => {
+const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any, _selectedVariations: any, _viewLevel: any, isColorBlindMode: boolean) => {
     return FLAT_METRICS.filter(m =>
         m.showAlwaysOnDetails && m.id !== selectedMetricId
     )

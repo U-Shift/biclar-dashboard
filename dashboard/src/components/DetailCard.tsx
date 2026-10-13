@@ -2,7 +2,7 @@ import { Tooltip } from './Tooltip';
 
 export const DetailCard = ({ label, value, unit, color = "", isDark = true, hexColor, isFullWidth }: { label: string, value: string, unit?: string, color?: string, isDark?: boolean, hexColor?: string, isFullWidth?: boolean }) => (
     <div
-        className={`${isDark ? 'bg-neutral-800/60 border-neutral-700/30' : 'bg-neutral-50 border-neutral-100 shadow-sm'} rounded-2xl border transition-all hover:border-sky-800/30 flex flex-col overflow-hidden h-full ${isFullWidth ? 'ring-1 ring-sky-800/20' : ''}`}
+        className={`${isDark ? 'bg-neutral-800/60 border-neutral-700/30' : 'bg-neutral-50 border-neutral-100 shadow-sm'} rounded-2xl border transition-all hover:border-primary/40 dark:hover:border-secondary-green/30 flex flex-col overflow-hidden h-full ${isFullWidth ? 'ring-1 ring-primary/30' : ''}`}
     >
         <div className={`${isFullWidth ? 'p-6' : 'p-4'} flex-1 flex flex-col justify-between overflow-hidden`}>
             <div className="w-full relative">

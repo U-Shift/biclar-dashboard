@@ -1,8 +1,8 @@
 {
   "common": {
-    "impt_0": "Transportation",
-    "impt_1": "Poverty",
-    "impt_2": "Index",
+    "impt_0": "bicla",
+    "impt_1": "R",
+    "impt_2": "PARKING",
     "loading": "Loading dashboard...",
     "loading_note": "It takes a little longer the first time",
     "beta": "Beta",

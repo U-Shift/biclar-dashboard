@@ -1,4 +1,3 @@
-import React from 'react';
 import { MetricDef, ViewLevel, ScaleMethod } from './types';
 
 export const DATA_BASE_URL = 'https://ushift.tecnico.ulisboa.pt/content/impt/';
@@ -8,6 +7,14 @@ export const LEVEL_CONFIG: Record<ViewLevel, { file: string, parent?: ViewLevel,
     'municipality': { file: `${DATA_BASE_URL}municipios_dashboard.geojson`, download_geojson: `${DATA_BASE_URL}municipios_aggregated.geojson`, download_csv: `${DATA_BASE_URL}municipios_aggregated.csv` },
     'freguesia': { file: `${DATA_BASE_URL}freguesias_dashboard.geojson`, parent: 'municipality', download_geojson: `${DATA_BASE_URL}freguesias_aggregated.geojson`, download_csv: `${DATA_BASE_URL}freguesias_aggregated.csv` },
     'hex': { file: `${DATA_BASE_URL}grid_dashboard.geojson`, parent: 'freguesia', download_geojson: `${DATA_BASE_URL}grid_aggregated.geojson`, download_csv: `${DATA_BASE_URL}grid_aggregated.csv` }
+};
+
+export const THEME_COLORS = {
+    primary: '#001d06',
+    primaryLight: '#00330b',
+    primaryDark: '#001204',
+    secondary: '#ffdd00',
+    secondaryYellow: '#ffdd00',
 };
 
 export const COLORS = {
@@ -144,7 +151,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                         <ul className="text-[11px] space-y-1">
                             {list.slice(0, limit).map((item: string) => (
                                 <li key={item} className="opacity-80 flex items-start gap-2">
-                                    <span className="text-sky-800">•</span>
+                                    <span className="text-secondary-green">•</span>
                                     <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
                                 </li>
                             ))}
@@ -171,7 +178,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                         <ul className="text-[11px] space-y-1">
                             {list.slice(0, limit).map((item: string) => (
                                 <li key={item} className="opacity-80 flex items-start gap-2">
-                                    <span className="text-sky-800">•</span>
+                                    <span className="text-secondary-green">•</span>
                                     <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
                                 </li>
                             ))}
@@ -198,7 +205,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                         <ul className="text-[11px] space-y-1">
                             {list.slice(0, limit).map((item: string) => (
                                 <li key={item} className="opacity-80 flex items-start gap-2">
-                                    <span className="text-sky-800">•</span>
+                                    <span className="text-secondary-green">•</span>
                                     <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
                                 </li>
                             ))}

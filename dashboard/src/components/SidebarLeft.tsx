@@ -73,7 +73,7 @@ const AuxiliaryDataRenderer: React.FC<{
 
     if (loading) return (
         <div className="mt-2 p-3 animate-pulse bg-neutral-500/10 rounded-xl h-20 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-sky-800 border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-secondary-green border-t-transparent rounded-full animate-spin" />
         </div>
     );
     if (!data) return null;
@@ -128,8 +128,10 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                         <div className="flex items-center gap-3">
                             <img src="images/logo/icon.png" alt="Logo" className="w-10 h-10 object-contain" />
                             <div className="flex flex-col">
-                                <h1 className="text-sm font-black tracking-tighter uppercase leading-none">{t('common.impt_0')} <span className="text-sky-800">{t('common.impt_1')}</span> {t('common.impt_2')}</h1>
-                                <p className={`text-[10px] font-bold uppercase tracking-widest opacity-40 mt-1`}>{t('common.lma')}</p>
+                                <h1 className="text-sm font-black tracking-tighter leading-none">
+                                    {t('common.impt_0')}<span className="text-primary dark:text-secondary-green">{t('common.impt_1')}</span> <span className="text-secondary">{t('common.impt_2')}</span>
+                                </h1>
+                                <p className={`text-[10px] font-bold tracking-widest opacity-40 mt-1`}>{t('common.lma')}</p>
                             </div>
                         </div>
                     </div>
@@ -167,7 +169,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                         <div className="flex items-center gap-4 mb-6">
                             <img src="images/logo/icon.png" alt="Logo" className="w-12 h-12 object-contain" />
                             <div className="flex flex-col">
-                                <h1 className="text-base font-black tracking-tighter uppercase leading-none">{t('common.impt_0')} <span className="text-sky-800">{t('common.impt_1')}</span> {t('common.impt_2')}</h1>
+                                <h1 className="text-base font-black tracking-tighter uppercase leading-none">{t('common.impt_0')}<span className="text-primary dark:text-secondary-green">{t('common.impt_1')}</span> <span className="text-secondary">{t('common.impt_2')}</span></h1>
                                 <p className={`text-[12px] font-bold uppercase tracking-widest opacity-40 mt-1`}>{t('common.lma')}</p>
                             </div>
                         </div>
@@ -182,7 +184,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                             </Tooltip>
                             <Tooltip content={t('tooltips.toggle_colorblind')} isDarkMode={true}>
                                 <button data-tour="colorblind-toggle" onClick={() => setIsColorBlindMode(!isColorBlindMode)} className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
-                                    {isColorBlindMode ? <Eye className="w-5 h-5 text-sky-600" /> : <EyeOff className="w-5 h-5" />}
+                                    {isColorBlindMode ? <Eye className="w-5 h-5 text-secondary-green" /> : <EyeOff className="w-5 h-5" />}
                                 </button>
                             </Tooltip>
                             <Tooltip content={i18n.language === 'en' ? 'Português' : 'English'} isDarkMode={true}>
@@ -225,7 +227,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                             <button
                                 onClick={() => setActiveTab('index')}
                                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'index'
-                                    ? (isDarkMode ? 'bg-sky-800 text-white shadow-lg shadow-sky-900/20' : 'bg-white text-sky-900 shadow-sm')
+                                    ? (isDarkMode ? 'bg-primary text-secondary-yellow border border-secondary-yellow/30 shadow-lg shadow-primary/40' : 'bg-primary text-white shadow-md shadow-primary/20')
                                     : (isDarkMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-600')
                                     }`}
                             >
@@ -236,7 +238,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                 data-tour="tab-indicators"
                                 onClick={() => setActiveTab('indicators')}
                                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'indicators'
-                                    ? (isDarkMode ? 'bg-sky-800 text-white shadow-lg shadow-sky-900/20' : 'bg-white text-sky-900 shadow-sm')
+                                    ? (isDarkMode ? 'bg-primary text-secondary-yellow border border-secondary-yellow/30 shadow-lg shadow-primary/40' : 'bg-primary text-white shadow-md shadow-primary/20')
                                     : (isDarkMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-600')
                                     }`}
                             >
@@ -250,12 +252,12 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                         <section>
                             <div className="space-y-4">
                                 {(activeTab === 'index' ? indexCategories : indicatorCategories).map(cat => (
-                                    <div key={cat} data-tour={`section-${cat}`} className={`border rounded-2xl transition-all ${isDarkMode ? 'border-neutral-800 bg-neutral-800/10' : 'border-neutral-100 bg-neutral-50/30'} ${!collapsedSections[cat] ? 'ring-1 ring-sky-800/20' : ''}`}>
+                                    <div key={cat} data-tour={`section-${cat}`} className={`border rounded-2xl transition-all ${isDarkMode ? 'border-neutral-800 bg-neutral-800/10' : 'border-neutral-100 bg-neutral-50/30'} ${!collapsedSections[cat] ? 'ring-1 ring-primary/30' : ''}`}>
                                         <button onClick={() => toggleSection(cat)}
                                             className={`w-full flex items-center justify-between px-4 py-3.5 text-[12px] font-black uppercase tracking-widest transition-colors ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-600'}`}
                                         >
                                             <span className="flex items-center gap-2">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${selectedMetric.category === cat ? 'bg-sky-800 shadow-[0_0_8px_rgba(99,102,241,0.5)]' : 'bg-neutral-700'}`} />{t(cat)}
+                                                <div className={`w-1.5 h-1.5 rounded-full ${selectedMetric.category === cat ? 'bg-secondary-yellow shadow-[0_0_8px_rgba(28,171,206,0.6)]' : 'bg-neutral-700'}`} />{t(cat)}
                                             </span>
                                             <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${collapsedSections[cat] ? '' : 'rotate-180'}`} />
                                         </button>
@@ -300,7 +302,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                             }
                                                         }}
                                                             className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${isSelected
-                                                                ? 'bg-sky-900 text-white shadow-lg'
+                                                                ? 'bg-primary text-white shadow-lg ring-1 ring-secondary-yellow/30'
                                                                 : (isDarkMode ? 'hover:bg-neutral-800 text-neutral-500' : 'hover:bg-neutral-100 text-neutral-500')}`}
                                                         >
                                                             <span className="flex items-center gap-3">
@@ -343,7 +345,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                                     {t(`variations.${group}`)}
                                                                                 </label>
                                                                                 {isSlider && (
-                                                                                    <span className="text-[11px] font-black text-sky-800">
+                                                                                    <span className={`text-[11px] font-black ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`}>
                                                                                         {t(`variations.${selectedOpt}`)}
                                                                                     </span>
                                                                                 )}
@@ -385,7 +387,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                                                 return next;
                                                                                             });
                                                                                         }}
-                                                                                        className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-sky-800"
+                                                                                        className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-primary"
                                                                                     />
                                                                                 </div>
                                                                             ) : (
@@ -423,7 +425,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                                                     });
                                                                                                 }}
                                                                                                 className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${isOptSelected
-                                                                                                    ? 'bg-sky-800 text-white shadow-sm'
+                                                                                                    ? 'bg-primary text-white shadow-sm ring-1 ring-secondary-yellow/30'
                                                                                                     : (isDarkMode ? 'bg-neutral-800 text-neutral-500 hover:text-neutral-300' : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200')}`}
                                                                                             >
                                                                                                 {t(`variations.${opt}`)}
@@ -459,15 +461,15 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                             <section data-tour="dynamic-weights-section" className={`p-6 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
                                                 <div className="flex items-center justify-between mb-4">
                                                     <h4 className={`text-[13px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5 ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>
-                                                        <Activity className="w-3 h-3 text-sky-800" /> {t('sidebar.dimension_weighting')}
+                                                        <Activity className={`w-3 h-3 ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`} /> {t('sidebar.dimension_weighting')}
                                                     </h4>
                                                     <div className="flex items-center gap-3">
                                                         <Tooltip content={t('tooltips.tutorial')} isDarkMode={isDarkMode}>
-                                                            <button onClick={() => startTutorial?.('dynamic')} className="text-sky-800 hover:text-sky-700 transition-colors p-1 rounded-lg hover:bg-sky-800/10">
+                                                            <button onClick={() => startTutorial?.('dynamic')} className={`${isDarkMode ? 'text-secondary-green hover:bg-secondary-yellow/10' : 'text-primary hover:bg-primary/10'} transition-colors p-1 rounded-lg`}>
                                                                 <HelpCircle className="w-4 h-4" />
                                                             </button>
                                                         </Tooltip>
-                                                        <button onClick={resetWeights} className="text-[13px] font-bold text-sky-800 hover:text-sky-700 uppercase tracking-widest transition-colors">
+                                                        <button onClick={resetWeights} className={`text-[13px] font-bold ${isDarkMode ? 'text-secondary-green hover:text-secondary-yellow' : 'text-primary hover:opacity-80'} uppercase tracking-widest transition-colors`}>
                                                             {t('common.reset')}
                                                         </button>
                                                     </div>
@@ -478,13 +480,13 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                         <div key={m.id} className="space-y-2">
                                                             <div className="flex justify-between items-center text-[12px] font-bold">
                                                                 <span className={isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}>{m.icon} {t(m.label)}</span>
-                                                                <span className="text-sky-800 font-black">{weights[m.id]?.toFixed(2)}</span>
+                                                                <span className={`font-black ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`}>{weights[m.id]?.toFixed(2)}</span>
                                                             </div>
                                                             <input
                                                                 type="range" min="0" max="1" step="0.05"
                                                                 value={weights[m.id] || 0}
                                                                 onChange={(e) => setWeights((prev: any) => ({ ...prev, [m.id]: parseFloat(e.target.value) }))}
-                                                                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-sky-800"
+                                                                className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-primary"
                                                             />
                                                         </div>
                                                     ))}
@@ -501,9 +503,9 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                     </button>
                                                 )}
 
-                                                <div data-tour="ahp-recommendation" className={`p-4 rounded-2xl border ${isDarkMode ? 'bg-sky-800/5 border-sky-800/10' : 'bg-sky-50 border-sky-100'}`}>
+                                                <div data-tour="ahp-recommendation" className={`p-4 rounded-2xl border ${isDarkMode ? 'bg-primary/30 border-primary-light/40' : 'bg-primary/5 border-primary/15'}`}>
                                                     <p className={`text-[12px] leading-relaxed mb-4 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                                                        <strong className="text-sky-800 uppercase tracking-wider">{t('sidebar.ahp_methodology')}</strong><br />
+                                                        <strong className={`${isDarkMode ? 'text-secondary-green' : 'text-primary'} uppercase tracking-wider`}>{t('sidebar.ahp_methodology')}</strong><br />
                                                         {(() => {
                                                             const text = t('sidebar.ahp_description');
                                                             return text.replace('<1>', '').replace('</1>', '');
@@ -511,7 +513,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                     </p>
                                                     <button
                                                         onClick={() => setIsAHPModalOpen(true)}
-                                                        className="w-full py-2.5 rounded-xl bg-sky-900 hover:bg-sky-800 text-white text-[12px] font-bold uppercase tracking-widest shadow-lg shadow-sky-800/20 transition-all flex items-center justify-center gap-2"
+                                                        className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-light text-white text-[12px] font-bold uppercase tracking-widest shadow-lg shadow-primary/30 border border-secondary-yellow/20 transition-all flex items-center justify-center gap-2"
                                                     >
                                                         {t('sidebar.start_ahp')}
                                                     </button>

@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #001d06;
+  --color-primary-light: #00330b;
+  --color-secondary: #ffdd00;
+  --color-secondary-yellow: #ffdd00;
+  --color-secondary-green: #8EA271;
+  --color-secondary-green: #8EA271;
+}
+
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -30,6 +39,6 @@ body {
 
 
 .dark [data-tooltip]::before {
-    background: rgba(10, 10, 10, 0.98);
-    border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(10, 10, 10, 0.98);
+  border-color: rgba(255, 255, 255, 0.1);
 }

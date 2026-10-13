@@ -104,7 +104,7 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
                                 className={`
                                     flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all
                                     ${value === option.id
-                                        ? 'bg-sky-900 text-white shadow-lg'
+                                        ? 'bg-primary text-white shadow-lg ring-1 ring-secondary-yellow/30'
                                         : `${isDark ? 'text-neutral-500 hover:bg-white/5 hover:text-neutral-200' : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-800'}`}
                                 `}
                             >

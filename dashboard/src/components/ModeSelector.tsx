@@ -30,7 +30,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({ value, options, onCh
                             className={`
                                 w-11 h-11 rounded-[18px] flex items-center justify-center transition-all duration-300 relative group
                                 ${isActive
-                                    ? 'bg-sky-800 text-white shadow-lg shadow-sky-900/20 scale-105'
+                                    ? 'bg-primary text-white shadow-lg shadow-primary/30 ring-1 ring-secondary-yellow/30 scale-105'
                                     : `${isDark ? 'text-neutral-500 hover:bg-white/5 hover:text-neutral-200' : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-800'}`
                                 }
                             `}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Joyride, Step, EventData, STATUS, Placement } from 'react-joyride';
 import { useTranslation } from 'react-i18next';
-import { Languages, PlayCircle, Sidebar } from 'lucide-react';
+import { Languages } from 'lucide-react';
 
 interface TutorialProps {
     isDarkMode: boolean;
@@ -264,7 +264,7 @@ export const Tutorial: React.FC<TutorialProps> = ({
                             <button onClick={handleSkip} className={`flex-1 py-3 rounded-xl font-bold transition-colors ${isDarkMode ? 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300' : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600'}`}>
                                 {t('tutorial.btn_skip')}
                             </button>
-                            <button onClick={handleStart} className="flex-1 py-3 rounded-xl font-bold bg-sky-800 hover:bg-sky-700 text-white shadow-lg shadow-sky-800/20 transition-all">
+                            <button onClick={handleStart} className="flex-1 py-3 rounded-xl font-bold bg-primary hover:bg-primary-light text-white shadow-lg shadow-primary/30 border border-secondary-yellow/20 transition-all">
                                 {t('tutorial.btn_start')}
                             </button>
                         </div>
@@ -278,7 +278,7 @@ export const Tutorial: React.FC<TutorialProps> = ({
                 onEvent={handleJoyrideCallback}
                 options={{
                     zIndex: 1010,
-                    primaryColor: '#075985',
+                    primaryColor: '#001d06',
                     backgroundColor: isDarkMode ? '#171717' : '#ffffff',
                     textColor: isDarkMode ? '#f5f5f5' : '#171717',
                     arrowColor: isDarkMode ? '#171717' : '#ffffff',
@@ -290,7 +290,8 @@ export const Tutorial: React.FC<TutorialProps> = ({
                         textAlign: 'left',
                     },
                     buttonPrimary: {
-                        backgroundColor: '#075985',
+                        backgroundColor: '#001d06',
+                        color: '#ffffff',
                         borderRadius: '8px',
                         fontFamily: 'inherit',
                         fontWeight: 'bold',
