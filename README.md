@@ -1,4 +1,4 @@
-# biclaR Parking
+# biclaR Parking <img align="right" src="dashboard/public/images/logo/logo_horizontal.png" alt="logo" width="200" style="margin-top: 50px">
 
 Web GIS dashboard for biclaR strategic cycle infrastructure planning tool
 
