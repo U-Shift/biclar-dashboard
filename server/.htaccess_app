@@ -1,2 +1,4 @@
+# /afs/.ist.utl.pt/groups/ushift/web/apps/biclar
+
 RewriteEngine On
 RewriteRule ^/?(.*)$ https://u-shift.github.io/biclar-dashboard/$1 [R=301,L]
