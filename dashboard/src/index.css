@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: 'Lexend', system-ui, -apple-system, sans-serif;
   --color-primary: #001d06;
   --color-primary-light: #00330b;
   --color-secondary: #ffdd00;
@@ -10,7 +11,7 @@
 }
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Lexend', system-ui, -apple-system, sans-serif;
 }
 
 body {

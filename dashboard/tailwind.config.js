@@ -6,6 +6,9 @@ export default {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['Lexend', 'system-ui', 'sans-serif'],
+            },
             colors: {
                 primary: {
                     DEFAULT: '#001d06',
