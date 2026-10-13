@@ -37,6 +37,7 @@ export const Tutorial: React.FC<TutorialProps> = ({
             content: t('tutorial.step_1'),
             sidebar: 'closed'
         } as any,
+        /*
         ...(isMobile ? [{
             target: '[data-tour="mobile-menu-btn"]',
             content: t('tutorial.mobile_step_menu'),
@@ -142,6 +143,7 @@ export const Tutorial: React.FC<TutorialProps> = ({
             sidebar: 'closed',
             placement: 'center'
         } as any
+         */
     ];
 
     const dynamicSteps: Step[] = [
