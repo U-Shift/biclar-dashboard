@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Github, Files, Tags, Quote, IdCard } from 'lucide-react';
+import { X, IdCard, Github } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface AboutModalProps {
@@ -9,7 +9,7 @@ interface AboutModalProps {
 }
 
 export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout, isDarkMode }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     if (!showAbout) return null;
 
     return (<div className="fixed inset-0 z-[5000] lg:flex lg:items-center lg:justify-center bg-black/85 backdrop-blur-xl p-0 lg:p-8" onClick={() => setShowAbout(false)}>
@@ -60,6 +60,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                 <div className="pt-6 pb-4">
                     <h3 className='text-lg lg:text-xl font-bold tracking-tighter mb-3'>{t('about.useful_links')}</h3>
                     <div className="pt-3 grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4 pt-0 uppercase text-sm lg:text-base font-bold tracking-widest leading-relaxed opacity-60">
+                        {/*
                         <a href="https://u-shift.github.io/IMPT-data/" target='_blank' rel='noreferrer' className="leading-none flex items-center gap-3 p-4 lg:p-4 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
                             <Files className="w-5 h-5 text-secondary-green" /> <span>{t('about.methodological_report')}</span>
                         </a>
@@ -69,10 +70,11 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                         <a href="https://u-shift.github.io/IMPT-data/about.html#cite-as" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-4 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
                             <Quote className="w-5 h-5 text-secondary-green" /> <span>{t('about.cite_as')}</span>
                         </a>
-                        <a href="https://github.com/U-Shift/IMPT" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-4 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
+                        */}
+                        <a href="https://github.com/U-Shift/biclar-dashboard" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-4 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
                             <Github className="w-5 h-5 text-secondary-green" /> <span>{t('about.source_code_web')}</span>
                         </a>
-                        <a href="https://github.com/U-Shift/IMPT-data" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-3 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
+                        <a href="https://github.com/U-Shift/biclar-parking" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-3 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
                             <Github className="w-5 h-5 text-secondary-green" /> <span>{t('about.source_code_data')}</span>
                         </a>
                     </div>
@@ -84,16 +86,14 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                     <p className='flex opacity-60'>{t('about.authors_paragraph')} </p>
                     <h4 className="opacity-60 text-md lg:text-lg font-black tracking-tighter mt-3"><a href='https://ushift.pt' target='_blank'>U-Shift Lab, Instituto Superior Técnico</a></h4>
                     <p className='flex flex-wrap opacity-60'>Filipe Moura <a className='ml-1' href="https://orcid.org/0000-0001-7749-8490" target='_blank'><IdCard /></a>,
-                        Rosa Félix <a className='ml-1' href="https://orcid.org/0000-0002-5642-6006" target='_blank'><IdCard /></a>,
-                        Mauricio Orozco-Fontalvo <a className='ml-1' href="https://orcid.org/0000-0003-0514-4647" target='_blank'><IdCard /></a>,
                         Gonçalo F. Matos <a className='ml-1' href="https://orcid.org/0009-0001-3489-1732" target='_blank'><IdCard /></a>,
-                        Miguel Alvelos,
-                        Margarida Pimentel
+                        Miguel Alvelos
                     </p>
                     <h4 className="opacity-60 text-md lg:text-lg font-black tracking-tighter mt-3"><a href='https://www.tmlmobilidade.pt/' target='_blank'>Transportes Metropolitanos de Lisboa (TML)</a></h4>
                     <p className='flex flex-wrap opacity-60'>
-                        Camila Garcia <a className='ml-1' href="https://orcid.org/0000-0002-1114-0979" target='_blank'><IdCard /></a>,
-                        Catarina Marcelino
+                        Olinda Pereira,
+                        Rosa Félix <a className='ml-1' href="https://orcid.org/0000-0002-5642-6006" target='_blank'><IdCard /></a>,
+                        Luísa Nogueira.
                     </p>
                     <img src='images/logo_acknowledgement_tml.png' className='mt-6' />
                 </div>
@@ -102,7 +102,11 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                 <div className='pt-6 pb-4'>
                     <h3 className="text-lg lg:text-xl font-black tracking-tighter mb-3">{t('about.funding_section')}</h3>
                     <p className='flex opacity-60'>{t('about.funding_paragraph')}</p>
-                    <img src='images/logo_planapp.png' className='mt-6' />
+                    <img
+                        src={i18n.language === 'pt' ? 'images/logo_althea_pt.png' : 'images/logo_althea.png'}
+                        alt="Funding Logo"
+                        className='mt-6 w-125'
+                    />
                 </div>
 
                 {/* Footer */}

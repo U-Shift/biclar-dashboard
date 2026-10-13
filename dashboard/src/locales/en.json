@@ -387,8 +387,8 @@
   "about": {
     "title": "IMPT",
     "title_desc": "Index for Monitoring Transport Poverty",
-    "p1": "Transport poverty refers to an individual or household inability to access essential services, opportunities, and social participation due to limited, inadequate, unaffordable, unreliable or non-existent means of transport (Mejía Dorantes and Murauskaite-Bull, 2022). However, due to the lack of a universal definition and its multidimensional nature the identification and measurement of transport poverty can be challenging.",
-    "p2": "This project aims to tackle this challenge by developing a multidimensional index that enables its measurement and monitoring over time at both national and regional levels, with the aim of identifying priority areas for intervention and supporting a just mobility transition.",
+    "p1": "Available soon....",
+    "p2": "",
     "about_section": "About",
     "useful_links": "Useful links",
     "authors_section": "Authors",
@@ -402,7 +402,7 @@
     "funded_by": "Funded by",
     "copyright": "U-Shift, CERIS, Instituto Superior Técnico, University of Lisbon",
     "funding_section": "Funding",
-    "funding_paragraph": "This research was funded by Science4Policy, a PLANAPP - Centre for Planning and Evaluation of Public Policies iniciative to support the definition and implementation of public policies based on scientific evidence."
+    "funding_paragraph": "This research was developed within the scope of the Althea project, funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Executive Agency (REA). Neither the European Union nor the granting authority can be held responsible for them."
   },
   "ahp": {
     "survey_title": "Dimension Survey",
