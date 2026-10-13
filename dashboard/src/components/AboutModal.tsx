@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, IdCard, Github } from 'lucide-react';
+import { X, IdCard, Github, Bike } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface AboutModalProps {
@@ -74,8 +74,11 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                         <a href="https://github.com/U-Shift/biclar-dashboard" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-4 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
                             <Github className="w-5 h-5 text-secondary-green" /> <span>{t('about.source_code_web')}</span>
                         </a>
-                        <a href="https://github.com/U-Shift/biclar-parking" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-3 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
+                        <a href="https://github.com/U-Shift/biclar-parking" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-4 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
                             <Github className="w-5 h-5 text-secondary-green" /> <span>{t('about.source_code_data')}</span>
+                        </a>
+                        <a href="https://biclar.tmlmobilidade.pt/index/" target="_blank" rel="noreferrer" className="leading-none flex items-center gap-3 p-4 lg:p-4 rounded-2xl border border-neutral-800 hover:bg-primary hover:text-white transition-all hover:border-primary hover:scale-[1.02] active:scale-95">
+                            <Bike className="w-5 h-5 text-secondary-green" /> <span>{t('about.biclar_network')}</span>
                         </a>
                     </div>
                 </div>
