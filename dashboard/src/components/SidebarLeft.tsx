@@ -125,14 +125,23 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
             {isMobile && (
                 <div className="fixed top-4 left-4 z-[1002] flex flex-col gap-3 pointer-events-none">
                     <div className={`p-4 rounded-[24px] shadow-xl backdrop-blur-md border pointer-events-auto ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-200'}`}>
-                        <div className="flex items-center gap-3">
-                            <img src="images/logo/icon.png" alt="Logo" className="w-10 h-10 object-contain" />
+                        <div className="flex items-end justify-between gap-3">
                             <div className="flex flex-col">
                                 <h1 className="text-sm font-black tracking-tighter leading-none">
-                                    {t('common.impt_0')}<span className="text-primary dark:text-secondary-green">{t('common.impt_1')}</span> <span className="text-secondary">{t('common.impt_2')}</span>
+                                    {t('common.impt_0')}<span className="text-primary dark:text-secondary-green">{t('common.impt_1')}</span> <span
+                                        className="text-secondary"
+                                        style={!isDarkMode ? {
+                                            textShadow: '0 0 3px rgba(0, 0, 0, 0.45), 0 0 6px rgba(0, 0, 0, 0.3)',
+                                        } : undefined}
+                                    >{t('common.impt_2')}</span>
                                 </h1>
                                 <p className={`text-[10px] font-bold tracking-widest opacity-40 mt-1`}>{t('common.lma')}</p>
                             </div>
+                            <img
+                                src={isDarkMode ? "images/logo/logo_horizontal_dark.png" : "images/logo/logo_horizontal.png"}
+                                alt="Logo"
+                                className="h-6 max-w-[100px] object-contain self-end"
+                            />
                         </div>
                     </div>
                     <button
@@ -166,12 +175,21 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
             `}>
                 <div className={`p-6 border-b ${isDarkMode ? 'border-neutral-800' : 'border-neutral-100'} ${isMobile ? 'pt-40' : ''}`}>
                     {!isMobile && (
-                        <div className="flex items-center gap-4 mb-6">
-                            <img src="images/logo/icon.png" alt="Logo" className="w-12 h-12 object-contain" />
+                        <div className="flex items-end justify-between gap-4 mb-6">
                             <div className="flex flex-col">
-                                <h1 className="text-base font-black tracking-tighter uppercase leading-none">{t('common.impt_0')}<span className="text-primary dark:text-secondary-green">{t('common.impt_1')}</span> <span className="text-secondary">{t('common.impt_2')}</span></h1>
-                                <p className={`text-[12px] font-bold uppercase tracking-widest opacity-40 mt-1`}>{t('common.lma')}</p>
+                                <h1 className="text-base font-black tracking-tighter leading-none">{t('common.impt_0')}<span className="text-primary dark:text-secondary-green">{t('common.impt_1')}</span> <span
+                                    className="text-secondary"
+                                    style={!isDarkMode ? {
+                                        textShadow: '0 0 3px rgba(0, 0, 0, 0.45), 0 0 6px rgba(0, 0, 0, 0.3)',
+                                    } : undefined}
+                                >{t('common.impt_2')}</span></h1>
+                                <p className={`text-[12px] font-bold tracking-widest opacity-40 mt-1`}>{t('common.lma')}</p>
                             </div>
+                            <img
+                                src={isDarkMode ? "images/logo/logo_horizontal_dark.png" : "images/logo/logo_horizontal.png"}
+                                alt="Logo"
+                                className="h-8 max-w-[130px] object-contain self-end"
+                            />
                         </div>
                     )}
 

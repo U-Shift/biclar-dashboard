@@ -253,7 +253,11 @@ export const Tutorial: React.FC<TutorialProps> = ({
             {showPrompt && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className={`p-8 rounded-[32px] max-w-sm w-full mx-4 shadow-2xl border ${isDarkMode ? 'bg-neutral-900/95 border-neutral-800 text-white' : 'bg-white/95 border-neutral-200 text-neutral-900'}`}>
-                        <img src="images/logo/logo.png" alt="IMPT Logo" className="h-12 lg:h-16 mb-4" />
+                        <img
+                            src={isDarkMode ? "images/logo/logo_horizontal_dark.png" : "images/logo/logo_horizontal.png"}
+                            alt="Logo"
+                            className="h-12 lg:h-16 mb-4 object-contain"
+                        />
                         <h2 className="text-xl font-black mb-4 uppercase tracking-tight">{t('tutorial.title_welcome')}</h2>
                         <p className={`mb-8 font-medium leading-relaxed ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>{t('tutorial.prompt_tour')}</p>
                         <div className="flex gap-4">

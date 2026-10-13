@@ -24,12 +24,23 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                 <button onClick={() => setShowAbout(false)} className="absolute top-6 right-6 lg:top-10 lg:right-10 p-3 hover:bg-neutral-200/20 rounded-full transition-colors flex items-center justify-center z-10">
                     <X className="w-6 h-6 opacity-40 text-neutral-500" />
                 </button>
-                <div className="flex items-center gap-4 lg:gap-6">
-                    <img src="images/logo/icon.png" alt="IMPT Logo" className="w-12 h-12 lg:w-16 lg:h-16" />
+                <div className="flex items-end justify-between gap-4 lg:gap-6 pr-12 lg:pr-16">
                     <div>
-                        <h2 className="text-2xl lg:text-3xl font-black leading-none tracking-tighter">IMPT</h2>
-                        <p className="text-neutral-500 font-black text-[10px] lg:text-[12px] uppercase tracking-[0.4em] mt-2 lg:mt-3">{t('about.title_desc')}</p>
+                        <h2 className="text-2xl lg:text-3xl font-black leading-none tracking-tighter">
+                            {t('common.impt_0')}<span className="text-primary dark:text-secondary-green">{t('common.impt_1')}</span> <span
+                                className="text-secondary"
+                                style={!isDarkMode ? {
+                                    textShadow: '0 0 3px rgba(0, 0, 0, 0.45), 0 0 6px rgba(0, 0, 0, 0.3)',
+                                } : undefined}
+                            >{t('common.impt_2')}</span>
+                        </h2>
+                        <p className="text-neutral-500 font-bold text-[10px] lg:text-[12px] tracking-widest opacity-40 mt-2 lg:mt-3">{t('common.lma')}</p>
                     </div>
+                    <img
+                        src={isDarkMode ? "images/logo/logo_horizontal_dark.png" : "images/logo/logo_horizontal.png"}
+                        alt="Logo"
+                        className="h-8 lg:h-10 max-w-[150px] object-contain self-end"
+                    />
                 </div>
             </div>
 
