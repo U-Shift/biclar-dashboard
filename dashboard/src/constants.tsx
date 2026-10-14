@@ -115,7 +115,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _mode) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue,
-            default: true
+            default: true,
+            showAlwaysOnDetails: true
         }
     ],
     'metrics.categories.census_landuse': [
