@@ -1,12 +1,12 @@
 import { MetricDef, ViewLevel, ScaleMethod } from './types';
 
-export const DATA_BASE_URL = 'https://ushift.tecnico.ulisboa.pt/content/impt/';
+export const DATA_BASE_URL = 'https://ushift.tecnico.ulisboa.pt/content/biclar/';
 export const AHP_SURVEY_URL = "https://script.google.com/macros/s/AKfycbx1F1XmBbgTDu0WKiRtR6I4ocouXsnVKMDz1DHuMjx79kgfQzP1M8-A-NPL4CjlugmL/exec";
 
 export const LEVEL_CONFIG: Record<ViewLevel, { file: string, parent?: ViewLevel, download_geojson: string, download_csv: string }> = {
-    'municipality': { file: `${DATA_BASE_URL}municipios_dashboard.geojson`, download_geojson: `${DATA_BASE_URL}municipios_aggregated.geojson`, download_csv: `${DATA_BASE_URL}municipios_aggregated.csv` },
-    'freguesia': { file: `${DATA_BASE_URL}freguesias_dashboard.geojson`, parent: 'municipality', download_geojson: `${DATA_BASE_URL}freguesias_aggregated.geojson`, download_csv: `${DATA_BASE_URL}freguesias_aggregated.csv` },
-    'hex': { file: `${DATA_BASE_URL}grid_dashboard.geojson`, parent: 'freguesia', download_geojson: `${DATA_BASE_URL}grid_aggregated.geojson`, download_csv: `${DATA_BASE_URL}grid_aggregated.csv` }
+    // 'municipality': { file: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_geojson: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_csv: `${DATA_BASE_URL}municipalities_dashboard.csv` },
+    'freguesia': { file: `${DATA_BASE_URL}parishes_dashboard.geojson`, parent: 'municipality', download_geojson: `${DATA_BASE_URL}parishes_dashboard.geojson`, download_csv: `${DATA_BASE_URL}parishes_dashboard.csv` },
+    'hex': { file: `${DATA_BASE_URL}grid_dashboard.geojson`, parent: 'freguesia', download_geojson: `${DATA_BASE_URL}grid_dashboard.geojson`, download_csv: `${DATA_BASE_URL}grid_dashboard.csv` }
 };
 
 export const THEME_COLORS = {
@@ -102,6 +102,51 @@ export const logarithmicScale: ScaleMethod = (values, steps = 5) => {
 };
 
 const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
+    'metrica.categories.models': [
+        {
+            id: 'model_mr{type}',
+            id_variations: {
+                type: {
+                    options: ['_parking_residential_min', '_parking_residential_max', '_ratio_residential_min', '_ratio_residential_max']
+                }
+            },
+            label: 'metrics.models.mr.label',
+            description: 'metrics.models.mr.description',
+            format: (v, _min, _max, _mode) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToBlue,
+            default: true
+        }
+    ],
+    'metrics.categories.census_landuse': [
+        {
+            id: 'dasymetric{population_type}',
+            id_variations: {
+                population_type: {
+                    options: ['_population', '_adults', '_youth', '_elderly', '_women']
+                }
+            },
+            label: 'metrics.census_landuse.dasymetric_population.label',
+            description: 'metrics.census_landuse.dasymetric_population.description',
+            format: (v, _min, _max, _mode) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToBlue
+        },
+        {
+            id: 'dasymetric{buildings_type}',
+            id_variations: {
+                buildings_type: {
+                    options: ['_buildings', '_buildings_pre1945']
+                }
+            },
+            label: 'metrics.census_landuse.dasymetric_buildings.label',
+            description: 'metrics.census_landuse.dasymetric_buildings.description',
+            format: (v, _min, _max, _mode) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToBlue
+        }
+    ]
+    /*
     'metrics.categories.mobility_poverty_index': [
         {
             id: 'IMPT_entropy_pca',
@@ -118,8 +163,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.impt_geom.description',
             format: (v, _min, _max, _mode) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed,
-            default: true
+            pallete: COLORS.GreenToRed
             //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
         },
         {
@@ -717,6 +761,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             ]
         }
     ]
+        */
 };
 
 export const METRICS = Object.freeze(
@@ -733,8 +778,8 @@ export const FLAT_METRICS = Object.values(METRICS).flat();
 
 export const REGIONS = {
     'metropolis': { name: "regions.metropolis", center: [38.74, -9.10], zoom: 11 },
-    'PT1B': { name: "regions.grand_lisbon", center: [38.85, -9.15], zoom: 11 },
-    'PT1A': { name: "regions.setubal_peninsula", center: [38.65, -8.90], zoom: 11 }
+    'PT1A': { name: "regions.grand_lisbon", center: [38.85, -9.15], zoom: 11 },
+    'PT1B': { name: "regions.setubal_peninsula", center: [38.65, -8.90], zoom: 11 }
 } as const;
 
 export const MODES = [

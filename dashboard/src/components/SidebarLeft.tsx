@@ -114,8 +114,8 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     }, [activeTab, collapsedSections, selectedMetric, startTutorial]);
 
     const categories = Object.keys(METRICS);
-    const indexCategories = categories.slice(0, 2);
-    const indicatorCategories = categories.slice(2);
+    const indexCategories = categories.slice(0, 1);
+    const indicatorCategories = categories.slice(1);
 
     const handleToggle = () => setIsOpen?.(!isOpen);
 
