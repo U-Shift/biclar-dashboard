@@ -45,6 +45,7 @@
   "map": {
     "view_level": "View Level",
     "region": "Region",
+    "global_filter": "Global Filter",
     "mode": "Mode",
     "local_rescaling": "Local Rescaling",
     "global_scale": "Global Scale",
@@ -83,12 +84,19 @@
       "safety": "Safety",
       "affordability": "Affordability",
       "top_contributors": "Top Contributors",
+      "models": "Predictive Models",
       "cos_builtarea_title": "Buildings",
       "cos_builtarea_desc": "Building Classes",
       "cos_builtarea_cat_vertical": "Continuous Vertical",
       "cos_builtarea_cat_horizontal": "Continuous Horizontal",
       "cos_builtarea_cat_discontinuous": "Discontinuous",
       "cos_builtarea_cat_other": "Sparse Discontinuous"
+    },
+    "models": {
+      "mr": {
+        "label": "Bicycle Parking Demand Model",
+        "description": "Estimated demand for bicycle parking facilities based on commuting models"
+      }
     },
     "impt_entropy": {
       "label": "IMPT contrasting",
@@ -370,6 +378,19 @@
   },
   "filters_global": {
     "all": "All",
+    "all_pass": "All (with Navegante)",
+    "all_no_pass": "All (without Navegante)",
+    "bike": "Bike",
+    "car": "Car",
+    "pt": "PT",
+    "pt_pass": "PT (with Navegante)",
+    "pt_no_pass": "PT (without Navegante)",
+    "walk": "Walk",
+    "segregated": "Segregated Cycleway",
+    "all_pt": "All PT",
+    "metrolr_pt": "Metro/Light rail",
+    "trainferry_pt": "Train/Ferry",
+    "bus_pt": "Bus",
     "min": "Minimum",
     "max": "Maximum"
   },

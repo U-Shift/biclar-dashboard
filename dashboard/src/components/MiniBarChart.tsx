@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { MetricDef } from '../types';
-import { GlobalFilterId, ModeId } from '../constants';
+import { GlobalFilterId } from '../constants';
 
-export const MiniBarChart = ({ data, metric, selectedFilter, selectedMode, isDark, type: _type, onSelect }: { data: any[], metric: MetricDef, selectedFilter?: GlobalFilterId, selectedMode?: ModeId, isDark: boolean, type?: 'highest' | 'lowest', onSelect?: (id: string | number) => void }) => {
-    const activeFilter = selectedFilter || selectedMode || 'all';
+export const MiniBarChart = ({ data, metric, selectedFilter, isDark, type: _type, onSelect }: { data: any[], metric: MetricDef, selectedFilter?: GlobalFilterId, isDark: boolean, type?: 'highest' | 'lowest', onSelect?: (id: string | number) => void }) => {
+    const activeFilter = selectedFilter || 'all';
 
     // Enhance data with a max value for the "ghost" bar that holds labels
     const minValue = useMemo(() => Math.min(...data.map(d => d.value), 0), [data]);

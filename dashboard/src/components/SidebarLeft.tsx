@@ -29,7 +29,6 @@ interface SidebarLeftProps {
     setSelectedVariations: (val: any) => void;
     discoveredVariations: Record<string, string>[];
     selectedGlobalFilter?: { id: string };
-    selectedMode?: { id: string };
     viewLevel: string;
     showBuiltArea: boolean;
     setShowBuiltArea: (val: boolean) => void;
@@ -40,10 +39,8 @@ interface SidebarLeftProps {
     setNutFilter?: (val: any) => void;
     setViewLevel?: (val: any) => void;
     setSelectedGlobalFilterId?: (val: any) => void;
-    setSelectedModeId?: (val: any) => void;
     isMetricAvailable?: (m: string, l: string, filter?: any) => boolean;
     isGlobalFilterAvailable?: (filterId: string, m: string, l: string) => boolean;
-    isModeAvailable?: (mo: string, m: string, l: string) => boolean;
     mapStyle: string;
     setMapStyle: (val: string) => void;
     onZoomIn?: () => void;
@@ -91,17 +88,17 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     collapsedSections, toggleSection,
     weights, setWeights, resetWeights, setIsAHPModalOpen,
     selectedVariations, setSelectedVariations,
-    discoveredVariations, selectedGlobalFilter, selectedMode, viewLevel,
+    discoveredVariations, selectedGlobalFilter, viewLevel,
     showBuiltArea, setShowBuiltArea,
     isMobile, isOpen, setIsOpen,
-    nutFilter, setNutFilter, setViewLevel, setSelectedGlobalFilterId, setSelectedModeId,
-    isMetricAvailable, isGlobalFilterAvailable, isModeAvailable,
+    nutFilter, setNutFilter, setViewLevel, setSelectedGlobalFilterId,
+    isMetricAvailable, isGlobalFilterAvailable,
     mapStyle, setMapStyle,
     onZoomIn, onZoomOut, onDownloadAHP
 }) => {
-    const activeFilter = selectedGlobalFilter || selectedMode || { id: 'all' };
-    const setActiveFilterId = setSelectedGlobalFilterId || setSelectedModeId;
-    const checkFilterAvailable = isGlobalFilterAvailable || isModeAvailable;
+    const activeFilter = selectedGlobalFilter || { id: 'all' };
+    const setActiveFilterId = setSelectedGlobalFilterId;
+    const checkFilterAvailable = isGlobalFilterAvailable;
     const { t, i18n } = useTranslation();
     const toggleLanguage = () => {
         i18n.changeLanguage(i18n.language === 'en' ? 'pt' : 'en');

@@ -45,6 +45,7 @@
   "map": {
     "view_level": "Visualização",
     "region": "Região",
+    "global_filter": "Filtro Global",
     "mode": "Modo",
     "local_rescaling": "Reescalonamento Local",
     "global_scale": "Escala Global",
@@ -83,12 +84,19 @@
       "affordability": "Acessibilidade Económica",
       "census_population": "População Censos",
       "top_contributors": "Principais Contribuidores",
+      "models": "Modelos Preditivos",
       "cos_builtarea_title": "Edificado",
       "cos_builtarea_desc": "Classes de Edificado",
       "cos_builtarea_cat_vertical": "Vertical Contínua",
       "cos_builtarea_cat_horizontal": "Horizontal Contínua",
       "cos_builtarea_cat_discontinuous": "Descontínua",
       "cos_builtarea_cat_other": "Descontínua Esparsa"
+    },
+    "models": {
+      "mr": {
+        "label": "Modelo de Procura de Estacionamento para Bicicletas",
+        "description": "Procura estimada para estacionamento de bicicletas com base em modelos de mobilidade pendular"
+      }
     },
     "impt_entropy": {
       "label": "IMPT contrastante",
@@ -376,6 +384,19 @@
   },
   "filters_global": {
     "all": "Todos",
+    "all_pass": "Todos (com Navegante)",
+    "all_no_pass": "Todos (sem Navegante)",
+    "bike": "Bicicleta",
+    "car": "Carro",
+    "pt": "TP",
+    "pt_pass": "TP (com Navegante)",
+    "pt_no_pass": "TP (sem Navegante)",
+    "walk": "Pedonal",
+    "segregated": "Ciclovia Segregada",
+    "all_pt": "Todos os TP",
+    "metrolr_pt": "Metro (Ligeiro)",
+    "trainferry_pt": "Comboio/Barco",
+    "bus_pt": "Autocarro",
     "min": "Mínimo",
     "max": "Máximo"
   },

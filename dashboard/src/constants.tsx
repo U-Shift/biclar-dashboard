@@ -102,7 +102,7 @@ export const logarithmicScale: ScaleMethod = (values, steps = 5) => {
 };
 
 const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
-    'metrica.categories.models': [
+    'metrics.categories.models': [
         {
             id: 'model_mr{type}',
             id_variations: {
@@ -788,20 +788,20 @@ export const GLOBAL_FILTERS = [
     // > Based on it we can determine if the metric exists for that filter and display the filter selector accordingly
     // suffixFallback is used only on IMPT dynamic computation 
     // > It tells that for that filter, if no metric with suffix, suffixFallback metric should be used instead 
-    { id: 'all', label: 'modes.all', suffix: '', icon: '🌐' },
-    { id: 'all_pt', label: 'modes.all_pt', suffix: '_all_pt', suffixFallback: '', icon: '🌐' },
-    { id: 'all_pass', label: 'modes.all_pass', suffix: '_pass', suffixFallback: '', icon: '🌐💳' },
-    { id: 'all_no_pass', label: 'modes.all_no_pass', suffix: '_no_pass', suffixFallback: '', icon: '🌐👛' },
-    { id: 'pt', label: 'modes.pt', suffix: '_pt', icon: '🚍' },
-    { id: 'pt_pass', label: 'modes.pt_pass', suffix: '_pt_pass', suffixFallback: '_pt', icon: '🚍💳' },
-    { id: 'pt_no_pass', label: 'modes.pt_no_pass', suffix: '_pt_no_pass', suffixFallback: '_pt', icon: '🚍👛' },
-    { id: 'walk', label: 'modes.walk', suffix: '_walk', icon: '🚶' },
-    { id: 'bike', label: 'modes.bike', suffix: '_bike', icon: '🚲' },
-    { id: 'bike_segregated', label: 'modes.segregated', suffix: '_bike_segregated', icon: '🚲🪖' },
-    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' },
-    { id: 'metrolr_pt', label: 'modes.metrolr_pt', suffix: '_metrolr_pt', icon: '🚇🚊' },
-    { id: 'trainferry_pt', label: 'modes.trainferry_pt', suffix: '_trainferry_pt', icon: '🚆⛴️' },
-    { id: 'bus_pt', label: 'modes.bus_pt', suffix: '_bus_pt', icon: '🚍' },
+    { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+    { id: 'all_pt', label: 'filters_global.all_pt', suffix: '_all_pt', suffixFallback: '', icon: '🌐' },
+    { id: 'all_pass', label: 'filters_global.all_pass', suffix: '_pass', suffixFallback: '', icon: '🌐💳' },
+    { id: 'all_no_pass', label: 'filters_global.all_no_pass', suffix: '_no_pass', suffixFallback: '', icon: '🌐👛' },
+    { id: 'pt', label: 'filters_global.pt', suffix: '_pt', icon: '🚍' },
+    { id: 'pt_pass', label: 'filters_global.pt_pass', suffix: '_pt_pass', suffixFallback: '_pt', icon: '🚍💳' },
+    { id: 'pt_no_pass', label: 'filters_global.pt_no_pass', suffix: '_pt_no_pass', suffixFallback: '_pt', icon: '🚍👛' },
+    { id: 'walk', label: 'filters_global.walk', suffix: '_walk', icon: '🚶' },
+    { id: 'bike', label: 'filters_global.bike', suffix: '_bike', icon: '🚲' },
+    { id: 'bike_segregated', label: 'filters_global.segregated', suffix: '_bike_segregated', icon: '🚲🪖' },
+    { id: 'car', label: 'filters_global.car', suffix: '_car', icon: '🚗' },
+    { id: 'metrolr_pt', label: 'filters_global.metrolr_pt', suffix: '_metrolr_pt', icon: '🚇🚊' },
+    { id: 'trainferry_pt', label: 'filters_global.trainferry_pt', suffix: '_trainferry_pt', icon: '🚆⛴️' },
+    { id: 'bus_pt', label: 'filters_global.bus_pt', suffix: '_bus_pt', icon: '🚍' },
     { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
     { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' }
 ] as const;

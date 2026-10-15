@@ -16,7 +16,6 @@ interface SidebarRightProps {
     selectedMetric: MetricDef;
     selectedMetricId: string;
     selectedGlobalFilter?: any;
-    selectedMode?: any;
     dataState: any;
     allDomains: Record<string, number[]>;
     subLevelData: any[];
@@ -31,11 +30,11 @@ interface SidebarRightProps {
 
 export const SidebarRight: React.FC<SidebarRightProps> = ({
     isDarkMode, isColorBlindMode, selectedFeature, viewLevel, selectedMetric, selectedMetricId,
-    selectedGlobalFilter, selectedMode, dataState, allDomains, subLevelData, chartData,
+    selectedGlobalFilter, dataState, allDomains, subLevelData, chartData,
     setSelectedFeature, computedGeoData, setZoomRequest, setViewLevel,
     selectedVariations, isMobile
 }) => {
-    const activeFilter = selectedGlobalFilter || selectedMode;
+    const activeFilter = selectedGlobalFilter || { id: 'all' };
     const { t } = useTranslation();
     const isIMPT = ['IMPT_entropy_pca', 'IMPT_score_pca_geom', 'IMPT_dynamic'].includes(selectedMetricId);
 
