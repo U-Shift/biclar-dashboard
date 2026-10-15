@@ -162,7 +162,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
 
             {/* Always Visible Global Filter Selector on Mobile */}
             {isMobile && !isOpen && (
-                <div className="fixed top-[168px] left-4 z-[1002]" data-tour="mobile-mode-selector">
+                <div className="fixed top-[168px] left-4 z-[1002]" data-tour="mobile-filter-selector">
                     <GlobalFilterSelector
                         value={activeFilter.id}
                         isDark={isDarkMode}

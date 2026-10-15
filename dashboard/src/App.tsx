@@ -249,7 +249,6 @@ const Dashboard = () => {
         const firstAvailable = GLOBAL_FILTERS.find(f => isGlobalFilterAvailable(f.id, selectedMetricId, effectiveLevel));
         return firstAvailable || GLOBAL_FILTERS[0];
     }, [selectedGlobalFilterId, selectedMetricId, effectiveLevel, dataState.geo, selectedGlobalFilter, selectedMetric, isGlobalFilterAvailable]);
-    const effectiveMode = effectiveGlobalFilter;
 
     const discoveredVariations = useMemo(() => {
         const features = dataState.geo[effectiveLevel]?.features || [];
@@ -312,19 +311,19 @@ const Dashboard = () => {
             // All && (Pass || NoPass) => Fallback on accessibility, mobility and safety
             // PT && (Pass || NoPass) => Fallback on accessibility, mobility AND no safety
 
-            const modeAny = effectiveMode as any;
-            const dynamicId = `${dynamicMetricConfig.id}${effectiveMode.suffix}`;
-            const fallbackId = modeAny.suffixFallback !== undefined ? `${dynamicMetricConfig.id}${modeAny.suffixFallback}` : undefined;
-            console.log("Computing dynamic IMPT for", dynamicId, "(" + fallbackId + ")", dynamicMetricConfig, effectiveMode, weights);
+            const filterAny = effectiveGlobalFilter as any;
+            const dynamicId = `${dynamicMetricConfig.id}${effectiveGlobalFilter.suffix}`;
+            const fallbackId = filterAny.suffixFallback !== undefined ? `${dynamicMetricConfig.id}${filterAny.suffixFallback}` : undefined;
+            console.log("Computing dynamic IMPT for", dynamicId, "(" + fallbackId + ")", dynamicMetricConfig, effectiveGlobalFilter, weights);
 
             features = features.map((f: any, i: number) => {
                 let accumulatedIndex = 0;
                 let totalWeight = 0;
 
                 Object.entries(weights).forEach(([metricId, weight]) => {
-                    const effectiveMetricId = `${metricId}${effectiveMode.suffix}`;
-                    const fallbackMetricId = modeAny.suffixFallback !== undefined ? `${metricId}${modeAny.suffixFallback}` : undefined;
-                    // Use a fallback to the base metric ID if the mode-specific suffix version is missing
+                    const effectiveMetricId = `${metricId}${effectiveGlobalFilter.suffix}`;
+                    const fallbackMetricId = filterAny.suffixFallback !== undefined ? `${metricId}${filterAny.suffixFallback}` : undefined;
+                    // Use a fallback to the base metric ID if the filter-specific suffix version is missing
                     const val = (f.properties[effectiveMetricId] ?? (fallbackMetricId ? f.properties[fallbackMetricId] : undefined));
                     if (val !== undefined) {
                         accumulatedIndex += val * weight;
@@ -356,7 +355,7 @@ const Dashboard = () => {
         }
 
         return { ...raw, features };
-    }, [effectiveLevel, nutFilter, dataState, weights, effectiveMode.suffix, selectedVariations]);
+    }, [effectiveLevel, nutFilter, dataState, weights, effectiveGlobalFilter.suffix, selectedVariations]);
     const filteredLimits = useMemo(() => {
         if (!dataState.limits) return null;
         if (nutFilter === REGION_KEYS[0]) return dataState.limits;
@@ -370,11 +369,11 @@ const Dashboard = () => {
     const currentDomain = useMemo(() => {
         if (!computedGeoData?.features?.length) return [0, 1];
         const values = computedGeoData.features
-            .map((f: any) => getMetricValue(f.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations))
+            .map((f: any) => getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations))
             .filter((v: any) => !isMetricValueIgnored(v, selectedMetric));
 
         return getMetricDomain(values, selectedMetric);
-    }, [computedGeoData, selectedMetric, effectiveMode, selectedVariations, effectiveLevel]);
+    }, [computedGeoData, selectedMetric, effectiveGlobalFilter, selectedVariations, effectiveLevel]);
 
     // Precompute domains for all metrics shown in details to support dynamic coloring
     const allDomains = useMemo(() => {
@@ -382,17 +381,17 @@ const Dashboard = () => {
         if (!computedGeoData?.features?.length) return result;
         FLAT_METRICS.filter(m => m.showAlwaysOnDetails || m.id === selectedMetricId).forEach(m => {
             const values = computedGeoData.features
-                .map((f: any) => getMetricValue(f.properties, m, effectiveMode, effectiveLevel, selectedVariations))
+                .map((f: any) => getMetricValue(f.properties, m, effectiveGlobalFilter, effectiveLevel, selectedVariations))
                 .filter((v: any) => !isMetricValueIgnored(v, m));
 
             result[m.id] = getMetricDomain(values, m);
         });
         return result;
-    }, [computedGeoData, effectiveMode, selectedVariations, selectedMetricId, effectiveLevel]);
+    }, [computedGeoData, effectiveGlobalFilter, selectedVariations, selectedMetricId, effectiveLevel]);
 
 
     const getStyle = (feature: any) => {
-        const val = getMetricValue(feature.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
+        const val = getMetricValue(feature.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
             fillColor: getColor(val, currentDomain, selectedMetric, isColorBlindMode),
@@ -406,8 +405,8 @@ const Dashboard = () => {
 
     const onEachFeature = (feature: any, layer: any) => {
         const props = feature.properties;
-        const val = getMetricValue(props, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
-        const formattedVal = selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1], effectiveMode.id);
+        const val = getMetricValue(props, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
+        const formattedVal = selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id);
 
         const parentLevel = LEVEL_CONFIG[effectiveLevel]?.parent;
         const parentName = (parentLevel && props.group_id)
@@ -434,7 +433,7 @@ const Dashboard = () => {
                 <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
                     <span style="font-size: 10px; font-weight: 700; color: #444; text-transform: uppercase;">${t(selectedMetric.label)}</span>
                     <span style="font-size: 11px; font-weight: 700; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); white-space: nowrap;">
-                        ${formattedVal}${selectedMetric.unit ? ' ' + selectedMetric.unit(effectiveMode.id, val) : ''}
+                        ${formattedVal}${selectedMetric.unit ? ' ' + selectedMetric.unit(effectiveGlobalFilter.id, val) : ''}
                     </span>
                 </div>
                 ` : `<div style="margin-top: 8px; font-size: 9px; font-weight: 700; color: #bbb; text-transform: uppercase;">${t('common.no_data')}</div>`}
@@ -478,26 +477,26 @@ const Dashboard = () => {
             .filter((f: any) => String(f.properties.group_id) === String(selectedFeature.id))
             .map((f: any) => f.properties)
             .filter((p: any) => {
-                const val = getMetricValue(p, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
+                const val = getMetricValue(p, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
                 return !isMetricValueIgnored(val, selectedMetric);
             })
             .sort((a: any, b: any) => {
-                const valA = getMetricValue(a, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
-                const valB = getMetricValue(b, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
+                const valA = getMetricValue(a, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
+                const valB = getMetricValue(b, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
                 return (valB || 0) - (valA || 0);
             });
-    }, [effectiveLevel, selectedFeature, selectedMetric, effectiveMode, dataState, selectedVariations]);
+    }, [effectiveLevel, selectedFeature, selectedMetric, effectiveGlobalFilter, dataState, selectedVariations]);
 
     const chartData = useMemo(() => {
         if (!computedGeoData?.features) return { bestPerformers: [], worstPerformers: [] };
         const parentLevel = LEVEL_CONFIG[effectiveLevel]?.parent;
         const feats = computedGeoData.features
             .filter((f: any) => {
-                const val = getMetricValue(f.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
+                const val = getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
                 return !isMetricValueIgnored(val, selectedMetric);
             })
             .map((f: any) => {
-                const val = getMetricValue(f.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations) ?? 0;
+                const val = getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations) ?? 0;
                 const groupName = (parentLevel && f.properties?.group_id)
                     ? (dataState.parentLookup[`${parentLevel}-${f.properties.group_id}`] || f.properties.group_id)
                     : 'LMA';
@@ -511,7 +510,7 @@ const Dashboard = () => {
             });
         const sorted = [...feats].sort((a, b) => b.value - a.value);
         return { bestPerformers: sorted.slice(0, 5), worstPerformers: [...sorted].reverse().slice(0, 5).reverse() };
-    }, [computedGeoData, selectedMetric, effectiveMode, currentDomain, getColor, effectiveLevel, dataState.parentLookup, selectedVariations, isColorBlindMode]);
+    }, [computedGeoData, selectedMetric, effectiveGlobalFilter, currentDomain, getColor, effectiveLevel, dataState.parentLookup, selectedVariations, isColorBlindMode]);
 
     const resetWeights = () => {
         setWeights(defaultWeights);
@@ -531,10 +530,10 @@ const Dashboard = () => {
         ];
         const rows = [header.join(',')];
 
-        const modeAny = effectiveMode as any;
+        const filterAny = effectiveGlobalFilter as any;
         const dynamicMetricConfig = FLAT_METRICS.find(m => m.isCalculated);
         if (!dynamicMetricConfig) return;
-        const dynamicId = `${dynamicMetricConfig.id}${effectiveMode.suffix}`;
+        const dynamicId = `${dynamicMetricConfig.id}${effectiveGlobalFilter.suffix}`;
 
         computedGeoData.features.forEach((f: any) => {
             const props = f.properties;
@@ -543,8 +542,8 @@ const Dashboard = () => {
             const impt = props[dynamicId];
 
             const getIndex = (mId: string) => {
-                const effId = `${mId}${effectiveMode.suffix}`;
-                const fallId = modeAny.suffixFallback !== undefined ? `${mId}${modeAny.suffixFallback}` : undefined;
+                const effId = `${mId}${effectiveGlobalFilter.suffix}`;
+                const fallId = filterAny.suffixFallback !== undefined ? `${mId}${filterAny.suffixFallback}` : undefined;
                 return props[effId] ?? (fallId ? props[fallId] : undefined);
             };
 
@@ -573,11 +572,11 @@ const Dashboard = () => {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `ahp_results_${effectiveLevel}_${effectiveMode.id}.csv`);
+        link.setAttribute("download", `ahp_results_${effectiveLevel}_${effectiveGlobalFilter.id}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    }, [computedGeoData, effectiveMode, weights, effectiveLevel]);
+    }, [computedGeoData, effectiveGlobalFilter, weights, effectiveLevel]);
 
     const [runTutorial, setRunTutorial] = useState(false);
     const [tutorialType, setTutorialType] = useState<'main' | 'dynamic'>('main');
@@ -621,7 +620,6 @@ const Dashboard = () => {
                 setSelectedVariations={setSelectedVariations}
                 discoveredVariations={discoveredVariations}
                 selectedGlobalFilter={effectiveGlobalFilter}
-                selectedMode={effectiveGlobalFilter}
                 viewLevel={effectiveLevel}
                 showBuiltArea={showBuiltArea}
                 setShowBuiltArea={setShowBuiltArea}
@@ -632,10 +630,8 @@ const Dashboard = () => {
                 setNutFilter={setNutFilter}
                 setViewLevel={setViewLevel}
                 setSelectedGlobalFilterId={setSelectedGlobalFilterId}
-                setSelectedModeId={setSelectedGlobalFilterId}
                 isMetricAvailable={isMetricAvailable}
                 isGlobalFilterAvailable={isGlobalFilterAvailable}
-                isModeAvailable={isGlobalFilterAvailable}
                 mapStyle={mapStyle}
                 setMapStyle={setMapStyle}
                 onZoomIn={() => mapInstance?.zoomIn()}
@@ -667,7 +663,7 @@ const Dashboard = () => {
                                     isDark={isDarkMode}
                                     icon={<Layers className="w-3.5 h-3.5" />}
                                     options={(['hex', 'freguesia', 'municipality'] as const)
-                                        .filter(l => isMetricAvailable(selectedMetricId, l, effectiveMode))
+                                        .filter(l => isMetricAvailable(selectedMetricId, l, effectiveGlobalFilter))
                                         .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
                                     onChange={(id) => {
                                         setViewLevel(id as ViewLevel);
@@ -693,7 +689,7 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        <div data-tour="mode-selector">
+                        <div data-tour="filter-selector">
                             <GlobalFilterSelector
                                 value={effectiveGlobalFilter.id}
                                 isDark={isDarkMode}
@@ -741,13 +737,13 @@ const Dashboard = () => {
                                             style={{ background: getLegendGradient(selectedMetric, currentDomain, isColorBlindMode) }}
                                         />
                                         <div className="flex justify-between text-[13px] font-black opacity-40 uppercase tracking-tighter">
-                                            <span>{selectedMetric.format(currentDomain[0], currentDomain[0], currentDomain[currentDomain.length - 1], effectiveMode.id)}</span>
-                                            <span>{selectedMetric.format(currentDomain[currentDomain.length - 1], currentDomain[0], currentDomain[currentDomain.length - 1], effectiveMode.id)}</span>
+                                            <span>{selectedMetric.format(currentDomain[0], currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id)}</span>
+                                            <span>{selectedMetric.format(currentDomain[currentDomain.length - 1], currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id)}</span>
                                         </div>
                                     </div>
                                 )}
                                 <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                                    <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{t(selectedMetric.label)} {selectedMetric.unit ? `(${selectedMetric.unit(effectiveMode.id)})` : ''}</p>
+                                    <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{t(selectedMetric.label)} {selectedMetric.unit ? `(${selectedMetric.unit(effectiveGlobalFilter.id)})` : ''}</p>
                                     <p className="text-[13px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description ? t(selectedMetric.description) : `Spatial distribution and variance of ${t(selectedMetric.label).toLowerCase()} across the ${t(`map.${effectiveLevel}`)} network.`}</p>
                                     {selectedMetric.sources && selectedMetric.sources.length > 0 && (
                                         <p className="text-[10px] opacity-40 mt-2 tracking-tight leading-snug">
@@ -815,7 +811,7 @@ const Dashboard = () => {
                             )}
                         </Pane>
                         {computedGeoData?.features && selectedMetricId !== 'cos_builtarea' && (
-                            <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveMode.id}-${isDarkMode}-${isColorBlindMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                            <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveGlobalFilter.id}-${isDarkMode}-${isColorBlindMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
                         <Pane name="limits-pane" style={{ zIndex: 450 }}>
                             {effectiveLevel !== 'municipality' && filteredLimits && (
@@ -835,7 +831,6 @@ const Dashboard = () => {
                     selectedMetric={selectedMetric}
                     selectedMetricId={selectedMetricId}
                     selectedGlobalFilter={effectiveGlobalFilter}
-                    selectedMode={effectiveGlobalFilter}
                     dataState={dataState}
                     allDomains={allDomains}
                     subLevelData={subLevelData}

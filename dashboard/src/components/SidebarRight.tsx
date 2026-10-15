@@ -246,7 +246,6 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         data={chartData.bestPerformers}
                                         metric={selectedMetric}
                                         selectedFilter={activeFilter.id}
-                                        selectedMode={activeFilter.id}
                                         isDark={isDarkMode}
                                         type="highest"
                                         onSelect={(id) => {
@@ -266,7 +265,6 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         data={chartData.worstPerformers}
                                         metric={selectedMetric}
                                         selectedFilter={activeFilter.id}
-                                        selectedMode={activeFilter.id}
                                         isDark={isDarkMode}
                                         type="lowest"
                                         onSelect={(id) => {

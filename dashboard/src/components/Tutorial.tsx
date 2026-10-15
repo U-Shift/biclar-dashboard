@@ -67,7 +67,7 @@ export const Tutorial: React.FC<TutorialProps> = ({
             sidebar: 'open'
         } as any,
         {
-            target: isMobile ? '[data-tour="mobile-mode-selector"]' : '[data-tour="mode-selector"]',
+            target: isMobile ? '[data-tour="mobile-filter-selector"]' : '[data-tour="filter-selector"]',
             content: t('tutorial.step_6'),
             placement: isMobile ? 'right' : 'bottom',
             sidebar: 'closed'
