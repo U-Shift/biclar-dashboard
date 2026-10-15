@@ -26,7 +26,7 @@
     "tutorial": "Take the Tour"
   },
   "sidebar": {
-    "index": "Index",
+    "index": "Outputs",
     "indicators": "Indicators",
     "dimension_weighting": "Dimension Weighting",
     "ahp_methodology": "AHP Methodology",
@@ -71,304 +71,47 @@
     "cos": "DGT -Land Use Map 2023",
     "gtfs": "GTFS",
     "iptoll": "IP - Toll caclculator",
-    "accounting": "Operators' annual accounting reports"
+    "accounting": "Operators' annual accounting reports",
+    "ruma": "RUMA (Almada)",
+    "rumus": "RUMUS (Seixal)",
+    "literature_todo": "Literature (TODO!)"
   },
   "metrics": {
     "categories": {
-      "mobility_poverty_index": "Transportation Poverty Index",
-      "dimensions": "Aggregated Dimensions",
-      "census_population": "Census Population",
-      "census_landuse": "Census & Land Use",
-      "mobility": "Mobility",
-      "accessibility": "Accessibility",
-      "safety": "Safety",
-      "affordability": "Affordability",
-      "top_contributors": "Top Contributors",
-      "models": "Predictive Models",
-      "cos_builtarea_title": "Buildings",
-      "cos_builtarea_desc": "Building Classes",
-      "cos_builtarea_cat_vertical": "Continuous Vertical",
-      "cos_builtarea_cat_horizontal": "Continuous Horizontal",
-      "cos_builtarea_cat_discontinuous": "Discontinuous",
-      "cos_builtarea_cat_other": "Sparse Discontinuous"
+      "ratios": "Bike parking ratios",
+      "census_landuse": "Census & Land use",
+      "models": "Parking dimensioning models",
+      "contextual": "Contextual data"
     },
     "models": {
       "mr": {
-        "label": "Bicycle Parking Demand Model",
-        "description": "Estimated demand for bicycle parking facilities based on commuting models"
+        "label": "Minimum Ratios",
+        "description": "Number of bicycle parking spots according to land use and associated (minimum and maximum) ratios"
+      },
+      "mr_ratio": {
+        "residential": {
+          "label": "Residential",
+          "description": "Number of (minimum and maximum) parking spots per household"
+        }
       }
     },
-    "impt_entropy": {
-      "label": "IMPT contrasting",
-      "description": "Composite index using entropy, which gives more weight to variables that show the most contrast"
-    },
-    "impt_geom": {
-      "label": "IMPT critical",
-      "description": "Composite index using geometric mean, which penalizes low scores in any dimension, ensuring that a single low score significantly drags down the entire result"
-    },
-    "impt_equal": {
-      "label": "IMPT with equal weights",
-      "description": "Composite index considering equal weights for each dimension"
-    },
-    "impt_dynamic": {
-      "label": "IMPT dynamic (custom weights)",
-      "description": "Computed on the fly based on user weightings of dimensions"
-    },
-    "accessibility": {
-      "label": "Accessibility",
-      "description": "Aggregated accessibility metric, measuring access to key services and opportunities"
-    },
-    "mobility": {
-      "label": "Mobility",
-      "description": "Aggregated mobility metric, considering commuting and mobility infrastructure"
-    },
-    "safety": {
-      "label": "Safety",
-      "description": "Aggregated safety metric, considering accidents"
-    },
-    "affordability": {
-      "label": "Affordability",
-      "description": "Aggregated affordability metric, considering income and housing costs"
-    },
-    "census_landuse_population": {
-      "label": "Population",
-      "description": "Number of residents"
-    },
-    "census_landuse_population_density": {
-      "label": "Population density",
-      "description": "Population density (residents/km2)"
-    },
-    "census_landuse_youth_ratio": {
-      "label": "Youth ratio",
-      "description": "Proportion of population under 15 years old"
-    },
-    "census_landuse_elderly_ratio": {
-      "label": "Elderly ratio",
-      "description": "Proportion of population over 65 years old"
-    },
-    "census_landuse_women_percentage": {
-      "label": "Women percentage",
-      "description": "Percentage of women in the population"
-    },
-    "mobility_infrastructure_length": {
-      "label": "Infrastructure length by mode",
-      "description": "Total length of network for mode"
-    },
-    "mobility_infrastructure_to_ratio_car": {
-      "label": "Infrastructure ratio mode/car",
-      "description": "Ratio of mode infrastructure to road length"
-    },
-    "census_landuse_buildings_pre1945_percentage": {
-      "label": "Buildings pre-1945 (%)",
-      "description": "Percentage of buildings built before 1945 (<i>without car garage</i>)"
-    },
-    "census_landuse_volume_density": {
-      "label": "Building volume density",
-      "description": "Building volume density (m3/m2)"
-    },
-    "safety_inner_total_acidentes": {
-      "label": "Total accidents",
-      "description": "Total number of recorded road accidents, in urban areas (2019-2023)"
-    },
-    "safety_inner_total_veiculos": {
-      "label": "Total involved vehicles",
-      "description": "Total number of vehicles involved in road accidents, by mode, in urban areas (2019-2023)"
-    },
-    "safety_inner_acidentes_per_1000res": {
-      "label": "Accidents per 1000 residents",
-      "description": "Total number of recorded road accidents per 1000 residents, in urban areas (2019-2023)"
-    },
-    "safety_inner_vitimas_mortais30": {
-      "label": "Total fatalities within 30 days",
-      "description": "Total number of fatalities within 30 days of road accidents, in urban areas (2019-2023)"
-    },
-    "safety_inner_indice_gravidade": {
-      "label": "Severity index",
-      "description": "Accident severity ratio. Number of fatalities within 30 days per number of accidents"
-    },
-    "affordability_total_money": {
-      "label": "Cost of Commuting",
-      "description": "Estimated expenditure on commuting per trip"
-    },
-    "affordability_transp_inc_comp": {
-      "label": "Transport Burden",
-      "description": "Percentage of household income spent on commuting"
-    },
-    "affordability_h_transp_inc_comp": {
-      "label": "Transport + Housing Burden",
-      "description": "Percentage of household income spent on transport and housing"
-    },
-    "modal_census_share": {
-      "label": "Modal share (Commuting)",
-      "description": "Modal share based on Census data for standard commuting trips"
-    },
-    "census_income_income_hh": {
-      "label": "Household income",
-      "description": "Average yearly net income per household"
-    },
-    "census_income_gini_coef": {
-      "label": "Gini coefficient",
-      "description": "Measure of inequality in income distribution. 0 = total equality, 1 = total inequality"
-    },
-    "census_income_palma_ratio": {
-      "label": "Palma ratio",
-      "description": "Measure of inequality in income distribution. 1 = equality between the richest 10% and the poorest 40%"
-    },
-    "census_income_housing_costs": {
-      "label": "Housing costs",
-      "description": "Average monthly expenditure on housing (rent or mortgage)"
-    },
-    "modal_imob_share": {
-      "label": "Modal Share (All trips)",
-      "description": "Modal share for all trips"
-    },
-    "mobility_commuting_avg_tt": {
-      "label": "Average commuting time",
-      "description": "Average travel time for commuting trips (home-work/school)"
-    },
-    "mobility_cost": {
-      "label": "Average travel time to facilities",
-      "description": "Travel time to the nearest facilities by transport mode"
-    },
-    "mobility_cost_health_n1_residents": {
-      "label": "Health Access",
-      "description": "Travel time to the nearest health facility: hospital or health center"
-    },
-    "mobility_cost_schools_primary_n1_kids": {
-      "label": "Primary School Access",
-      "description": "Travel time to the nearest primary school"
-    },
-    "mobility_cost_greenspaces_n1_residents": {
-      "label": "Green Space Access",
-      "description": "Travel time to the nearest green space"
-    },
-    "mobility_cost_recreation_n3_residents": {
-      "label": "Recreation Access",
-      "description": "Average travel time to the nearest recreation spots"
-    },
-    "mobility_cost_groceries_n3_residents": {
-      "label": "Grocery Access",
-      "description": "Average travel time to the nearest grocery stores"
-    },
-    "mobility_shared_mobility_points": {
-      "label": "Shared Mobility Points",
-      "description": "Number of shared mobility service points in the area"
-    },
-    "mobility_stop_coverage_ratio_served_population": {
-      "label": "PT Stop Coverage",
-      "description": "Proportion of the population with walking access in 5 min to bus stops; 10 min to metro stations; 15 min to train or ferry stations"
-    },
-    "access_gap_money_cost_gap": {
-      "label": "PT vs. Car (cost)",
-      "description": "Cost difference between travel cost for PT and Car. Positive values indicate PT is more expensive than Car"
-    },
-    "access_gap_money_relative_gap_cost": {
-      "label": "PT vs. Car (relative cost)",
-      "description": "Relative cost difference between travel cost for PT and Car. Positive values indicate PT is x times more expensive than Car"
-    },
-    "access_gap_time_accessibility_gap": {
-      "label": "Car vs. Other Modes (time)",
-      "description": "Time difference between travel time for Car and other modes. Positive values indicate Car is faster than other mode."
-    },
-    "access_gap_time_relative_gap_time": {
-      "label": "Car vs. Other Modes (relative time)",
-      "description": "Relative time difference between travel time for Car and other modes. Positive values indicate Car is x times faster than other mode."
-    },
-    "veh_ownership_total_motor_vehicles_per_hh": {
-      "label": "Motorized vehicles per household",
-      "description": "Average number of motor vehicles per household"
-    },
-    "veh_ownership_pct_hh_no_vehicle": {
-      "label": "Households without vehicles (%)",
-      "description": "Percentage of households that do not own a vehicle (motorized or bicycle)"
-    },
-    "access": {
-      "label": "Access to opportunities",
-      "description": "Number of opportunities reachable within the time threshold defined, by mode."
-    },
-    "pois": {
-      "label": "POIs Density",
-      "description": "Number of facilities of each type in the area"
-    },
-    "indice_gravidade": {
-      "label": "Severity Index"
-    },
-    "indice_gravidade_peoes": {
-      "label": "Severity Index (Pedestrians)"
-    },
-    "indice_gravidade_carro": {
-      "label": "Severity Index (Car)"
-    },
-    "total_acidentes": {
-      "label": "Total accidents"
-    },
-    "total_veiculos": {
-      "label": "Total vehicles involved"
-    },
-    "total_vitimas30": {
-      "label": "Total victims within 30 days"
-    },
-    "feridos_ligeiros30": {
-      "label": "Total injured within 30 days"
-    },
-    "feridos_graves30": {
-      "label": "Total seriously injured within 30 days"
-    },
-    "vitimas_mortais30_per_1000res": {
-      "label": "Fatalities per 1000 residents"
-    },
-    "mobility_cost_groceries_walk_n3_residents": {
-      "label": "Access to Groceries - 3 nearest (Walk)"
-    },
-    "mobility_cost_groceries_car_n3_residents": {
-      "label": "Access to Groceries - 3 nearest (Car)"
-    },
-    "mobility_cost_groceries_transit_2t_n3_residents": {
-      "label": "Access to Groceries - 3 nearest (PT - 2 transfers)"
-    },
-    "mobility_cost_health_bike_n1_residents": {
-      "label": "Access to Health - 1 nearest (Bicycle)"
-    },
-    "mobility_cost_recreation_car_n3_residents": {
-      "label": "Access to Recreation - 3 nearest (Car)"
-    },
-    "mobility_commuting_avg_tt_transit_2t_120m_15w": {
-      "label": "Average commuting time (PT - 2 transfers, 120 min)"
-    },
-    "mobility_cost_health_transit_2t_n1_residents": {
-      "label": "Access to Health - 1 nearest (PT - 2 transfers)"
-    },
-    "mobility_transit_weighted_waiting_time_peak": {
-      "label": "Weighted waiting time (Peak hour)"
-    },
-    "PT_Waitingtime": {
-      "label": "Waiting Time (PT)"
-    },
-    "PT_Weight_frequency_peak": {
-      "label": "PT frequency at peak hour"
-    },
-    "mobility_commuting_avg_tt_bike": {
-      "label": "Average commuting time (Bike, 120 min)"
-    },
-    "mobility_commuting_mean_transfers_pt": {
-      "label": "Average number of commuting transfers",
-      "description": "Average minimum number of transfers for commuting by PT"
-    },
-    "mobility_weighted_waiting_time_pt": {
-      "label": "PT Waiting Time",
-      "description": "Weighted average waiting time for PT by time of day"
-    },
-    "mobility_total_frequency_pt": {
-      "label": "PT Frequency",
-      "description": "Number of PT services provided at time of day"
-    },
-    "mobility_frequency_ratio_peak_pt": {
-      "label": "PT Frequency Ratio",
-      "description": "Ratio of PT frequency during other periods compared to peak hours"
-    },
-    "census_landuse_age_ratio": {
-      "label": "Age Dependency Ratio",
-      "description": "Ratio of dependent population (children and elderly) to working-age population"
+    "census_landuse": {
+      "dasymetric_population": {
+        "label": "Population",
+        "description": "Number of residents"
+      },
+      "dasymetric_buildings": {
+        "label": "Buildings",
+        "description": "Number of buildings"
+      },
+      "dasymetric_dependency": {
+        "label": "Age dependency ratio",
+        "description": "Ratio of dependent population (children and elderly) to working-age population"
+      },
+      "dasymetric_households": {
+        "label": "Households",
+        "description": "Number of households"
+      }
     }
   },
   "regions": {
@@ -378,41 +121,15 @@
   },
   "filters_global": {
     "all": "All",
-    "all_pass": "All (with Navegante)",
-    "all_no_pass": "All (without Navegante)",
-    "bike": "Bike",
-    "car": "Car",
-    "pt": "PT",
-    "pt_pass": "PT (with Navegante)",
-    "pt_no_pass": "PT (without Navegante)",
-    "walk": "Walk",
-    "segregated": "Segregated Cycleway",
-    "all_pt": "All PT",
-    "metrolr_pt": "Metro/Light rail",
-    "trainferry_pt": "Train/Ferry",
-    "bus_pt": "Bus",
     "min": "Minimum",
-    "max": "Maximum"
-  },
-  "modes": {
-    "all": "All",
-    "all_pass": "All (with Navegante)",
-    "all_no_pass": "All (without Navegante)",
-    "bike": "Bike",
-    "car": "Car",
-    "pt": "PT",
-    "pt_pass": "PT (with Navegante)",
-    "pt_no_pass": "PT (without Navegante)",
-    "walk": "Walk",
-    "segregated": "Segregated Cycleway",
-    "all_pt": "All PT",
-    "metrolr_pt": "Metro/Light rail",
-    "trainferry_pt": "Train/Ferry",
-    "bus_pt": "Bus"
+    "max": "Maximum",
+    "buildings_pre1945": "Constructed before 1945",
+    "adults": "Adults (15-64)",
+    "youth": "Youth (0-14)",
+    "elderly": "Elderly (65+)",
+    "women": "Women"
   },
   "about": {
-    "title": "IMPT",
-    "title_desc": "Index for Monitoring Transport Poverty",
     "p1": "Available soon....",
     "p2": "",
     "about_section": "About",

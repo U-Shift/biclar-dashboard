@@ -4,7 +4,7 @@ export const DATA_BASE_URL = 'https://ushift.tecnico.ulisboa.pt/content/biclar/'
 export const AHP_SURVEY_URL = "https://script.google.com/macros/s/AKfycbx1F1XmBbgTDu0WKiRtR6I4ocouXsnVKMDz1DHuMjx79kgfQzP1M8-A-NPL4CjlugmL/exec";
 
 export const LEVEL_CONFIG: Partial<Record<ViewLevel, { file: string, parent?: ViewLevel, download_geojson: string, download_csv: string }>> = {
-    // 'municipality': { file: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_geojson: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_csv: `${DATA_BASE_URL}municipalities_dashboard.csv` },
+    'municipality': { file: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_geojson: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_csv: `${DATA_BASE_URL}municipalities_dashboard.csv` },
     'freguesia': { file: `${DATA_BASE_URL}parishes_dashboard.geojson`, parent: 'municipality', download_geojson: `${DATA_BASE_URL}parishes_dashboard.geojson`, download_csv: `${DATA_BASE_URL}parishes_dashboard.csv` },
     'hex': { file: `${DATA_BASE_URL}grid_dashboard.geojson`, parent: 'freguesia', download_geojson: `${DATA_BASE_URL}grid_dashboard.geojson`, download_csv: `${DATA_BASE_URL}grid_dashboard.csv` }
 };
@@ -104,670 +104,83 @@ export const logarithmicScale: ScaleMethod = (values, steps = 5) => {
 const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     'metrics.categories.models': [
         {
-            id: 'model_mr{type}',
-            id_variations: {
-                type: {
-                    options: ['_parking_residential', '_ratio_residential']
-                }
-            },
+            id: 'model_mr_parking_residential',
             label: 'metrics.models.mr.label',
             description: 'metrics.models.mr.description',
-            format: (v, _min, _max, _filter, variations) => {
-                if (variations?.type === '_ratio_residential') {
-                    return (v || 0).toFixed(1);
-                }
-                return Math.round(v || 0).toString();
-            },
+            format: (v) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
+            pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true
         }
     ],
     'metrics.categories.census_landuse': [
         {
-            id: 'dasymetric{population_type}',
-            id_variations: {
-                population_type: {
-                    options: ['_population', '_adults', '_youth', '_elderly', '_women']
-                }
-            },
+            id: 'dasymetric_population',
+            icon: '👥',
             label: 'metrics.census_landuse.dasymetric_population.label',
             description: 'metrics.census_landuse.dasymetric_population.description',
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToGreen,
+            sources: ['census']
         },
         {
-            id: 'dasymetric{buildings_type}',
-            id_variations: {
-                buildings_type: {
-                    options: ['_buildings', '_buildings_pre1945']
-                }
-            },
+            id: 'dasymetric_households',
+            icon: '🏡',
+            label: 'metrics.census_landuse.dasymetric_households.label',
+            description: 'metrics.census_landuse.dasymetric_households.description',
+            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['census']
+        },
+        {
+            id: 'dasymetric_buildings',
+            icon: '🏘️',
             label: 'metrics.census_landuse.dasymetric_buildings.label',
             description: 'metrics.census_landuse.dasymetric_buildings.description',
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
-        }
-    ]
-    /*
-    'metrics.categories.mobility_poverty_index': [
-        {
-            id: 'IMPT_entropy_pca',
-            label: 'metrics.impt_entropy.label',
-            description: 'metrics.impt_entropy.description',
-            pallete: COLORS.GreenToRed,
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
-        },
-        {
-            id: 'IMPT_score_pca_geom',
-            label: 'metrics.impt_geom.label',
-            description: 'metrics.impt_geom.description',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed
-            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
-        },
-        {
-            id: 'IMPT_dynamic',
-            label: 'metrics.impt_dynamic.label',
-            description: 'metrics.impt_dynamic.description',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed,
-            isCalculated: true
-        },
-    ],
-    'metrics.categories.dimensions': [
-        {
-            id: 'Mobility_Index',
-            label: 'metrics.mobility.label', icon: '🚲',
-            description: 'metrics.mobility.description',
-            format: (v, _min, _max, _filter) => getEqualIntervals(v || 0),
-            scaleMethod: continuousScale,
-            pallete: COLORS.RedToGreen,
-            isContributory: true, defaultWeight: 0.25,
-            auxiliaryDataUrl: 'https://ushift.tecnico.ulisboa.pt/content/impt/champions.json',
-            renderAuxiliaryData: (data: any, metricId: string, t: (key: string) => string, limit = 5) => {
-                const list = data[metricId] || [];
-                if (!list.length) return null;
-                return (
-                    <div className="mt-2 p-3 bg-neutral-500/10 rounded-xl">
-                        <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
-                        <ul className="text-[11px] space-y-1">
-                            {list.slice(0, limit).map((item: string) => (
-                                <li key={item} className="opacity-80 flex items-start gap-2">
-                                    <span className="text-secondary-green">•</span>
-                                    <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                );
-            }
-        },
-        {
-            id: 'Accessibility_Index',
-            label: 'metrics.accessibility.label', icon: '🏘️',
-            description: 'metrics.accessibility.description',
-            format: (v, _min, _max, _filter) => getEqualIntervals(v || 0),
-            scaleMethod: continuousScale,
-            pallete: COLORS.RedToGreen,
-            isContributory: true, defaultWeight: 0.25,
-            auxiliaryDataUrl: 'https://ushift.tecnico.ulisboa.pt/content/impt/champions.json',
-            renderAuxiliaryData: (data: any, metricId: string, t: (key: string) => string, limit = 5) => {
-                const list = data[metricId] || [];
-                if (!list.length) return null;
-                return (
-                    <div className="mt-2 p-3 bg-neutral-500/10 rounded-xl">
-                        <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
-                        <ul className="text-[11px] space-y-1">
-                            {list.slice(0, limit).map((item: string) => (
-                                <li key={item} className="opacity-80 flex items-start gap-2">
-                                    <span className="text-secondary-green">•</span>
-                                    <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                );
-            }
-        },
-        {
-            id: 'Safety_Index',
-            label: 'metrics.safety.label', icon: '🛡️',
-            description: 'metrics.safety.description',
-            format: (v, _min, _max, _filter) => getEqualIntervals(v || 0),
-            scaleMethod: continuousScale,
-            pallete: COLORS.RedToGreen,
-            isContributory: true, defaultWeight: 0.25,
-            auxiliaryDataUrl: 'https://ushift.tecnico.ulisboa.pt/content/impt/champions.json',
-            renderAuxiliaryData: (data: any, metricId: string, t: (key: string) => string, limit = 5) => {
-                const list = data[metricId] || [];
-                if (!list.length) return null;
-                return (
-                    <div className="mt-2 p-3 bg-neutral-500/10 rounded-xl">
-                        <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
-                        <ul className="text-[11px] space-y-1">
-                            {list.slice(0, limit).map((item: string) => (
-                                <li key={item} className="opacity-80 flex items-start gap-2">
-                                    <span className="text-secondary-green">•</span>
-                                    <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                );
-            }
-        },
-        {
-            id: 'Affordability_Index',
-            label: 'metrics.affordability.label', icon: '💰',
-            description: 'metrics.affordability.description',
-            format: (v, _min, _max, _filter) => getEqualIntervals(v || 0),
-            scaleMethod: continuousScale,
-            pallete: COLORS.RedToGreen,
-            isContributory: true, defaultWeight: 0.25,
-            sources: ['ansr', 'pmus', 'osm', 'ine', 'iptoll', 'accounting']
-        }
-    ],
-    'metrics.categories.mobility': [
-        {
-            id: 'mobility_commuting_avg_tt{n_transfers}{cut_off}{walking_time}',
-            id_variations: {
-                // mobility_commuting_avg_tt_1t_120m_15w_pt
-                cut_off: {
-                    options: ['_120m'],
-                    globalFilters: ['pt'],
-                    visible: false
-                },
-                n_transfers: {
-                    options: ['_0t', '_1t', '_2t', '_3t'],
-                    globalFilters: ['pt']
-                },
-                walking_time: {
-                    options: ['_15w', '_20w', '_30w'],
-                    globalFilters: ['pt']
-                }
-            },
-            label: 'metrics.mobility_commuting_avg_tt.label',
-            description: 'metrics.mobility_commuting_avg_tt.description',
-            icon: '⌛💼',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(), unit: () => 'min',
-            scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed,
-            sources: ['imob', 'gba']
-        },
-        {
-            id: 'mobility_commuting_mean_transfers',
-            label: 'metrics.mobility_commuting_mean_transfers_pt.label',
-            description: 'metrics.mobility_commuting_mean_transfers_pt.description',
-            icon: '🔀',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed,
-            sources: ['gtfs', 'census']
-        },
-        {
-            id: 'mobility_shared_mobility_points',
-            label: 'metrics.mobility_shared_mobility_points.label',
-            description: 'metrics.mobility_shared_mobility_points.description',
-            icon: '🛴',
-            format: (v, _min, _max, _filter) => (v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.Inferno.reverse(),
-            sources: ['pmus']
-        },
-        {
-            id: 'mobility_stop_coverage_pct',
-            label: 'metrics.mobility_stop_coverage_ratio_served_population.label',
-            description: 'metrics.mobility_stop_coverage_ratio_served_population.description',
-            icon: '🚏',
-            format: (v, _min, _max, _filter) => Math.round((v || 0) * 100).toString(), unit: () => '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['gtfs', 'census']
-        },
-        {
-            id: 'mobility_weighted_waiting_time{time_of_day}',
-            id_variations: {
-                time_of_day: {
-                    options: ['_peak', '_night', '_weekend'], //'_day', 
-                    globalFilters: ['pt']
-                }
-            },
-            label: 'metrics.mobility_weighted_waiting_time_pt.label',
-            description: 'metrics.mobility_weighted_waiting_time_pt.description',
-            icon: '🕐🚏',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1), unit: () => 'min',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToRed,
-            sources: ['gtfs', 'census']
-        },
-        {
-            id: 'mobility_total_frequency{time_of_day}',
-            id_variations: {
-                time_of_day: {
-                    options: ['_peak', '_night', '_weekend'],
-                    globalFilters: ['pt']
-                }
-            },
-            label: 'metrics.mobility_total_frequency_pt.label',
-            description: 'metrics.mobility_total_frequency_pt.description',
-            icon: '🕐🚍',
-            format: (v, _min, _max, _filter) => (v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['gtfs', 'census']
-        },
-        {
-            id: 'mobility_frequency_ratio_peak{time_of_day}',
-            id_variations: {
-                time_of_day: {
-                    options: ['_night', '_weekend'],
-                    globalFilters: ['pt']
-                }
-            },
-            label: 'metrics.mobility_frequency_ratio_peak_pt.label',
-            description: 'metrics.mobility_frequency_ratio_peak_pt.description',
-            icon: '🕐➗',
-            format: (v, _min, _max, _filter) => Math.round((v || 0) * 100).toString(), unit: () => '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.RedToWhite,
-            sources: ['gtfs', 'census']
-        },
-        {
-            id: 'modal_census_share',
-            label: 'metrics.modal_census_share.label',
-            description: 'metrics.modal_census_share.description',
-            icon: '📊💼',
-            format: (v, _min, _max, _filter) => Math.round((v || 0) * 100).toString(), unit: () => '%',
-            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['census']
         },
+        /* // TODO! Validate assimetries
         {
-            id: 'modal_imob_share',
-            label: 'metrics.modal_imob_share.label',
-            description: 'metrics.modal_imob_share.description',
-            icon: '📊',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1), unit: () => '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['imob']
-        }
-    ],
-    'metrics.categories.accessibility': [
-        {
-            id: 'access{poi_type}{n_transfers}{time_of_day}{n_time}{population}',
-            id_variations: {
-                poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
-                population: {
-                    options: ['_residents', '_elder', '_kids', '_active', '_young'],
-                    viewLevels: ['freguesia', 'municipality']
-                },
-                n_time: {
-                    options: ['_5min', '_10min', '_15min', '_30min', '_45min', '_60min', '_75min', '_90min'],
-                    formSlider: true
-                },
-                n_transfers: {
-                    options: ['_1t', '_2t'],
-                    globalFilters: ['pt']
-                },
-                time_of_day: {
-                    options: ['_peak', '_night', '_weekend'], //'_day', 
-                    globalFilters: ['pt']
-                }
-            },
-            label: 'metrics.access.label',
-            description: 'metrics.access.description',
-            icon: '📍⌛',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['pmus', 'gba', 'osm']
-        },
-        {
-            id: 'mobility_cost{poi_type}{n_transfers}{time_of_day}{n_opportunities}{population}',
-            id_variations: {
-                poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
-                population: {
-                    options: ['_residents', '_elder', '_kids', '_active', '_young'],
-                    viewLevels: ['freguesia', 'municipality']
-                },
-                n_opportunities: {
-                    options: ['_n1', '_n2', '_n3'],
-                    formSlider: true
-                },
-                n_transfers: {
-                    options: ['_1t', '_2t'],
-                    globalFilters: ['pt']
-                },
-                time_of_day: {
-                    options: ['_peak', '_night', '_weekend'], //'_day',
-                    globalFilters: ['pt']
-                }
-            },
-            label: 'metrics.mobility_cost.label',
-            description: 'metrics.mobility_cost.description',
-            icon: '⌛',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(), unit: () => 'min',
-            scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed,
-            sources: ['pmus', 'gba', 'osm']
-        },
-        {
-            id: 'pois_n{poi_type}',
-            id_variations: {
-                poi_type: ['_jobs', '_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary', '_schools_high', '_pt']
-            },
-            label: 'metrics.pois.label',
-            description: 'metrics.pois.description',
-            icon: '📍',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.Magma.reverse(),
-            sources: ['pmus', 'gba', 'osm']
-        },
-        {
-            id: 'access_gap_time_accessibility_gap',
-            label: 'metrics.access_gap_time_accessibility_gap.label',
-            description: 'metrics.access_gap_time_accessibility_gap.description',
-            icon: '⚖️🚗⌛',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(2), ignoreValues: [0, null], unit: () => 'min',
-            scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.GreenToRed,
-            sources: ['pmus', 'gba']
-        },
-        {
-            id: 'access_gap_time_relative_gap_time',
-            label: 'metrics.access_gap_time_relative_gap_time.label',
-            description: 'metrics.access_gap_time_relative_gap_time.description',
-            icon: '⚖️🚗⏳',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(2), ignoreValues: [38.67, 35.5, 22.8, 18.83, 18.13],
-            scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.GreenToRed,
-            sources: ['pmus', 'gba']
-        }
-    ],
-    'metrics.categories.safety': [
-        {
-            id: 'safety_inner_total_acidentes',
-            label: 'metrics.safety_inner_total_acidentes.label',
-            description: 'metrics.safety_inner_total_acidentes.description',
-            icon: '💥',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: logarithmicScale, steps: 100, ignoreValues: [0, null],
-            pallete: COLORS.WhiteToRed,
-            sources: ['ansr', 'pmus']
-        },
-        {
-            id: 'safety_inner_acidentes_per_1000res',
-            label: 'metrics.safety_inner_acidentes_per_1000res.label',
-            description: 'metrics.safety_inner_acidentes_per_1000res.description',
-            icon: '⚠️',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: logarithmicScale, steps: 100, ignoreValues: [0, 1800, 2000, 4166.67, null],
-            pallete: COLORS.WhiteToRed,
-            showAlwaysOnDetails: true,
-            sources: ['ansr', 'pmus', 'census']
-        },
-        {
-            id: 'safety_inner_vitimas_mortais30',
-            label: 'metrics.safety_inner_vitimas_mortais30.label',
-            description: 'metrics.safety_inner_vitimas_mortais30.description',
-            icon: '🚑',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale, ignoreValues: [0, null],
-            pallete: COLORS.WhiteToRed,
-            sources: ['ansr', 'pmus']
-        },
-        {
-            id: 'safety_inner_indice_gravidade',
-            label: 'metrics.safety_inner_indice_gravidade.label',
-            description: 'metrics.safety_inner_indice_gravidade.description',
-            icon: '🤕',
-            format: (v, _min, _max, _filter) => Math.round((v || 0) * 100).toString(), unit: () => '%',
-            scaleMethod: logarithmicScale, steps: 100, ignoreValues: [null],
-            pallete: COLORS.WhiteToRed,
-            sources: ['ansr', 'pmus']
-        },
-        {
-            id: 'safety_inner_veh_per',
-            label: 'metrics.safety_inner_total_veiculos.label',
-            description: 'metrics.safety_inner_total_veiculos.description',
-            icon: '🚗',
-            format: (v, _min, _max, filter) => filter === 'all' ? (v || 0).toString() : Math.round((v || 0) * 100).toString(),
-            unit: (filter, _) => filter === 'all' ? 'veh' : '%',
-            scaleMethod: logarithmicScale, steps: 100, ignoreValues: [0, null],
-            pallete: COLORS.WhiteToRed,
-            sources: ['ansr', 'pmus']
-        }
-    ],
-    'metrics.categories.affordability': [
-        {
-            id: 'affordability_total_money',
-            label: 'metrics.affordability_total_money.label',
-            description: 'metrics.affordability_total_money.description',
-            icon: '💶💼',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(2), ignoreValues: [0, null],
-            scaleMethod: continuousScale, unit: () => '€',
-            scaleMin: 0,
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['iptoll', 'accounting']
-        },
-        {
-            id: 'access_gap_money_cost_gap',
-            label: 'metrics.access_gap_money_cost_gap.label',
-            description: 'metrics.access_gap_money_cost_gap.description',
-            icon: '⚖️🚍🚗🎟️',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(2), ignoreValues: [0, null], unit: () => '€',
-            scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.GreenToRed,
-            sources: ['iptoll', 'accounting']
-        },
-        {
-            id: 'access_gap_money_relative_gap_cost',
-            label: 'metrics.access_gap_money_relative_gap_cost.label',
-            description: 'metrics.access_gap_money_relative_gap_cost.description',
-            icon: '⚖️🚍🚗🎟️',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(2), ignoreValues: [null],
-            scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.GreenToRed,
-            sources: ['iptoll', 'accounting']
-        },
-        {
-            id: 'census_income_income_hh',
-            label: 'metrics.census_income_income_hh.label',
-            description: 'metrics.census_income_income_hh.description',
-            icon: '💰',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale, ignoreValues: [null], unit: () => "€",
-            pallete: COLORS.Viridis.reverse(),
-            showAlwaysOnDetails: true,
-            sources: ['ine']
-        },
-        {
-            id: 'census_income_housing_costs',
-            label: 'metrics.census_income_housing_costs.label',
-            description: 'metrics.census_income_housing_costs.description',
-            icon: '💸🏠',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(), unit: () => "€",
-            scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['census']
-        },
-        // affordability_transp_inc_comp_pass, affordability_transp_inc_comp_sf, affordability_h_transp_inc_comp_pass, affordability_h_transp_inc_comp_sf
-        {
-            id: 'affordability_transp_inc_comp',
-            label: 'metrics.affordability_transp_inc_comp.label',
-            description: 'metrics.affordability_transp_inc_comp.description',
-            icon: '💸🚗🚌',
-            format: (v, _min, _max, _filter) => Math.round((v || 0) * 100).toString(), unit: () => '%',
-            scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['ine', 'census', 'iptoll', 'accounting']
-        },
-        {
-            id: 'affordability_h_transp_inc_comp',
-            label: 'metrics.affordability_h_transp_inc_comp.label',
-            description: 'metrics.affordability_h_transp_inc_comp.description',
-            icon: '💸🚗🚌🏠',
-            format: (v, _min, _max, _filter) => Math.round((v || 0) * 100).toString(), unit: () => '%',
-            scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['ine', 'census', 'iptoll', 'accounting']
-        },
-        {
-            id: 'veh_ownership_total_motor_vehicles_per_hh',
-            label: 'metrics.veh_ownership_total_motor_vehicles_per_hh.label',
-            description: 'metrics.veh_ownership_total_motor_vehicles_per_hh.description',
-            icon: '🚗🛵',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1), unit: () => 'vh',
-            scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['imob']
-        },
-        {
-            id: 'veh_ownership_pct_hh_no_vehicle',
-            label: 'metrics.veh_ownership_pct_hh_no_vehicle.label',
-            description: 'metrics.veh_ownership_pct_hh_no_vehicle.description',
-            icon: '🚶',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(), unit: () => '%',
-            scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse(),
-            showAlwaysOnDetails: true,
-            sources: ['imob']
-        },
-        {
-            id: 'census_income_gini_coef',
-            label: 'metrics.census_income_gini_coef.label',
-            description: 'metrics.census_income_gini_coef.description',
-            icon: '⚖️',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(), unit: () => "%",
-            scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['ine']
-        },
-        {
-            id: 'census_income_palma_ratio',
-            label: 'metrics.census_income_palma_ratio.label',
-            description: 'metrics.census_income_palma_ratio.description',
-            icon: '⚖️',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(2),
-            scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['ine']
-        }
-    ],
-    'metrics.categories.census_landuse': [
-        {
-            id: 'census_landuse_population',
-            label: 'metrics.census_landuse_population.label',
-            description: 'metrics.census_landuse_population.description',
-            icon: '👥',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            showAlwaysOnDetails: true,
-            sources: ['census']
-        },
-        {
-            id: 'census_landuse_population_density',
-            label: 'metrics.census_landuse_population_density.label',
-            description: 'metrics.census_landuse_population_density.description',
-            icon: '🏙️',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['census']
-        },
-        {
-            id: 'census_landuse_women_percentage',
-            label: 'metrics.census_landuse_women_percentage.label',
-            description: 'metrics.census_landuse_women_percentage.description',
-            icon: '👩',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['census']
-        },
-        {
-            id: 'census_landuse{age}_ratio',
-            id_variations: {
-                age: ['_youth', '_elderly']
-            },
-            label: 'metrics.census_landuse_age_ratio.label',
-            description: 'metrics.census_landuse_age_ratio.description',
+            id: 'dasymetric_dependency',
             icon: '🔢',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1), unit: () => '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['census']
-        },
-        {
-            id: 'mobility_infrastructure_length',
-            label: 'metrics.mobility_infrastructure_length.label',
-            description: 'metrics.mobility_infrastructure_length.description',
-            icon: '🛣️',
-            format: (v, _min, _max, _filter) => Math.round((v || 0) / 1000).toString(), unit: () => 'km',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['osm']
-        },
-        {
-            id: 'mobility_infrastructure_to_ratio_car',
-            label: 'metrics.mobility_infrastructure_to_ratio_car.label',
-            description: 'metrics.mobility_infrastructure_to_ratio_car.description',
-            icon: '🚵',
-            format: (v, _min, _max, _filter) => Math.round((v || 0) * 100).toString(), unit: () => '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['osm'],
-            ignoreValues: [63.85, 23.42, 1, 0.98]
-        },
-        {
-            id: 'census_landuse_buildings_pre1945_percentage',
-            label: 'metrics.census_landuse_buildings_pre1945_percentage.label',
-            description: 'metrics.census_landuse_buildings_pre1945_percentage.description',
-            icon: '🏚️',
+            label: 'metrics.census_landuse.dasymetric_dependency.label',
+            description: 'metrics.census_landuse.dasymetric_dependency.description',
             format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['census']
-        },
-        {
-            id: 'census_landuse_volume_density',
-            label: 'metrics.census_landuse_volume_density.label',
-            description: 'metrics.census_landuse_volume_density.description',
-            icon: '🏢',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['gba']
-        },
-        {
-            id: 'cos_builtarea',
-            label: 'metrics.categories.cos_builtarea_title',
-            description: 'metrics.categories.cos_builtarea_desc',
-            icon: '🏗️',
-            format: (v, min, max) => v === min ? '0.3' : (v === max ? '3.0' : String(v)),
-            scaleMethod: continuousScale,
-            pallete: ['#fed976', '#fd8d3c', '#e31a1c', '#800026'],
-            sources: ['cos'],
-            legendCategories: [
-                { color: '#800026', label: 'metrics.categories.cos_builtarea_cat_vertical' },
-                { color: '#e31a1c', label: 'metrics.categories.cos_builtarea_cat_horizontal' },
-                { color: '#fd8d3c', label: 'metrics.categories.cos_builtarea_cat_discontinuous' },
-                { color: '#fed976', label: 'metrics.categories.cos_builtarea_cat_other' }
-            ]
+            pallete: COLORS.WhiteToGreen
         }
+            */
+    ],
+    'metrics.categories.contextual': [
+        {
+            id: 'thefts_n',
+            icon: '🔐',
+            label: 'metrics.contextual.thefts_n.label',
+            description: 'metrics.contextual.thefts_n.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['psp', 'gnr']
+        }
+    ],
+    'metrics.categories.ratios': [
+        {
+            id: 'model_mr_ratio_residential',
+            label: 'metrics.models.mr_ratio.residential.label',
+            description: 'metrics.models.mr_ratio.residential.description',
+            pallete: COLORS.WhiteToGreen,
+            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
+            sources: ['ruma', 'rumus', 'literature_todo']
+            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
+        },
     ]
-        */
 };
 
 export const METRICS = Object.freeze(
@@ -789,26 +202,20 @@ export const REGIONS = {
 } as const;
 
 export const GLOBAL_FILTERS = [
-    // suffix is added to METRICS.id to get the metric for that global filter
-    // > Based on it we can determine if the metric exists for that filter and display the filter selector accordingly
-    // suffixFallback is used only on IMPT dynamic computation 
-    // > It tells that for that filter, if no metric with suffix, suffixFallback metric should be used instead 
     { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
-    { id: 'all_pt', label: 'filters_global.all_pt', suffix: '_all_pt', suffixFallback: '', icon: '🌐' },
-    { id: 'all_pass', label: 'filters_global.all_pass', suffix: '_pass', suffixFallback: '', icon: '🌐💳' },
-    { id: 'all_no_pass', label: 'filters_global.all_no_pass', suffix: '_no_pass', suffixFallback: '', icon: '🌐👛' },
-    { id: 'pt', label: 'filters_global.pt', suffix: '_pt', icon: '🚍' },
-    { id: 'pt_pass', label: 'filters_global.pt_pass', suffix: '_pt_pass', suffixFallback: '_pt', icon: '🚍💳' },
-    { id: 'pt_no_pass', label: 'filters_global.pt_no_pass', suffix: '_pt_no_pass', suffixFallback: '_pt', icon: '🚍👛' },
-    { id: 'walk', label: 'filters_global.walk', suffix: '_walk', icon: '🚶' },
-    { id: 'bike', label: 'filters_global.bike', suffix: '_bike', icon: '🚲' },
-    { id: 'bike_segregated', label: 'filters_global.segregated', suffix: '_bike_segregated', icon: '🚲🪖' },
-    { id: 'car', label: 'filters_global.car', suffix: '_car', icon: '🚗' },
-    { id: 'metrolr_pt', label: 'filters_global.metrolr_pt', suffix: '_metrolr_pt', icon: '🚇🚊' },
-    { id: 'trainferry_pt', label: 'filters_global.trainferry_pt', suffix: '_trainferry_pt', icon: '🚆⛴️' },
-    { id: 'bus_pt', label: 'filters_global.bus_pt', suffix: '_bus_pt', icon: '🚍' },
     { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
-    { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' }
+    { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+
+    { id: 'pre1945', label: 'filters_global.buildings_pre1945', suffix: '_pre1945', icon: '🗝️' },
+
+    { id: 'adults', label: 'filters_global.adults', suffix: '_adults', icon: '👩' },
+    { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
+    { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
+    { id: 'women', label: 'filters_global.women', suffix: '_women', icon: '♀️' },
+
+    { id: 'psp', label: 'filters_global.psp', suffix: '_psp', icon: '🔵' },
+    { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: '🟢' }
+
 ] as const;
 
 export type GlobalFilterId = (typeof GLOBAL_FILTERS)[number]['id'];
