@@ -18,7 +18,7 @@ import { Loader2, Activity, Layers, Globe, Info, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
-import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, DATA_BASE_URL } from './constants';
+import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, DATA_BASE_URL, MUNICIPALITIES_LIMITS_FILE } from './constants';
 import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
@@ -163,7 +163,7 @@ const Dashboard = () => {
                 const levels = (Object.keys(LEVEL_CONFIG) as ViewLevel[]).filter(l => Boolean(LEVEL_CONFIG[l]?.file));
                 const results = await Promise.all([
                     ...levels.map(l => fetch(LEVEL_CONFIG[l]!.file).then(r => r.json())),
-                    fetch('data/municipios_limits.json').then(r => r.json())
+                    fetch(MUNICIPALITIES_LIMITS_FILE).then(r => r.json())
                 ]);
 
                 const geo: Record<string, any> = {};

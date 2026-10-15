@@ -74,7 +74,9 @@
     "accounting": "Operators' annual accounting reports",
     "ruma": "RUMA (Almada)",
     "rumus": "RUMUS (Seixal)",
-    "literature_todo": "Literature (TODO!)"
+    "literature_todo": "Literature (TODO!)",
+    "psp": "Polícia de Segurança Pública",
+    "gnr": "Guarda Nacional Repúblicana"
   },
   "metrics": {
     "categories": {

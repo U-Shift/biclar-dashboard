@@ -33,6 +33,7 @@ npm run preview
 
 The file [`src/constants.tsx`](src/constants.tsx) serves as the central configuration registry for the dashboard. It defines:
 - **`LEVEL_CONFIG`**: Hierarchy levels (e.g. hex grid, parishes/freguesias, municipalities), data endpoints, and download links.
+- **`MUNICIPALITIES_LIMITS_FILE`**: Path or URL to the GeoJSON boundary limits for municipalities (`municipios_limits.json`). This layer is overlaid as a visual boundary outline on finer zoom levels (`hex` and `freguesia`), and filtered dynamically by region.
 - **`REGIONS`**: Regional bounding boxes, map centers, default zoom levels, and filtering keys.
 - **`GLOBAL_FILTERS`** (formerly `MODES`): Context-agnostic global filter definitions and column suffixes (e.g. travel modes like `_pt`, `_bike`, `_car`, or bounds/scenarios like `_min`, `_max`).
 - **`THEME_COLORS`** & **`COLORS`**: UI theme tokens and color scale ramps.
@@ -241,6 +242,16 @@ Each feature in the GeoJSON / CSV files **must** contain:
 | `group_id` | `string \| number` | **Mandatory for child levels** | Identifier of the parent feature in the level above. For example: hex features must have a `group_id` matching their containing `freguesia.id`. This powers:<br>1. **Subareas drilldown**: Clicking a parish displays its constituent hexes.<br>2. **Performer charts**: Child rows display their parent group name via `dataState.parentLookup`. |
 | `region_id` / `nuts2` | `string` | **Mandatory** | Regional code matching keys in `REGIONS` in `constants.tsx` (e.g. `'PT1A'` for Grande Lisboa, `'PT1B'` for Península de Setúbal, or `'metropolis'`). When the user selects a region filter, features are filtered by `f.properties?.region_id === nutFilter \|\| f.properties?.nuts2 === REGIONS[nutFilter].name`. |
 | Metric columns | `number \| string` | As configured | Attribute keys must exactly match the resolved metric IDs (e.g. `model_mr_parking_residential_min`, `dasymetric_population`, `mobility_infrastructure_length`). |
+
+### Required Municipalities Limits Properties (`MUNICIPALITIES_LIMITS_FILE`)
+
+The municipality boundary GeoJSON file referenced by `MUNICIPALITIES_LIMITS_FILE` (e.g. `data/municipios_limits.json`) must contain:
+
+| Property / Field | Type | Requirement | Purpose |
+| :--- | :--- | :--- | :--- |
+| `region_id` | `string` | **Mandatory** | Regional identifier matching keys in `REGIONS` (e.g. `'PT1A'`, `'PT1B'`). Required for dynamically filtering the overlaid municipality boundaries when a specific sub-region is selected. |
+| `municipio` / `name` | `string` | Optional | Name of the municipality (e.g. `"Alcochete"`, `"Lisboa"`). |
+| `geometry` | `Polygon \| MultiPolygon` | **Mandatory** | Boundary geometries in EPSG:4326 for rendering the overlay outlines on `hex` and `freguesia` levels. |
 
 ### Geographic Format & CRS
 - **File format**: GeoJSON (FeatureCollection) and CSV.

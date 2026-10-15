@@ -9,6 +9,8 @@ export const LEVEL_CONFIG: Partial<Record<ViewLevel, { file: string, parent?: Vi
     'hex': { file: `${DATA_BASE_URL}grid_dashboard.geojson`, parent: 'freguesia', download_geojson: `${DATA_BASE_URL}grid_dashboard.geojson`, download_csv: `${DATA_BASE_URL}grid_dashboard.csv` }
 };
 
+export const MUNICIPALITIES_LIMITS_FILE = `${DATA_BASE_URL}municipios_limits.geojson`;
+
 export const THEME_COLORS = {
     primary: '#001d06',
     primaryLight: '#00330b',
