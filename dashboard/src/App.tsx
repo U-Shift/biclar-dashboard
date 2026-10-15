@@ -406,7 +406,7 @@ const Dashboard = () => {
     const onEachFeature = (feature: any, layer: any) => {
         const props = feature.properties;
         const val = getMetricValue(props, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
-        const formattedVal = selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id);
+        const formattedVal = selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id, selectedVariations);
 
         const parentLevel = LEVEL_CONFIG[effectiveLevel]?.parent;
         const parentName = (parentLevel && props.group_id)
@@ -737,8 +737,8 @@ const Dashboard = () => {
                                             style={{ background: getLegendGradient(selectedMetric, currentDomain, isColorBlindMode) }}
                                         />
                                         <div className="flex justify-between text-[13px] font-black opacity-40 uppercase tracking-tighter">
-                                            <span>{selectedMetric.format(currentDomain[0], currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id)}</span>
-                                            <span>{selectedMetric.format(currentDomain[currentDomain.length - 1], currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id)}</span>
+                                            <span>{selectedMetric.format(currentDomain[0], currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id, selectedVariations)}</span>
+                                            <span>{selectedMetric.format(currentDomain[currentDomain.length - 1], currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id, selectedVariations)}</span>
                                         </div>
                                     </div>
                                 )}

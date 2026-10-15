@@ -112,7 +112,12 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             },
             label: 'metrics.models.mr.label',
             description: 'metrics.models.mr.description',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
+            format: (v, _min, _max, _filter, variations) => {
+                if (variations?.type === '_ratio_residential') {
+                    return (v || 0).toFixed(1);
+                }
+                return Math.round(v || 0).toString();
+            },
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue,
             default: true,

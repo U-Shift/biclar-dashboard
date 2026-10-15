@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCont
 import { MetricDef } from '../types';
 import { GlobalFilterId } from '../constants';
 
-export const MiniBarChart = ({ data, metric, selectedFilter, isDark, type: _type, onSelect }: { data: any[], metric: MetricDef, selectedFilter?: GlobalFilterId, isDark: boolean, type?: 'highest' | 'lowest', onSelect?: (id: string | number) => void }) => {
+export const MiniBarChart = ({ data, metric, selectedFilter, selectedVariations, isDark, type: _type, onSelect }: { data: any[], metric: MetricDef, selectedFilter?: GlobalFilterId, selectedVariations?: Record<string, string>, isDark: boolean, type?: 'highest' | 'lowest', onSelect?: (id: string | number) => void }) => {
     const activeFilter = selectedFilter || 'all';
 
     // Enhance data with a max value for the "ghost" bar that holds labels
@@ -26,7 +26,7 @@ export const MiniBarChart = ({ data, metric, selectedFilter, isDark, type: _type
                             >
                                 <div className="text-[10px] font-black opacity-30 uppercase tracking-widest">{d.group || 'District'}</div>
                                 <div className="text-[13px] font-black">{d.name}</div>
-                                <div className="text-[13px] font-black mt-1" style={{ color: d.color }}>{metric.format(d.value, minValue, maxValue, activeFilter)} {metric.unit?.(activeFilter, d.value) || ''}</div>
+                                <div className="text-[13px] font-black mt-1" style={{ color: d.color }}>{metric.format(d.value, minValue, maxValue, activeFilter, selectedVariations)} {metric.unit?.(activeFilter, d.value, selectedVariations) || ''}</div>
                             </div>
                         );
                     }

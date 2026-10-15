@@ -83,7 +83,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                     const isIgnored = isMetricValueIgnored(val, selectedMetric);
                                     if (isIgnored) return null;
 
-                                    const rawFormattedVal = selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, activeFilter.id);
+                                    const rawFormattedVal = selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, activeFilter.id, selectedVariations);
                                     const formattedVal = rawFormattedVal.split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.');
                                     const color = getColor(val, allDomains[selectedMetric.id] || [0, 1], selectedMetric, isColorBlindMode);
 
@@ -101,7 +101,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         <div className="flex flex-col items-end shrink-0 pl-1">
                                             <span className="text-[9px] font-black opacity-40 uppercase tracking-widest mb-2 text-right max-w-[120px] leading-[1.2] line-clamp-2" title={t(selectedMetric.label)}>{t(selectedMetric.label)}</span>
                                             <span className="text-2xl px-4 py-1.5 font-black tracking-tighter leading-none rounded-full shadow-sm" style={{ backgroundColor: color, color: contrastColor }}>
-                                                {formattedVal}{selectedMetric.unit ? ' ' + selectedMetric.unit(activeFilter.id, val) : ''}
+                                                {formattedVal}{selectedMetric.unit ? ' ' + selectedMetric.unit(activeFilter.id, val, selectedVariations) : ''}
                                             </span>
                                         </div>
                                     );
@@ -133,8 +133,8 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                 <DetailCard
                                                     key={m.id}
                                                     label={t(m.label)}
-                                                    value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 100, activeFilter.id).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
-                                                    unit={m.unit?.(activeFilter.id, val)}
+                                                    value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 100, activeFilter.id, selectedVariations).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
+                                                    unit={m.unit?.(activeFilter.id, val, selectedVariations)}
                                                     hexColor={getColor(val, allDomains[m.id] || [0, 100], m, isColorBlindMode)}
                                                     isDark={isDarkMode}
                                                 />
@@ -217,7 +217,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                     <span className="opacity-50 w-36">{f.name}</span>
                                                     <span className={`font-bold ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`}>
                                                         {!isIgnored ?
-                                                            selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, activeFilter.id)
+                                                            selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, activeFilter.id, selectedVariations)
                                                             : '—'
                                                         }
                                                     </span>
@@ -245,6 +245,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         data={chartData.bestPerformers}
                                         metric={selectedMetric}
                                         selectedFilter={activeFilter.id}
+                                        selectedVariations={selectedVariations}
                                         isDark={isDarkMode}
                                         type="highest"
                                         onSelect={(id) => {
@@ -264,6 +265,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         data={chartData.worstPerformers}
                                         metric={selectedMetric}
                                         selectedFilter={activeFilter.id}
+                                        selectedVariations={selectedVariations}
                                         isDark={isDarkMode}
                                         type="lowest"
                                         onSelect={(id) => {
@@ -306,8 +308,8 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, filter: any, selectedFe
                     <DetailCard
                         key={m.id}
                         label={t(m.label)}
-                        value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, filter.id).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
-                        unit={m.unit?.(filter.id, val)}
+                        value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, filter.id, selectedVariations).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
+                        unit={m.unit?.(filter.id, val, selectedVariations)}
                         hexColor={getColor(val, allDomains[m.id] || [0, 1], m, isColorBlindMode)}
                         isDark={isDarkMode}
                     />

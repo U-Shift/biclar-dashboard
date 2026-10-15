@@ -67,8 +67,8 @@ Each metric object adheres to the `MetricDef` type (defined in [`src/types.ts`](
 | `valid_id_variations`| `Record<string, string>[]` | Optional. Explicit whitelist of valid variation combinations (if absent, auto-discovered from data). When defined, filters selection might hide other filters that are not compatible. |
 | `label` | `string` | Translation key for the metric name (e.g. `'metrics.models.mr.label'`). |
 | `description` | `string` | Translation key for the tooltip/description (e.g. `'metrics.models.mr.description'`). |
-| `format` | `(v, min, max, filter) => string` | Formatting function for display values (e.g. `(v) => (v \|\| 0).toFixed(1)`). |
-| `unit` | `(filter, v) => string` | Optional. Display unit function (e.g. `() => 'min'`, `() => '%'`, `() => 'km'`). |
+| `format` | `(v, min, max, filter, variations?) => string` | Formatting function for display values (e.g. `(v) => (v \|\| 0).toFixed(1)` or switching based on `variations?.type`). |
+| `unit` | `(filter, v?, variations?) => string` | Optional. Display unit function (e.g. `() => 'min'`, `() => '%'`, `() => 'km'`). |
 | `scaleMethod` | `ScaleMethod` | Scaling algorithm: `continuousScale`, `equalCountScale`, `equalIntervalScale`, or `logarithmicScale`. |
 | `pallete` | `string[]` | Color ramp array (from `COLORS`, e.g. `COLORS.WhiteToBlue` or `COLORS.Viridis`). |
 | `sources` | `string[]` | Optional. Source keys matched against `sources` in translation files (e.g. `['census', 'osm']`). |
