@@ -396,9 +396,15 @@
     "all_pt": "Todos os TP",
     "metrolr_pt": "Metro (Ligeiro)",
     "trainferry_pt": "Comboio/Barco",
-    "bus_pt": "Autocarro",
     "min": "Mínimo",
-    "max": "Máximo"
+    "max": "Máximo",
+    "buildings_pre1945": "Construção anterior a 1945",
+    "adults": "Adultos (15-64)",
+    "youth": "Jovens (0-14)",
+    "elderly": "Idosos (65+)",
+    "women": "Mulheres",
+    "psp": "PSP",
+    "gnr": "GNR"
   },
   "modes": {
     "all": "Todos",

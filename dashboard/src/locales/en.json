@@ -95,6 +95,12 @@
         }
       }
     },
+    "contextual": {
+      "thefts_n": {
+        "label": "Bike thefts",
+        "description": "Number of bicycle thefts reported to the authorities"
+      }
+    },
     "census_landuse": {
       "dasymetric_population": {
         "label": "Population",
@@ -127,7 +133,9 @@
     "adults": "Adults (15-64)",
     "youth": "Youth (0-14)",
     "elderly": "Elderly (65+)",
-    "women": "Women"
+    "women": "Women",
+    "psp": "Polícia de Segurança Pública",
+    "gnr": "Guarda Nacional Repúblicana"
   },
   "about": {
     "p1": "Available soon....",

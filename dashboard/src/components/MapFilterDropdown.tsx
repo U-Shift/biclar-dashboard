@@ -8,6 +8,22 @@ interface Option {
     icon?: string | React.ReactNode;
 }
 
+const renderDropdownIcon = (icon?: string | React.ReactNode, isActive?: boolean) => {
+    if (!icon) return null;
+    if (typeof icon === 'string' && (icon.includes('/') || icon.endsWith('.png') || icon.endsWith('.jpg') || icon.endsWith('.jpeg') || icon.endsWith('.svg') || icon.endsWith('.webp'))) {
+        return (
+            <img
+                src={icon}
+                alt=""
+                className={`w-4 h-4 object-contain pointer-events-none select-none rounded-sm inline-block ${
+                    isActive ? 'brightness-0 invert opacity-75' : ''
+                }`}
+            />
+        );
+    }
+    return icon;
+};
+
 interface MapFilterDropdownProps {
     isMobile?: boolean;
     label: string;
@@ -69,7 +85,7 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
                 <div className="text-left">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 leading-none mb-1">{label}</p>
                     <div className="flex items-center gap-2">
-                        {selectedOption.icon && <span className="text-base leading-none">{selectedOption.icon}</span>}
+                        {selectedOption.icon && <span className="text-base leading-none flex items-center">{renderDropdownIcon(selectedOption.icon)}</span>}
                         <span className="text-[13px] font-black uppercase tracking-widest">{selectedOption.label}</span>
                     </div>
                 </div>
@@ -108,7 +124,7 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
                                         : `${isDark ? 'text-neutral-500 hover:bg-white/5 hover:text-neutral-200' : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-800'}`}
                                 `}
                             >
-                                {option.icon && <span className="text-base">{option.icon}</span>}
+                                {option.icon && <span className="text-base flex items-center">{renderDropdownIcon(option.icon, value === option.id)}</span>}
                                 {option.label}
                             </button>
                         ))}

@@ -14,6 +14,23 @@ export interface GlobalFilterSelectorProps {
     isDark: boolean;
 }
 
+const renderIcon = (icon: string | React.ReactNode, isActive: boolean) => {
+    if (typeof icon === 'string' && (icon.includes('/') || icon.endsWith('.png') || icon.endsWith('.jpg') || icon.endsWith('.jpeg') || icon.endsWith('.svg') || icon.endsWith('.webp'))) {
+        return (
+            <img
+                src={icon}
+                alt=""
+                className={`w-5 h-5 object-contain pointer-events-none select-none transition-all duration-300 ${
+                    isActive
+                        ? 'brightness-0 invert opacity-75'
+                        : ''
+                }`}
+            />
+        );
+    }
+    return icon;
+};
+
 export const GlobalFilterSelector: React.FC<GlobalFilterSelectorProps> = ({ value, options, onChange, isDark }) => {
     if (!options || options.length < 2) return null;
 
@@ -35,8 +52,8 @@ export const GlobalFilterSelector: React.FC<GlobalFilterSelectorProps> = ({ valu
                                 }
                             `}
                         >
-                            <span className="text-xl leading-none transition-transform duration-300 group-hover:scale-110 group-active:scale-90">
-                                {option.icon}
+                            <span className="text-xl leading-none transition-transform duration-300 group-hover:scale-110 group-active:scale-90 flex items-center justify-center">
+                                {renderIcon(option.icon, isActive)}
                             </span>
                         </button>
                     </Tooltip>

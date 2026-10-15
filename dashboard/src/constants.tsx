@@ -213,8 +213,8 @@ export const GLOBAL_FILTERS = [
     { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
     { id: 'women', label: 'filters_global.women', suffix: '_women', icon: '♀️' },
 
-    { id: 'psp', label: 'filters_global.psp', suffix: '_psp', icon: '🔵' },
-    { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: '🟢' }
+    { id: 'psp', label: 'filters_global.psp', suffix: '_psp', icon: 'icons/psp.png' },
+    { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: 'icons/gnr.png' }
 
 ] as const;
 
