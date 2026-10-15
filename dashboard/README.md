@@ -34,7 +34,7 @@ npm run preview
 The file [`src/constants.tsx`](src/constants.tsx) serves as the central configuration registry for the dashboard. It defines:
 - **`LEVEL_CONFIG`**: Hierarchy levels (e.g. hex grid, parishes/freguesias, municipalities), data endpoints, and download links.
 - **`REGIONS`**: Regional bounding boxes, map centers, default zoom levels, and filtering keys.
-- **`MODES`**: Travel modes and their corresponding column suffixes (e.g. `_pt`, `_bike`, `_car`).
+- **`GLOBAL_FILTERS`** (formerly `MODES`): Context-agnostic global filter definitions and column suffixes (e.g. travel modes like `_pt`, `_bike`, `_car`, or bounds/scenarios like `_min`, `_max`).
 - **`THEME_COLORS`** & **`COLORS`**: UI theme tokens and color scale ramps.
 - **`METRIC_DATA`** / **`METRICS`**: All indicator and model metric definitions displayed in the dashboard.
 - **`MAP_LAYERS`**: Base map tile providers (Carto/OpenFreeMap, Satellite, OSM).
@@ -67,8 +67,8 @@ Each metric object adheres to the `MetricDef` type (defined in [`src/types.ts`](
 | `valid_id_variations`| `Record<string, string>[]` | Optional. Explicit whitelist of valid variation combinations (if absent, auto-discovered from data). When defined, filters selection might hide other filters that are not compatible. |
 | `label` | `string` | Translation key for the metric name (e.g. `'metrics.models.mr.label'`). |
 | `description` | `string` | Translation key for the tooltip/description (e.g. `'metrics.models.mr.description'`). |
-| `format` | `(v, min, max, mode) => string` | Formatting function for display values (e.g. `(v) => (v \|\| 0).toFixed(1)`). |
-| `unit` | `(mode, v) => string` | Optional. Display unit function (e.g. `() => 'min'`, `() => '%'`, `() => 'km'`). |
+| `format` | `(v, min, max, filter) => string` | Formatting function for display values (e.g. `(v) => (v \|\| 0).toFixed(1)`). |
+| `unit` | `(filter, v) => string` | Optional. Display unit function (e.g. `() => 'min'`, `() => '%'`, `() => 'km'`). |
 | `scaleMethod` | `ScaleMethod` | Scaling algorithm: `continuousScale`, `equalCountScale`, `equalIntervalScale`, or `logarithmicScale`. |
 | `pallete` | `string[]` | Color ramp array (from `COLORS`, e.g. `COLORS.WhiteToBlue` or `COLORS.Viridis`). |
 | `sources` | `string[]` | Optional. Source keys matched against `sources` in translation files (e.g. `['census', 'osm']`). |
@@ -83,10 +83,10 @@ Each metric object adheres to the `MetricDef` type (defined in [`src/types.ts`](
 
 When resolving a metric value for a map feature, the dashboard constructs the target column name dynamically:
 
-$$\text{Final Property ID} = \text{metric.id (with placeholders replaced)} + \text{mode.suffix}$$
+$$\text{Final Property ID} = \text{metric.id (with placeholders replaced)} + \text{globalFilter.suffix}$$
 
 1. **Placeholders**: Any `{group}` token in `metric.id` is replaced by the user's selected variation option.
-2. **Mode suffix**: The selected mode's `suffix` from `MODES` (e.g. `_pt`, `_bike`, `_car`) is appended to the end.
+2. **Global filter suffix**: The selected global filter's `suffix` from `GLOBAL_FILTERS` (e.g. travel modes `_pt`, `_bike`, `_car` or bounds `_min`, `_max`) is appended to the end. If the filter has no suffix (e.g. `all`), nothing is appended.
 
 #### Defining Variations (`id_variations`)
 
@@ -98,10 +98,10 @@ id_variations: {
     population_type: {
         options: ['_population', '_adults', '_youth', '_elderly', '_women']
     },
-    // 2. Options constrained by mode or view level:
+    // 2. Options constrained by global filter or view level:
     walking_time: {
         options: ['_15w', '_20w', '_30w'],
-        modes: ['pt'],               // Only visible when PT mode is active
+        globalFilters: ['pt'],       // Only visible when PT filter is active (supports 'modes' as backward-compatible alias)
         viewLevels: ['hex'],         // Only visible at hex grid level
         formSlider: false,           // Render as radio/pill buttons instead of slider
         visible: true                // Set false to hide selector in UI
@@ -133,6 +133,42 @@ id_variations: {
    ```
 2. **Add translation strings** in both [`src/locales/en.json`](src/locales/en.json) and [`src/locales/pt.json`](src/locales/pt.json) (see [Translations](#how-translations-work) below).
 3. **Verify dataset columns**: Ensure the GeoJSON/CSV datasets contain matching properties: `parking_demand_baseline`, `parking_demand_high_growth`, and `parking_demand_low_growth`.
+
+---
+
+## Global Filters (`GLOBAL_FILTERS`)
+
+The dashboard features a context-agnostic global filter system registered in `GLOBAL_FILTERS` inside [`src/constants.tsx`](src/constants.tsx).
+
+Rather than being tied strictly to travel modes, global filters allow any metric to be sliced by a global suffix.
+
+### Structure of a Global Filter
+
+```tsx
+export const GLOBAL_FILTERS = [
+    { id: 'all', label: 'modes.all', suffix: '', icon: '🌐' },
+    { id: 'pt', label: 'modes.pt', suffix: '_pt', icon: '🚍' },
+    { id: 'bike', label: 'modes.bike', suffix: '_bike', icon: '🚲' },
+    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' },
+    { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+    { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' }
+] as const;
+```
+
+### Key Capabilities
+
+1. **Context Agnostic**:
+   - **Travel Modes**: `pt`, `bike`, `walk`, `car`, etc., appending suffixes like `_pt` or `_bike`.
+   - **Bounds & Scenarios**: `min`, `max`, appending `_min` and `_max` (e.g. `model_mr_parking_residential_min` and `model_mr_parking_residential_max`).
+2. **Dynamic UI Discovery**:
+   - The floating selector (`GlobalFilterSelector`) on the map only renders options that actually exist in the dataset for the selected metric and view level.
+   - For example, if a metric only provides `_min` and `_max` columns, only the `⬇️` and `⬆️` buttons appear.
+   - If an indicator has fewer than 2 valid filter options, the selector automatically hides itself.
+3. **Fallback Support (`suffixFallback`)**:
+   - For calculated composite metrics (e.g. IMPT dynamic computation), `suffixFallback` specifies which suffix to fall back on if a mode or filter does not have a dedicated indicator column.
+4. **Backward Compatibility**:
+   - `MODES` and `ModeId` remain exported as aliases of `GLOBAL_FILTERS` and `GlobalFilterId`.
+   - Metric variations support both `globalFilters` and legacy `modes` constraints in `id_variations`.
 
 ---
 
@@ -261,8 +297,9 @@ Under `"metrics"."categories"`:
 }
 ```
 
-#### 4. Regions, Modes, and Sources
+#### 4. Regions, Global Filters, Modes, and Sources
 - **Regions**: under `"regions"` (e.g. `"regions": { "grand_lisbon": "Grande Lisboa" }`).
+- **Global Filters**: under `"filters_global"` (e.g. `"filters_global": { "min": "Minimum", "max": "Maximum" }`).
 - **Modes**: under `"modes"` (e.g. `"modes": { "bike": "Bicycle", "pt": "Public Transit" }`).
 - **Data Sources**: under `"sources"` (e.g. `"sources": { "census": "Census 2021", "osm": "OpenStreetMap" }`).
 
@@ -271,4 +308,5 @@ Under `"metrics"."categories"`:
 - [ ] Add the `label` and `description` keys to [`src/locales/en.json`](src/locales/en.json).
 - [ ] Add the matching `label` and `description` keys to [`src/locales/pt.json`](src/locales/pt.json).
 - [ ] If using new variations, add the group title and option labels under `"variations"` in both locale files.
+- [ ] If using new global filters, add entries to `GLOBAL_FILTERS` in [`src/constants.tsx`](src/constants.tsx) and labels under `"filters_global"` in translation files.
 - [ ] Confirm dataset columns in the GeoJSON/CSV files match the computed IDs.

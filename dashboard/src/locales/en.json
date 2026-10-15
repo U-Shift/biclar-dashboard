@@ -368,6 +368,11 @@
     "grand_lisbon": "Grande Lisboa",
     "setubal_peninsula": "Península de Setúbal"
   },
+  "filters_global": {
+    "all": "All",
+    "min": "Minimum",
+    "max": "Maximum"
+  },
   "modes": {
     "all": "All",
     "all_pass": "All (with Navegante)",
@@ -522,7 +527,7 @@
     "step_3": "You can check the Mobility Poverty Index computed according to several criteria (and even compute one adapted to your local context, under IMPT dynamic).",
     "step_4": "You can check the values computed for each aggregated dimension.",
     "step_5": "And even analyse each individual metric that contributed to each of the dimensions.",
-    "step_6": "For each layer, you can filter by mode.",
+    "step_6": "For each layer, you can apply global filters (such as travel modes or bounds).",
     "step_7": "And see the data at different scales.",
     "step_8": "Change the region to adapt the scale to different areas.",
     "step_9": "Regional contrasts panel show you the 5 best and worst performers for the layer selected.",

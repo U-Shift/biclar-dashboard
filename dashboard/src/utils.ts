@@ -116,9 +116,9 @@ export const getLegendGradient = (metric: MetricDef, domain: number[], isColorBl
 
 /**
  * Resolves the value of a metric from a feature's properties, considering 
- * mode suffixes, fallbacks, and optional alternative IDs.
+ * global filter suffixes (e.g. modes, bounds), fallbacks, and optional alternative IDs.
  */
-export const getMetricValue = (properties: any, metric: MetricDef, mode: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
+export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
     if (!properties) return undefined;
 
     const resolveId = (id: string) => {
@@ -128,7 +128,8 @@ export const getMetricValue = (properties: any, metric: MetricDef, mode: { id?: 
                 const groupDef = metric.id_variations?.[group];
                 let shouldApply = true;
                 if (groupDef && !Array.isArray(groupDef)) {
-                    if (groupDef.modes && mode.id && !groupDef.modes.includes(mode.id as any)) shouldApply = false;
+                    const allowedFilters = groupDef.globalFilters || groupDef.modes;
+                    if (allowedFilters && filter.id && !allowedFilters.includes(filter.id as any)) shouldApply = false;
                     if (groupDef.viewLevels && viewLevel && !groupDef.viewLevels.includes(viewLevel as any)) shouldApply = false;
                 }
                 
@@ -143,7 +144,7 @@ export const getMetricValue = (properties: any, metric: MetricDef, mode: { id?: 
     }
 
     const idsToTry = [
-        resolveId(metric.id) + (mode.suffix || '')
+        resolveId(metric.id) + (filter.suffix || '')
     ].filter(Boolean) as string[];
 
     for (const id of idsToTry) {

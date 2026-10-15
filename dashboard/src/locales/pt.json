@@ -374,6 +374,11 @@
     "grand_lisbon": "Grande Lisboa",
     "setubal_peninsula": "Península de Setúbal"
   },
+  "filters_global": {
+    "all": "Todos",
+    "min": "Mínimo",
+    "max": "Máximo"
+  },
   "modes": {
     "all": "Todos",
     "all_pass": "Todos (com Navegante)",
@@ -526,7 +531,7 @@
     "step_3": "Pode verificar o Índice de Pobreza nos Transportes calculado de acordo com vários critérios (e até calcular um adaptado ao seu contexto local, no IMPT dinâmico).",
     "step_4": "Pode verificar os valores calculados para cada dimensão agregada.",
     "step_5": "E ainda analisar cada métrica individual que contribuiu para cada uma das dimensões.",
-    "step_6": "Para cada camada, pode filtrar por modo de transporte.",
+    "step_6": "Para cada camada, pode aplicar filtros globais (como modos de transporte ou limites).",
     "step_7": "E ver os dados em diferentes escalas.",
     "step_8": "Altere a região para adaptar a escala a diferentes áreas.",
     "step_9": "O painel de contrastes regionais mostra-lhe os 5 melhores e piores valores para a camada selecionada.",

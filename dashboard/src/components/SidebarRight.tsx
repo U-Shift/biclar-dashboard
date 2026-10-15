@@ -15,7 +15,8 @@ interface SidebarRightProps {
     viewLevel: string;
     selectedMetric: MetricDef;
     selectedMetricId: string;
-    selectedMode: any;
+    selectedGlobalFilter?: any;
+    selectedMode?: any;
     dataState: any;
     allDomains: Record<string, number[]>;
     subLevelData: any[];
@@ -30,10 +31,11 @@ interface SidebarRightProps {
 
 export const SidebarRight: React.FC<SidebarRightProps> = ({
     isDarkMode, isColorBlindMode, selectedFeature, viewLevel, selectedMetric, selectedMetricId,
-    selectedMode, dataState, allDomains, subLevelData, chartData,
+    selectedGlobalFilter, selectedMode, dataState, allDomains, subLevelData, chartData,
     setSelectedFeature, computedGeoData, setZoomRequest, setViewLevel,
     selectedVariations, isMobile
 }) => {
+    const activeFilter = selectedGlobalFilter || selectedMode;
     const { t } = useTranslation();
     const isIMPT = ['IMPT_entropy_pca', 'IMPT_score_pca_geom', 'IMPT_dynamic'].includes(selectedMetricId);
 
@@ -78,13 +80,11 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                 </div>
 
                                 {(() => {
-                                    const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
-                                    const fallbackId = selectedMode.suffixFallback !== undefined ? `${selectedMetric.id}${selectedMode.suffixFallback}` : undefined;
-                                    const val = (selectedFeature[effectiveId] ?? (fallbackId ? selectedFeature[fallbackId] : undefined));
+                                    const val = getMetricValue(selectedFeature, selectedMetric, activeFilter, viewLevel, selectedVariations);
                                     const isIgnored = isMetricValueIgnored(val, selectedMetric);
                                     if (isIgnored) return null;
 
-                                    const rawFormattedVal = selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, selectedMode.id);
+                                    const rawFormattedVal = selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, activeFilter.id);
                                     const formattedVal = rawFormattedVal.split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.');
                                     const color = getColor(val, allDomains[selectedMetric.id] || [0, 1], selectedMetric, isColorBlindMode);
 
@@ -102,7 +102,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         <div className="flex flex-col items-end shrink-0 pl-1">
                                             <span className="text-[9px] font-black opacity-40 uppercase tracking-widest mb-2 text-right max-w-[120px] leading-[1.2] line-clamp-2" title={t(selectedMetric.label)}>{t(selectedMetric.label)}</span>
                                             <span className="text-2xl px-4 py-1.5 font-black tracking-tighter leading-none rounded-full shadow-sm" style={{ backgroundColor: color, color: contrastColor }}>
-                                                {formattedVal}{selectedMetric.unit ? ' ' + selectedMetric.unit(selectedMode.id, val) : ''}
+                                                {formattedVal}{selectedMetric.unit ? ' ' + selectedMetric.unit(activeFilter.id, val) : ''}
                                             </span>
                                         </div>
                                     );
@@ -111,7 +111,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 
                             {!isIMPT && (
                                 <div className="grid grid-cols-2 gap-2 mb-3">
-                                    {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, isDarkMode, t, selectedVariations, viewLevel, isColorBlindMode)}
+                                    {FLAT_METRICS_FILTERED(selectedMetricId, activeFilter, selectedFeature, allDomains, isDarkMode, t, selectedVariations, viewLevel, isColorBlindMode)}
                                 </div>
                             )}
 
@@ -121,8 +121,8 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         const m = FLAT_METRICS.find(metric => metric.id === dimId);
                                         if (!m) return null;
 
-                                        const effectiveId = `${m.id}${selectedMode.suffix || ''}`;
-                                        const fallbackId = selectedMode.suffixFallback !== undefined ? `${m.id}${selectedMode.suffixFallback}` : undefined;
+                                        const effectiveId = `${m.id}${activeFilter.suffix || ''}`;
+                                        const fallbackId = activeFilter.suffixFallback !== undefined ? `${m.id}${activeFilter.suffixFallback}` : undefined;
                                         const val = selectedFeature[effectiveId] ??
                                             (fallbackId ? selectedFeature[fallbackId] : undefined) ??
                                             selectedFeature[m.id];
@@ -134,8 +134,8 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                 <DetailCard
                                                     key={m.id}
                                                     label={t(m.label)}
-                                                    value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 100, selectedMode.id).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
-                                                    unit={m.unit?.(selectedMode.id, val)}
+                                                    value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 100, activeFilter.id).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
+                                                    unit={m.unit?.(activeFilter.id, val)}
                                                     hexColor={getColor(val, allDomains[m.id] || [0, 100], m, isColorBlindMode)}
                                                     isDark={isDarkMode}
                                                 />
@@ -200,7 +200,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                     <h4 className="text-[12px] font-black opacity-30 uppercase mb-2 tracking-widest">{t('sidebar.constituent_dynamics')}</h4>
                                     <div className="space-y-0 max-h-40 overflow-y-auto pr-2 scrollbar-hide">
                                         {subLevelData.slice(0, 10).map((f: any) => {
-                                            const val = getMetricValue(f, selectedMetric, selectedMode, viewLevel, selectedVariations);
+                                            const val = getMetricValue(f, selectedMetric, activeFilter, viewLevel, selectedVariations);
                                             const isIgnored = isMetricValueIgnored(val, selectedMetric);
                                             return (
                                                 <div
@@ -218,7 +218,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                     <span className="opacity-50 w-36">{f.name}</span>
                                                     <span className={`font-bold ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`}>
                                                         {!isIgnored ?
-                                                            selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, selectedMode.id)
+                                                            selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, activeFilter.id)
                                                             : '—'
                                                         }
                                                     </span>
@@ -245,7 +245,8 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                     <MiniBarChart
                                         data={chartData.bestPerformers}
                                         metric={selectedMetric}
-                                        selectedMode={selectedMode.id}
+                                        selectedFilter={activeFilter.id}
+                                        selectedMode={activeFilter.id}
                                         isDark={isDarkMode}
                                         type="highest"
                                         onSelect={(id) => {
@@ -264,7 +265,8 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                     <MiniBarChart
                                         data={chartData.worstPerformers}
                                         metric={selectedMetric}
-                                        selectedMode={selectedMode.id}
+                                        selectedFilter={activeFilter.id}
+                                        selectedMode={activeFilter.id}
                                         isDark={isDarkMode}
                                         type="lowest"
                                         onSelect={(id) => {
@@ -287,7 +289,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 
 
 
-const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any, _selectedVariations: any, _viewLevel: any, isColorBlindMode: boolean) => {
+const FLAT_METRICS_FILTERED = (selectedMetricId: string, filter: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any, selectedVariations: any, viewLevel: any, isColorBlindMode: boolean) => {
     return FLAT_METRICS.filter(m =>
         m.showAlwaysOnDetails && m.id !== selectedMetricId
     )
@@ -298,11 +300,7 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
             if (b.id === 'census_landuse_population') return 1;
             return 0;
         }).map(m => {
-            const effectiveId = `${m.id}${selectedMode.suffix || ''}`;
-            const fallbackId = selectedMode.suffixFallback !== undefined ? `${m.id}${selectedMode.suffixFallback}` : undefined;
-            const val = selectedFeature[effectiveId] ??
-                (fallbackId ? selectedFeature[fallbackId] : undefined) ??
-                selectedFeature[m.id];
+            const val = getMetricValue(selectedFeature, m, filter, viewLevel, selectedVariations);
             if (isMetricValueIgnored(val, m)) {
                 return null;
             }
@@ -311,8 +309,8 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
                     <DetailCard
                         key={m.id}
                         label={t(m.label)}
-                        value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, selectedMode.id).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
-                        unit={m.unit?.(selectedMode.id, val)}
+                        value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, filter.id).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
+                        unit={m.unit?.(filter.id, val)}
                         hexColor={getColor(val, allDomains[m.id] || [0, 1], m, isColorBlindMode)}
                         isDark={isDarkMode}
                     />

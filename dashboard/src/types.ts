@@ -1,11 +1,13 @@
 import React from 'react';
-import { ModeId } from './constants';
+import { GlobalFilterId } from './constants';
+export type { GlobalFilterId, ModeId } from './constants';
 
 export type ViewLevel = 'hex' | 'freguesia' | 'municipality';
 
 export type VariationGroup = string[] | {
     options: string[];
-    modes?: ModeId[]; // If defined, the options are only available for the specified modes
+    globalFilters?: GlobalFilterId[]; // If defined, the options are only available for the specified global filters
+    modes?: GlobalFilterId[]; // Backward-compatible alias for globalFilters
     viewLevels?: ViewLevel[]; // If defined, the options are only available for the specified view levels
     formSlider?: boolean; // If true, the options are presented as a slider
     visible?: boolean; // If false, the options are not visible
@@ -29,7 +31,7 @@ export type MetricDef = {
     description?: string;
     pallete: string[];
     sources?: string[];
-    unit?: (mode: ModeId, value?: number) => string;
+    unit?: (filter: GlobalFilterId, value?: number) => string;
     default?: boolean; // Show by default
     // Display
     scaleMethod?: ScaleMethod;
@@ -38,7 +40,7 @@ export type MetricDef = {
     ignoreValues?: any[]; // Values to ignore when computing the scale
     scaleMin?: number; // Force a minimum value for the scale domain
     scaleMax?: number; // Force a maximum value for the scale domain
-    format: (v: number, min: number, max: number, mode: ModeId) => string;
+    format: (v: number, min: number, max: number, filter: GlobalFilterId) => string;
     legendCategories?: { color: string; label: string }[]; // Specific legend categories for non-continuous layers
     // Area details sidebar (opens on the right, when user clicks on a feature)
     showAlwaysOnDetails?: boolean; // If true, the variable is always visible in the details sidebar. By default, variables are only visible when selected.

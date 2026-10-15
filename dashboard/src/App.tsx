@@ -18,7 +18,7 @@ import { Loader2, Activity, Layers, Globe, Info, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
-import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, MODES, RegionKey, ModeId, LEVEL_CONFIG, MAP_LAYERS, DATA_BASE_URL } from './constants';
+import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, DATA_BASE_URL } from './constants';
 import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
@@ -34,7 +34,7 @@ import { SidebarRight } from './components/SidebarRight';
 import { AboutModal } from './components/AboutModal';
 import { DownloadModal } from './components/DownloadModal';
 import { MapFilterDropdown } from './components/MapFilterDropdown';
-import { ModeSelector } from './components/ModeSelector';
+import { GlobalFilterSelector } from './components/GlobalFilterSelector';
 import { MapTools } from './components/MapTools';
 import { Tutorial } from './components/Tutorial';
 
@@ -43,7 +43,7 @@ const Dashboard = () => {
     const [viewLevel, setViewLevel] = useState<ViewLevel>('freguesia');
     const [nutFilter, setNutFilter] = useState<RegionKey>(DEFAULT_REGION);
     const [selectedMetricId, setSelectedMetricId] = useState<string>(FLAT_METRICS.find(m => m.default)?.id || FLAT_METRICS[0].id);
-    const [selectedModeId, setSelectedModeId] = useState<ModeId>('all');
+    const [selectedGlobalFilterId, setSelectedGlobalFilterId] = useState<GlobalFilterId>('all');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
 
     const initialVariations = useMemo(() => {
@@ -160,9 +160,9 @@ const Dashboard = () => {
 
         const load = async () => {
             try {
-                const levels = Object.keys(LEVEL_CONFIG) as ViewLevel[];
+                const levels = (Object.keys(LEVEL_CONFIG) as ViewLevel[]).filter(l => Boolean(LEVEL_CONFIG[l]?.file));
                 const results = await Promise.all([
-                    ...levels.map(l => fetch(LEVEL_CONFIG[l].file).then(r => r.json())),
+                    ...levels.map(l => fetch(LEVEL_CONFIG[l]!.file).then(r => r.json())),
                     fetch('data/municipios_limits.json').then(r => r.json())
                 ]);
 
@@ -172,7 +172,7 @@ const Dashboard = () => {
                 // Create parent lookups for each level that serves as a parent
                 const parentLookup: Record<string, string> = {};
                 levels.forEach(l => {
-                    const parentLevel = LEVEL_CONFIG[l].parent;
+                    const parentLevel = LEVEL_CONFIG[l]?.parent;
                     if (parentLevel && geo[parentLevel]) {
                         geo[parentLevel].features.forEach((f: any) => {
                             // Store in a way that we can identify which parent level it belongs to if needed
@@ -192,18 +192,18 @@ const Dashboard = () => {
     }, [dataState.geo]);
 
     const selectedMetric = useMemo(() => FLAT_METRICS.find(m => m.id === selectedMetricId) || FLAT_METRICS[0], [selectedMetricId]);
-    const selectedMode = useMemo(() => MODES.find(m => m.id === selectedModeId) || MODES[0], [selectedModeId]);
+    const selectedGlobalFilter = useMemo(() => GLOBAL_FILTERS.find(f => f.id === selectedGlobalFilterId) || GLOBAL_FILTERS[0], [selectedGlobalFilterId]);
 
     // Log effective ID when selection changes
     useEffect(() => {
         let resId = selectedMetric.id;
         Object.entries(selectedVariations).forEach(([k, v]) => resId = resId.replace(`{${k}}`, v));
-        const effectiveId = resId + (selectedMode.suffix || '');
+        const effectiveId = resId + (selectedGlobalFilter.suffix || '');
         console.log(`[Metric Selection] ${selectedMetricId} -> ${effectiveId}`);
-    }, [selectedMetricId, selectedVariations, selectedModeId, selectedMetric, selectedMode]);
+    }, [selectedMetricId, selectedVariations, selectedGlobalFilterId, selectedMetric, selectedGlobalFilter]);
 
-    // Helper to check if a specific mode is available for a metric at a certain view level
-    const isModeAvailable = useCallback((modeId: string, metricId: string, level: string) => {
+    // Helper to check if a specific filter is available for a metric at a certain view level
+    const isGlobalFilterAvailable = useCallback((filterId: string, metricId: string, level: string) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
         let checkMetric = metric;
 
@@ -211,17 +211,17 @@ const Dashboard = () => {
             checkMetric = FLAT_METRICS.find(m => m.default) || metric;
         }
 
-        const mode = MODES.find(m => m.id === modeId);
-        if (!mode || !dataState.geo[level as ViewLevel] || !checkMetric) return false;
+        const filter = GLOBAL_FILTERS.find(f => f.id === filterId);
+        if (!filter || !dataState.geo[level as ViewLevel] || !checkMetric) return false;
         const features = dataState.geo[level as ViewLevel]?.features;
         if (!features || !features.length) return false;
 
         // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
-        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, mode, level, selectedVariations) !== undefined);
+        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, filter, level, selectedVariations) !== undefined);
     }, [dataState.geo, selectedVariations]);
 
-    // Helper to check if a metric is available at a certain view level with the current mode
-    const isMetricAvailable = useCallback((metricId: string, level: string, mode = selectedMode) => {
+    // Helper to check if a metric is available at a certain view level with the current filter
+    const isMetricAvailable = useCallback((metricId: string, level: string, filter = selectedGlobalFilter) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
         let checkMetric = metric;
 
@@ -234,21 +234,22 @@ const Dashboard = () => {
         if (!features || !features.length) return false;
 
         // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
-        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, mode, level, selectedVariations) !== undefined);
-    }, [dataState.geo, selectedMode.suffix, selectedVariations]);
+        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, filter, level, selectedVariations) !== undefined);
+    }, [dataState.geo, selectedGlobalFilter.suffix, selectedVariations]);
 
-    // Derive effective level and mode to ensure consistent rendering even before useEffect synchronizes state
+    // Derive effective level and filter to ensure consistent rendering even before useEffect synchronizes state
     const effectiveLevel = useMemo(() => {
-        if (isMetricAvailable(selectedMetricId, viewLevel, selectedMode)) return viewLevel;
-        return (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l, selectedMode)) || viewLevel;
-    }, [selectedMetricId, viewLevel, dataState.geo, selectedMode, isMetricAvailable]);
+        if (isMetricAvailable(selectedMetricId, viewLevel, selectedGlobalFilter)) return viewLevel;
+        return (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l, selectedGlobalFilter)) || viewLevel;
+    }, [selectedMetricId, viewLevel, dataState.geo, selectedGlobalFilter, isMetricAvailable]);
 
-    const effectiveMode = useMemo(() => {
-        if (isModeAvailable(selectedModeId, selectedMetricId, effectiveLevel)) return selectedMode;
-        // Fallback to first available mode for this metric
-        const firstAvailable = MODES.find(m => isModeAvailable(m.id, selectedMetricId, effectiveLevel));
-        return firstAvailable || MODES[0];
-    }, [selectedModeId, selectedMetricId, effectiveLevel, dataState.geo, selectedMode, selectedMetric, isModeAvailable]);
+    const effectiveGlobalFilter = useMemo(() => {
+        if (isGlobalFilterAvailable(selectedGlobalFilterId, selectedMetricId, effectiveLevel)) return selectedGlobalFilter;
+        // Fallback to first available filter for this metric
+        const firstAvailable = GLOBAL_FILTERS.find(f => isGlobalFilterAvailable(f.id, selectedMetricId, effectiveLevel));
+        return firstAvailable || GLOBAL_FILTERS[0];
+    }, [selectedGlobalFilterId, selectedMetricId, effectiveLevel, dataState.geo, selectedGlobalFilter, selectedMetric, isGlobalFilterAvailable]);
+    const effectiveMode = effectiveGlobalFilter;
 
     const discoveredVariations = useMemo(() => {
         const features = dataState.geo[effectiveLevel]?.features || [];
@@ -277,12 +278,12 @@ const Dashboard = () => {
     }, [discoveredVariations, selectedMetric, selectedMetricId]);
 
 
-    // Auto-switch view level OR reset mode if not available for selected metric
+    // Auto-switch view level OR reset filter if not available for selected metric
     useEffect(() => {
-        if (!isModeAvailable(selectedModeId, selectedMetricId, viewLevel)) {
-            const firstAvailable = MODES.find(m => isModeAvailable(m.id, selectedMetricId, viewLevel));
+        if (!isGlobalFilterAvailable(selectedGlobalFilterId, selectedMetricId, viewLevel)) {
+            const firstAvailable = GLOBAL_FILTERS.find(f => isGlobalFilterAvailable(f.id, selectedMetricId, viewLevel));
             if (firstAvailable) {
-                setSelectedModeId(firstAvailable.id as ModeId);
+                setSelectedGlobalFilterId(firstAvailable.id as GlobalFilterId);
             }
         }
 
@@ -292,7 +293,7 @@ const Dashboard = () => {
                 setViewLevel(availableLevel);
             }
         }
-    }, [selectedMetricId, selectedModeId, viewLevel, dataState.geo]);
+    }, [selectedMetricId, selectedGlobalFilterId, viewLevel, dataState.geo]);
 
     const computedGeoData = useMemo(() => {
         let raw = dataState.geo[effectiveLevel];
@@ -408,7 +409,7 @@ const Dashboard = () => {
         const val = getMetricValue(props, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
         const formattedVal = selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1], effectiveMode.id);
 
-        const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
+        const parentLevel = LEVEL_CONFIG[effectiveLevel]?.parent;
         const parentName = (parentLevel && props.group_id)
             ? (dataState.parentLookup[`${parentLevel}-${props.group_id}`] || props.group_id)
             : '';
@@ -471,7 +472,7 @@ const Dashboard = () => {
 
     const subLevelData = useMemo(() => {
         if (!selectedFeature) return [];
-        const childLevel = (Object.keys(LEVEL_CONFIG) as ViewLevel[]).find(l => LEVEL_CONFIG[l].parent === effectiveLevel);
+        const childLevel = (Object.keys(LEVEL_CONFIG) as ViewLevel[]).find(l => LEVEL_CONFIG[l]?.parent === effectiveLevel);
         if (!childLevel || !dataState.geo[childLevel]) return [];
         return dataState.geo[childLevel].features
             .filter((f: any) => String(f.properties.group_id) === String(selectedFeature.id))
@@ -489,7 +490,7 @@ const Dashboard = () => {
 
     const chartData = useMemo(() => {
         if (!computedGeoData?.features) return { bestPerformers: [], worstPerformers: [] };
-        const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
+        const parentLevel = LEVEL_CONFIG[effectiveLevel]?.parent;
         const feats = computedGeoData.features
             .filter((f: any) => {
                 const val = getMetricValue(f.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
@@ -619,7 +620,8 @@ const Dashboard = () => {
                 selectedVariations={selectedVariations}
                 setSelectedVariations={setSelectedVariations}
                 discoveredVariations={discoveredVariations}
-                selectedMode={effectiveMode}
+                selectedGlobalFilter={effectiveGlobalFilter}
+                selectedMode={effectiveGlobalFilter}
                 viewLevel={effectiveLevel}
                 showBuiltArea={showBuiltArea}
                 setShowBuiltArea={setShowBuiltArea}
@@ -629,9 +631,11 @@ const Dashboard = () => {
                 nutFilter={nutFilter}
                 setNutFilter={setNutFilter}
                 setViewLevel={setViewLevel}
-                setSelectedModeId={setSelectedModeId}
+                setSelectedGlobalFilterId={setSelectedGlobalFilterId}
+                setSelectedModeId={setSelectedGlobalFilterId}
                 isMetricAvailable={isMetricAvailable}
-                isModeAvailable={isModeAvailable}
+                isGlobalFilterAvailable={isGlobalFilterAvailable}
+                isModeAvailable={isGlobalFilterAvailable}
                 mapStyle={mapStyle}
                 setMapStyle={setMapStyle}
                 onZoomIn={() => mapInstance?.zoomIn()}
@@ -690,12 +694,12 @@ const Dashboard = () => {
                         </div>
 
                         <div data-tour="mode-selector">
-                            <ModeSelector
-                                value={effectiveMode.id}
+                            <GlobalFilterSelector
+                                value={effectiveGlobalFilter.id}
                                 isDark={isDarkMode}
-                                options={MODES.filter(m => isModeAvailable(m.id, selectedMetricId, effectiveLevel))
-                                    .map(m => ({ id: m.id, label: t(m.label), icon: m.icon }))}
-                                onChange={(id) => setSelectedModeId(id as ModeId)}
+                                options={GLOBAL_FILTERS.filter(f => isGlobalFilterAvailable(f.id, selectedMetricId, effectiveLevel))
+                                    .map(f => ({ id: f.id, label: t(f.label), icon: f.icon }))}
+                                onChange={(id) => setSelectedGlobalFilterId(id as GlobalFilterId)}
                             />
                         </div>
                     </div>
@@ -830,7 +834,8 @@ const Dashboard = () => {
                     viewLevel={effectiveLevel}
                     selectedMetric={selectedMetric}
                     selectedMetricId={selectedMetricId}
-                    selectedMode={effectiveMode}
+                    selectedGlobalFilter={effectiveGlobalFilter}
+                    selectedMode={effectiveGlobalFilter}
                     dataState={dataState}
                     allDomains={allDomains}
                     subLevelData={subLevelData}

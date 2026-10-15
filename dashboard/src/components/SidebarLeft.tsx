@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Languages, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle } from 'lucide-react';
 import { MetricDef } from '../types';
-import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, MODES } from '../constants';
+import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, GLOBAL_FILTERS } from '../constants';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './Tooltip';
 import { MapFilterDropdown } from './MapFilterDropdown';
-import { ModeSelector } from './ModeSelector';
+import { GlobalFilterSelector } from './GlobalFilterSelector';
 import { MapTools } from './MapTools';
 
 interface SidebarLeftProps {
@@ -28,7 +28,8 @@ interface SidebarLeftProps {
     selectedVariations: Record<string, string>;
     setSelectedVariations: (val: any) => void;
     discoveredVariations: Record<string, string>[];
-    selectedMode: { id: string };
+    selectedGlobalFilter?: { id: string };
+    selectedMode?: { id: string };
     viewLevel: string;
     showBuiltArea: boolean;
     setShowBuiltArea: (val: boolean) => void;
@@ -38,8 +39,10 @@ interface SidebarLeftProps {
     nutFilter?: any;
     setNutFilter?: (val: any) => void;
     setViewLevel?: (val: any) => void;
+    setSelectedGlobalFilterId?: (val: any) => void;
     setSelectedModeId?: (val: any) => void;
-    isMetricAvailable?: (m: string, l: string, mo?: any) => boolean;
+    isMetricAvailable?: (m: string, l: string, filter?: any) => boolean;
+    isGlobalFilterAvailable?: (filterId: string, m: string, l: string) => boolean;
     isModeAvailable?: (mo: string, m: string, l: string) => boolean;
     mapStyle: string;
     setMapStyle: (val: string) => void;
@@ -88,14 +91,17 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     collapsedSections, toggleSection,
     weights, setWeights, resetWeights, setIsAHPModalOpen,
     selectedVariations, setSelectedVariations,
-    discoveredVariations, selectedMode, viewLevel,
+    discoveredVariations, selectedGlobalFilter, selectedMode, viewLevel,
     showBuiltArea, setShowBuiltArea,
     isMobile, isOpen, setIsOpen,
-    nutFilter, setNutFilter, setViewLevel, setSelectedModeId,
-    isMetricAvailable, isModeAvailable,
+    nutFilter, setNutFilter, setViewLevel, setSelectedGlobalFilterId, setSelectedModeId,
+    isMetricAvailable, isGlobalFilterAvailable, isModeAvailable,
     mapStyle, setMapStyle,
     onZoomIn, onZoomOut, onDownloadAHP
 }) => {
+    const activeFilter = selectedGlobalFilter || selectedMode || { id: 'all' };
+    const setActiveFilterId = setSelectedGlobalFilterId || setSelectedModeId;
+    const checkFilterAvailable = isGlobalFilterAvailable || isModeAvailable;
     const { t, i18n } = useTranslation();
     const toggleLanguage = () => {
         i18n.changeLanguage(i18n.language === 'en' ? 'pt' : 'en');
@@ -154,15 +160,15 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                 </div>
             )}
 
-            {/* Always Visible Mode Selector on Mobile */}
+            {/* Always Visible Global Filter Selector on Mobile */}
             {isMobile && !isOpen && (
                 <div className="fixed top-[168px] left-4 z-[1002]" data-tour="mobile-mode-selector">
-                    <ModeSelector
-                        value={selectedMode.id}
+                    <GlobalFilterSelector
+                        value={activeFilter.id}
                         isDark={isDarkMode}
-                        options={MODES.filter(m => isModeAvailable?.(m.id, selectedMetricId, viewLevel))
-                            .map(m => ({ id: m.id, label: t(m.label), icon: m.icon }))}
-                        onChange={(id) => setSelectedModeId?.(id)}
+                        options={GLOBAL_FILTERS.filter(f => checkFilterAvailable?.(f.id, selectedMetricId, viewLevel))
+                            .map(f => ({ id: f.id, label: t(f.label), icon: f.icon }))}
+                        onChange={(id) => setActiveFilterId?.(id)}
                     />
                 </div>
             )}
@@ -333,7 +339,8 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                             <div className={`mt-2 mb-3 p-3 rounded-2xl space-y-3 ${isDarkMode ? 'bg-neutral-950/50' : 'bg-white/50 border border-neutral-100'}`}>
                                                                 {Object.entries(m.id_variations).map(([group, optionsDef], index, arr) => {
                                                                     if (!Array.isArray(optionsDef)) {
-                                                                        if (optionsDef.modes && !optionsDef.modes.includes(selectedMode.id as any)) return null;
+                                                                        const allowedFilters = optionsDef.globalFilters || optionsDef.modes;
+                                                                        if (allowedFilters && !allowedFilters.includes(activeFilter.id as any)) return null;
                                                                         if (optionsDef.viewLevels && !optionsDef.viewLevels.includes(viewLevel as any)) return null;
                                                                     }
                                                                     const options = Array.isArray(optionsDef) ? optionsDef : optionsDef.options;
@@ -560,7 +567,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                             isDark={isDarkMode}
                                             icon={<Layers className="w-3.5 h-3.5" />}
                                             options={(['hex', 'freguesia', 'municipality'] as const)
-                                                .filter(l => isMetricAvailable?.(selectedMetricId, l, selectedMode))
+                                                .filter(l => isMetricAvailable?.(selectedMetricId, l, activeFilter))
                                                 .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
                                             onChange={(id) => {
                                                 setViewLevel?.(id);

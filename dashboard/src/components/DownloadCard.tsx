@@ -12,7 +12,7 @@ export const DownloadCard = ({ title, id, group_id, region_id, isDark, level, fi
             </div>
             <div className="flex flex-col gap-2 w-full">
                 <a
-                    href={LEVEL_CONFIG[level].download_geojson}
+                    href={LEVEL_CONFIG[level]?.download_geojson || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
                     download={`${filename}.json`}
@@ -21,7 +21,7 @@ export const DownloadCard = ({ title, id, group_id, region_id, isDark, level, fi
                     GeoJSON
                 </a>
                 <a
-                    href={LEVEL_CONFIG[level].download_csv}
+                    href={LEVEL_CONFIG[level]?.download_csv || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
                     download={`${filename}.csv`}

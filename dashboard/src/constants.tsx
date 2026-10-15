@@ -3,7 +3,7 @@ import { MetricDef, ViewLevel, ScaleMethod } from './types';
 export const DATA_BASE_URL = 'https://ushift.tecnico.ulisboa.pt/content/biclar/';
 export const AHP_SURVEY_URL = "https://script.google.com/macros/s/AKfycbx1F1XmBbgTDu0WKiRtR6I4ocouXsnVKMDz1DHuMjx79kgfQzP1M8-A-NPL4CjlugmL/exec";
 
-export const LEVEL_CONFIG: Record<ViewLevel, { file: string, parent?: ViewLevel, download_geojson: string, download_csv: string }> = {
+export const LEVEL_CONFIG: Partial<Record<ViewLevel, { file: string, parent?: ViewLevel, download_geojson: string, download_csv: string }>> = {
     // 'municipality': { file: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_geojson: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_csv: `${DATA_BASE_URL}municipalities_dashboard.csv` },
     'freguesia': { file: `${DATA_BASE_URL}parishes_dashboard.geojson`, parent: 'municipality', download_geojson: `${DATA_BASE_URL}parishes_dashboard.geojson`, download_csv: `${DATA_BASE_URL}parishes_dashboard.csv` },
     'hex': { file: `${DATA_BASE_URL}grid_dashboard.geojson`, parent: 'freguesia', download_geojson: `${DATA_BASE_URL}grid_dashboard.geojson`, download_csv: `${DATA_BASE_URL}grid_dashboard.csv` }
@@ -107,7 +107,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'model_mr{type}',
             id_variations: {
                 type: {
-                    options: ['_parking_residential_min', '_parking_residential_max', '_ratio_residential_min', '_ratio_residential_max']
+                    options: ['_parking_residential', '_ratio_residential']
                 }
             },
             label: 'metrics.models.mr.label',
@@ -783,11 +783,11 @@ export const REGIONS = {
     'PT1B': { name: "regions.setubal_peninsula", center: [38.65, -8.90], zoom: 11 }
 } as const;
 
-export const MODES = [
-    // suffix is added to METRICS.id to get the metric for that mode
-    // > Based on it we can determine if the metric exists for that mode and display the mode selector accordingly
+export const GLOBAL_FILTERS = [
+    // suffix is added to METRICS.id to get the metric for that global filter
+    // > Based on it we can determine if the metric exists for that filter and display the filter selector accordingly
     // suffixFallback is used only on IMPT dynamic computation 
-    // > It tells that for that mode, if no metric with suffix, suffixFallback metric should be used instead 
+    // > It tells that for that filter, if no metric with suffix, suffixFallback metric should be used instead 
     { id: 'all', label: 'modes.all', suffix: '', icon: '🌐' },
     { id: 'all_pt', label: 'modes.all_pt', suffix: '_all_pt', suffixFallback: '', icon: '🌐' },
     { id: 'all_pass', label: 'modes.all_pass', suffix: '_pass', suffixFallback: '', icon: '🌐💳' },
@@ -801,10 +801,16 @@ export const MODES = [
     { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' },
     { id: 'metrolr_pt', label: 'modes.metrolr_pt', suffix: '_metrolr_pt', icon: '🚇🚊' },
     { id: 'trainferry_pt', label: 'modes.trainferry_pt', suffix: '_trainferry_pt', icon: '🚆⛴️' },
-    { id: 'bus_pt', label: 'modes.bus_pt', suffix: '_bus_pt', icon: '🚍' }
+    { id: 'bus_pt', label: 'modes.bus_pt', suffix: '_bus_pt', icon: '🚍' },
+    { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+    { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' }
 ] as const;
 
-export type ModeId = (typeof MODES)[number]['id'];
+export type GlobalFilterId = (typeof GLOBAL_FILTERS)[number]['id'];
+
+// Backward compatibility aliases
+export const MODES = GLOBAL_FILTERS;
+export type ModeId = GlobalFilterId;
 export type RegionKey = keyof typeof REGIONS;
 export const REGION_KEYS = Object.keys(REGIONS) as RegionKey[];
 export const DEFAULT_REGION: RegionKey = REGION_KEYS[0];

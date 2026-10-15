@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Joyride, Step, EventData, STATUS, Placement } from 'react-joyride';
+import { Joyride, Step, EventData, STATUS } from 'react-joyride';
 import { useTranslation } from 'react-i18next';
 import { Languages } from 'lucide-react';
 
