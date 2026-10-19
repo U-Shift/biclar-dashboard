@@ -97,9 +97,39 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                     };
                                     const contrastColor = getContrastColor(color);
 
+                                    // Collect active filter labels (global filter and local metric id_variations)
+                                    const filterLabels: string[] = [];
+                                    if (activeFilter.id && activeFilter.id !== 'all' && activeFilter.label) {
+                                        filterLabels.push(t(activeFilter.label));
+                                    }
+                                    if (selectedMetric.id_variations) {
+                                        Object.entries(selectedMetric.id_variations).forEach(([group, optionsDef]) => {
+                                            if (!Array.isArray(optionsDef)) {
+                                                const allowedFilters = optionsDef.globalFilters || optionsDef.modes;
+                                                if (allowedFilters && !allowedFilters.includes(activeFilter.id as any)) return;
+                                                if (optionsDef.viewLevels && !optionsDef.viewLevels.includes(viewLevel as any)) return;
+                                                if (optionsDef.visible === false) return;
+                                            }
+                                            const options = Array.isArray(optionsDef) ? optionsDef : optionsDef.options;
+                                            const selectedOpt = selectedVariations?.[group] || options[0];
+                                            if (selectedOpt) {
+                                                filterLabels.push(t(`variations.${selectedOpt}`));
+                                            }
+                                        });
+                                    }
+
+                                    const fullLabelText = [t(selectedMetric.label), ...filterLabels].join(' · ');
+
                                     return (
                                         <div className="flex flex-col items-end shrink-0 pl-1">
-                                            <span className="text-[9px] font-black opacity-40 uppercase tracking-widest mb-2 text-right max-w-[120px] leading-[1.2] line-clamp-2" title={t(selectedMetric.label)}>{t(selectedMetric.label)}</span>
+                                            <div className="flex flex-col items-end mb-2 text-right max-w-[140px]" title={fullLabelText}>
+                                                <span className="text-[9px] font-black opacity-40 uppercase tracking-widest leading-[1.2] line-clamp-2">{t(selectedMetric.label)}</span>
+                                                {filterLabels.length > 0 && (
+                                                    <span className={`text-[8.5px] font-bold tracking-wider uppercase leading-tight line-clamp-2 ${isDarkMode ? 'text-secondary-green/80' : 'text-primary/80'}`}>
+                                                        {filterLabels.join(' · ')}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <span className="text-2xl px-4 py-1.5 font-black tracking-tighter leading-none rounded-full shadow-sm" style={{ backgroundColor: color, color: contrastColor }}>
                                                 {formattedVal}{selectedMetric.unit ? ' ' + selectedMetric.unit(activeFilter.id, val, selectedVariations) : ''}
                                             </span>
