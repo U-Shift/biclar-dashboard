@@ -83,7 +83,8 @@
       "ratios": "Bike parking ratios",
       "census_landuse": "Census & Land use",
       "models": "Parking dimensioning models",
-      "contextual": "Contextual data"
+      "contextual": "Contextual data",
+      "existing_infrastructure": "Existing infrastructure"
     },
     "models": {
       "mr": {
@@ -101,6 +102,16 @@
       "thefts_n": {
         "label": "Bike thefts",
         "description": "Number of bicycle thefts reported to the authorities"
+      }
+    },
+    "existing_infrastructure": {
+      "cycleways_length": {
+        "label": "Cycleways length",
+        "description": "Length of bike paths"
+      },
+      "parking": {
+        "label": "Parking",
+        "description": "Number of parking points and associated capacity"
       }
     },
     "census_landuse": {
@@ -146,7 +157,12 @@
     "women": "Women",
     "women_percentage": "% Women",
     "psp": "Polícia de Segurança Pública",
-    "gnr": "Guarda Nacional Repúblicana"
+    "gnr": "Guarda Nacional Repúblicana",
+    "protected": "Protected",
+    "advisory": "Advisory",
+    "active": "Active",
+    "n_points": "Nr. points",
+    "n_capacity": "Capacity"
   },
   "about": {
     "p1": "Available soon....",

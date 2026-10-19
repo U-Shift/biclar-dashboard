@@ -104,6 +104,7 @@ export const logarithmicScale: ScaleMethod = (values, steps = 5) => {
 };
 
 const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
+    // Tab 1 (first only)
     'metrics.categories.models': [
         {
             id: 'model_mr_parking_residential',
@@ -115,6 +116,55 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             default: true,
             showAlwaysOnDetails: true
         }
+    ],
+    // Tab 2
+    'metrics.categories.existing_infrastructure': [
+        {
+            id: 'cycleways_length',
+            icon: '🚴‍♂️',
+            label: 'metrics.existing_infrastructure.cycleways_length.label',
+            description: 'metrics.existing_infrastructure.cycleways_length.description',
+            format: (v) => Math.round(v / 100 || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            unit: () => "km"
+            // sources: TBD
+        },
+        {
+            id: 'parking',
+            icon: '🅿️',
+            label: 'metrics.existing_infrastructure.parking.label',
+            description: 'metrics.existing_infrastructure.parking.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            // sources: TBD
+        }
+    ],
+    'metrics.categories.contextual': [
+        {
+            id: 'thefts_n',
+            icon: '🔐',
+            label: 'metrics.contextual.thefts_n.label',
+            description: 'metrics.contextual.thefts_n.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['psp', 'gnr']
+        }
+    ],
+    'metrics.categories.ratios': [
+        {
+            id: 'model_mr_ratio_residential',
+            icon: '🏘️',
+            label: 'metrics.models.mr_ratio.residential.label',
+            description: 'metrics.models.mr_ratio.residential.description',
+            pallete: COLORS.WhiteToGreen,
+            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
+            sources: ['ruma', 'rumus', 'literature_todo']
+            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
+        },
     ],
     'metrics.categories.census_landuse': [
         {
@@ -167,30 +217,6 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             }
         }
     ],
-    'metrics.categories.contextual': [
-        {
-            id: 'thefts_n',
-            icon: '🔐',
-            label: 'metrics.contextual.thefts_n.label',
-            description: 'metrics.contextual.thefts_n.description',
-            format: (v) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['psp', 'gnr']
-        }
-    ],
-    'metrics.categories.ratios': [
-        {
-            id: 'model_mr_ratio_residential',
-            label: 'metrics.models.mr_ratio.residential.label',
-            description: 'metrics.models.mr_ratio.residential.description',
-            pallete: COLORS.WhiteToGreen,
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            sources: ['ruma', 'rumus', 'literature_todo']
-            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
-        },
-    ]
 };
 
 export const METRICS = Object.freeze(
@@ -228,7 +254,15 @@ export const GLOBAL_FILTERS = [
     { id: 'women_percentage', label: 'filters_global.women_percentage', suffix: '_women_percentage', icon: '♀️ ➗' },
 
     { id: 'psp', label: 'filters_global.psp', suffix: '_psp', icon: 'icons/psp.png' },
-    { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: 'icons/gnr.png' }
+    { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: 'icons/gnr.png' },
+
+    { id: 'protected', label: 'filters_global.protected', suffix: '_protected', icon: '🛡️🚲 ' },
+    { id: 'active', label: 'filters_global.active', suffix: '_active', icon: '🚶‍♂️🚲' },
+    { id: 'advisory', label: 'filters_global.advisory', suffix: '_advisory', icon: '🚙🚲' },
+
+    { id: 'n_points', label: 'filters_global.n_points', suffix: '_n_points', icon: '📍' },
+    { id: 'n_capacity', label: 'filters_global.n_capacity', suffix: '_n_capacity', icon: '🚲📦' },
+
 
 ] as const;
 
