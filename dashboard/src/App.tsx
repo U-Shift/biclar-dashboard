@@ -380,9 +380,21 @@ const Dashboard = () => {
         const result: Record<string, number[]> = {};
         if (!computedGeoData?.features?.length) return result;
         FLAT_METRICS.filter(m => m.showAlwaysOnDetails || m.id === selectedMetricId).forEach(m => {
-            const values = computedGeoData.features
-                .map((f: any) => getMetricValue(f.properties, m, effectiveGlobalFilter, effectiveLevel, selectedVariations))
+            let filterToUse = effectiveGlobalFilter;
+            let values = computedGeoData.features
+                .map((f: any) => getMetricValue(f.properties, m, filterToUse, effectiveLevel, selectedVariations))
                 .filter((v: any) => !isMetricValueIgnored(v, m));
+
+            if (values.length === 0 && m.showAlwaysOnDetails) {
+                const fallbackFilter = GLOBAL_FILTERS.find(f =>
+                    computedGeoData.features.some((feat: any) => !isMetricValueIgnored(getMetricValue(feat.properties, m, f, effectiveLevel, selectedVariations), m))
+                );
+                if (fallbackFilter) {
+                    values = computedGeoData.features
+                        .map((f: any) => getMetricValue(f.properties, m, fallbackFilter, effectiveLevel, selectedVariations))
+                        .filter((v: any) => !isMetricValueIgnored(v, m));
+                }
+            }
 
             result[m.id] = getMetricDomain(values, m);
         });

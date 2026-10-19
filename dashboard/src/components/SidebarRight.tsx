@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCont
 import { MetricDef } from '../types';
 import { DetailCard } from './DetailCard';
 import { MiniBarChart } from './MiniBarChart';
-import { LEVEL_CONFIG, FLAT_METRICS } from '../constants';
+import { LEVEL_CONFIG, FLAT_METRICS, GLOBAL_FILTERS } from '../constants';
 import { getColor, isMetricValueIgnored, getMetricValue } from '../utils';
 import { useTranslation } from 'react-i18next';
 
@@ -329,17 +329,38 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, filter: any, selectedFe
             if (b.id === 'census_landuse_population') return 1;
             return 0;
         }).map(m => {
-            const val = getMetricValue(selectedFeature, m, filter, viewLevel, selectedVariations);
+            let effectiveFilter = filter;
+            let val = getMetricValue(selectedFeature, m, effectiveFilter, viewLevel, selectedVariations);
+
+            if (isMetricValueIgnored(val, m)) {
+                // If the active filter does not apply to this metric, fall back to any filter that matches in this feature
+                const fallbackFilter = GLOBAL_FILTERS.find(f => {
+                    const fallbackVal = getMetricValue(selectedFeature, m, f, viewLevel, selectedVariations);
+                    return !isMetricValueIgnored(fallbackVal, m);
+                });
+                if (fallbackFilter) {
+                    effectiveFilter = fallbackFilter;
+                    val = getMetricValue(selectedFeature, m, effectiveFilter, viewLevel, selectedVariations);
+                }
+            }
+
             if (isMetricValueIgnored(val, m)) {
                 return null;
             }
+
+            // Determine if a filter label should be added (if a non-'all' filter is used)
+            const filterLabel = (effectiveFilter.id && effectiveFilter.id !== 'all' && effectiveFilter.label)
+                ? t(effectiveFilter.label)
+                : undefined;
+            const fullLabel = filterLabel ? `${t(m.label)} (${filterLabel})` : t(m.label);
+
             return (
                 <div key={m.id} className="h-full min-w-0">
                     <DetailCard
                         key={m.id}
-                        label={t(m.label)}
-                        value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, filter.id, selectedVariations).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
-                        unit={m.unit?.(filter.id, val, selectedVariations)}
+                        label={fullLabel}
+                        value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, effectiveFilter.id, selectedVariations).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
+                        unit={m.unit?.(effectiveFilter.id, val, selectedVariations)}
                         hexColor={getColor(val, allDomains[m.id] || [0, 1], m, isColorBlindMode)}
                         isDark={isDarkMode}
                     />
