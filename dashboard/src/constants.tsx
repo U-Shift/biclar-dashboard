@@ -125,6 +125,21 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
+            sources: ['census'],
+            unit: (filter, _value, _variations) => {
+                if (filter && filter.includes("percentage")) return "%";
+                return undefined;
+            }
+        },
+        {
+            id: 'dasymetric_dependency_ratio',
+            icon: '🎂',
+            label: 'metrics.census_landuse.dasymetric_population_dependency_ratio.label',
+            description: 'metrics.census_landuse.dasymetric_population_dependency_ratio.description',
+            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
+            unit: () => '%',
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
             sources: ['census']
         },
         {
@@ -145,19 +160,12 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: ['census']
-        },
-        /* // TODO! Validate assimetries
-        {
-            id: 'dasymetric_dependency',
-            icon: '🔢',
-            label: 'metrics.census_landuse.dasymetric_dependency.label',
-            description: 'metrics.census_landuse.dasymetric_dependency.description',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen
+            sources: ['census'],
+            unit: (filter, _value, _variations) => {
+                if (filter && filter.includes("percentage")) return "%";
+                return undefined;
+            }
         }
-            */
     ],
     'metrics.categories.contextual': [
         {
@@ -209,11 +217,15 @@ export const GLOBAL_FILTERS = [
     { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
 
     { id: 'pre1945', label: 'filters_global.buildings_pre1945', suffix: '_pre1945', icon: '🗝️' },
+    { id: 'pre1945_percentage', label: 'filters_global.buildings_pre1945_percentage', suffix: '_pre1945_percentage', icon: '🗝️➗' },
 
     { id: 'adults', label: 'filters_global.adults', suffix: '_adults', icon: '👩' },
     { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
+    { id: 'youth_percentage', label: 'filters_global.youth_percentage', suffix: '_youth_percentage', icon: '👶 ➗' },
     { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
+    { id: 'elderly_percentage', label: 'filters_global.elderly_percentage', suffix: '_elderly_percentage', icon: '🧓 ➗' },
     { id: 'women', label: 'filters_global.women', suffix: '_women', icon: '♀️' },
+    { id: 'women_percentage', label: 'filters_global.women_percentage', suffix: '_women_percentage', icon: '♀️ ➗' },
 
     { id: 'psp', label: 'filters_global.psp', suffix: '_psp', icon: 'icons/psp.png' },
     { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: 'icons/gnr.png' }

@@ -108,11 +108,15 @@
         "label": "Population",
         "description": "Number of residents"
       },
+      "dasymetric_population_ratio": {
+        "label": "Population ratios",
+        "description": "Percentage of population groups"
+      },
       "dasymetric_buildings": {
         "label": "Buildings",
         "description": "Number of buildings"
       },
-      "dasymetric_dependency": {
+      "dasymetric_population_dependency_ratio": {
         "label": "Age dependency ratio",
         "description": "Ratio of dependent population (children and elderly) to working-age population"
       },
@@ -132,10 +136,15 @@
     "min": "Minimum",
     "max": "Maximum",
     "buildings_pre1945": "Constructed before 1945",
+    "buildings_pre1945_percentage": "% constructed before 1945",
     "adults": "Adults (15-64)",
+    "adults_percentage": "% Adults (15-64)",
     "youth": "Youth (0-14)",
+    "youth_percentage": "% Youth (0-14)",
     "elderly": "Elderly (65+)",
+    "elderly_percentage": "% Elderly (65+)",
     "women": "Women",
+    "women_percentage": "% Women",
     "psp": "Polícia de Segurança Pública",
     "gnr": "Guarda Nacional Repúblicana"
   },

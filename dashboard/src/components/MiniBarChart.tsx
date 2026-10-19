@@ -26,7 +26,10 @@ export const MiniBarChart = ({ data, metric, selectedFilter, selectedVariations,
                             >
                                 <div className="text-[10px] font-black opacity-30 uppercase tracking-widest">{d.group || 'District'}</div>
                                 <div className="text-[13px] font-black">{d.name}</div>
-                                <div className="text-[13px] font-black mt-1" style={{ color: d.color }}>{metric.format(d.value, minValue, maxValue, activeFilter, selectedVariations)} {metric.unit?.(activeFilter, d.value, selectedVariations) || ''}</div>
+                                <div className="text-[13px] font-black mt-1" style={{ color: d.color }}>
+                                    {metric.format(d.value, minValue, maxValue, activeFilter, selectedVariations)}
+                                    {metric.unit?.(activeFilter, d.value, selectedVariations) ? ` ${metric.unit(activeFilter, d.value, selectedVariations)}` : ''}
+                                </div>
                             </div>
                         );
                     }

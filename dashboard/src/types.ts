@@ -31,7 +31,7 @@ export type MetricDef = {
     description?: string;
     pallete: string[];
     sources?: string[];
-    unit?: (filter: GlobalFilterId, value?: number, variations?: Record<string, string>) => string;
+    unit?: (filter: GlobalFilterId, value?: number, variations?: Record<string, string>) => string | undefined;
     default?: boolean; // Show by default
     // Display
     scaleMethod?: ScaleMethod;

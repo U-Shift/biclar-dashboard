@@ -131,7 +131,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                 )}
                                             </div>
                                             <span className="text-2xl px-4 py-1.5 font-black tracking-tighter leading-none rounded-full shadow-sm" style={{ backgroundColor: color, color: contrastColor }}>
-                                                {formattedVal}{selectedMetric.unit ? ' ' + selectedMetric.unit(activeFilter.id, val, selectedVariations) : ''}
+                                                {formattedVal}{selectedMetric.unit?.(activeFilter.id, val, selectedVariations) ? ' ' + selectedMetric.unit(activeFilter.id, val, selectedVariations) : ''}
                                             </span>
                                         </div>
                                     );
@@ -164,7 +164,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                     key={m.id}
                                                     label={t(m.label)}
                                                     value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 100, activeFilter.id, selectedVariations).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
-                                                    unit={m.unit?.(activeFilter.id, val, selectedVariations)}
+                                                    unit={m.unit?.(activeFilter.id, val, selectedVariations) || ""}
                                                     hexColor={getColor(val, allDomains[m.id] || [0, 100], m, isColorBlindMode)}
                                                     isDark={isDarkMode}
                                                 />
@@ -360,7 +360,7 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, filter: any, selectedFe
                         key={m.id}
                         label={fullLabel}
                         value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, effectiveFilter.id, selectedVariations).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
-                        unit={m.unit?.(effectiveFilter.id, val, selectedVariations)}
+                        unit={m.unit?.(effectiveFilter.id, val, selectedVariations) || ""}
                         hexColor={getColor(val, allDomains[m.id] || [0, 1], m, isColorBlindMode)}
                         isDark={isDarkMode}
                     />
