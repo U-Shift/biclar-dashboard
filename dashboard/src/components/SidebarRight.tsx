@@ -5,7 +5,7 @@ import { MetricDef } from '../types';
 import { DetailCard } from './DetailCard';
 import { MiniBarChart } from './MiniBarChart';
 import { LEVEL_CONFIG, FLAT_METRICS, GLOBAL_FILTERS } from '../constants';
-import { getColor, isMetricValueIgnored, getMetricValue } from '../utils';
+import { getColor, isMetricValueIgnored, getMetricValue, getVariationOptions, getVariationOptionLabel } from '../utils';
 import { useTranslation } from 'react-i18next';
 
 interface SidebarRightProps {
@@ -110,10 +110,10 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                 if (optionsDef.viewLevels && !optionsDef.viewLevels.includes(viewLevel as any)) return;
                                                 if (optionsDef.visible === false) return;
                                             }
-                                            const options = Array.isArray(optionsDef) ? optionsDef : optionsDef.options;
+                                            const options = getVariationOptions(optionsDef);
                                             const selectedOpt = selectedVariations?.[group] || options[0];
                                             if (selectedOpt) {
-                                                filterLabels.push(t(`variations.${selectedOpt}`));
+                                                filterLabels.push(getVariationOptionLabel(optionsDef, selectedOpt, t));
                                             }
                                         });
                                     }

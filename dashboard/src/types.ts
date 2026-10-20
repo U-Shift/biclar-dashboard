@@ -4,14 +4,23 @@ export type { GlobalFilterId, ModeId } from './constants';
 
 export type ViewLevel = 'hex' | 'freguesia' | 'municipality';
 
+export interface VariationIconOption {
+    id: string;
+    label: string;
+    suffix?: string;
+    icon: string | React.ReactNode;
+}
+
 export type VariationGroup = string[] | {
-    options: string[];
+    options_tags?: string[];
+    options_icons?: VariationIconOption[];
     globalFilters?: GlobalFilterId[]; // If defined, the options are only available for the specified global filters
-    modes?: GlobalFilterId[]; // Backward-compatible alias for globalFilters
+    modes?: GlobalFilterId[];
     viewLevels?: ViewLevel[]; // If defined, the options are only available for the specified view levels
     formSlider?: boolean; // If true, the options are presented as a slider
     visible?: boolean; // If false, the options are not visible
 };
+
 
 export type ScaleMethod = (values: number[], steps?: number) => number[];
 

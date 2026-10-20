@@ -1,5 +1,32 @@
 import { continuousScale, equalIntervalScale, COLORS } from "./constants";
-import { MetricDef } from "./types";
+import { MetricDef, VariationGroup } from "./types";
+
+/**
+ * Helper to get the list of option string identifiers for a VariationGroup.
+ */
+export const getVariationOptions = (groupDef: VariationGroup | undefined): string[] => {
+    if (!groupDef) return [];
+    if (Array.isArray(groupDef)) return groupDef;
+    if (groupDef.options_icons && groupDef.options_icons.length > 0) {
+        return groupDef.options_icons.map(o => o.id);
+    }
+    if (groupDef.options_tags && groupDef.options_tags.length > 0) {
+        return groupDef.options_tags;
+    }
+    return [];
+};
+
+/**
+ * Helper to get the display label for an option in a VariationGroup.
+ */
+export const getVariationOptionLabel = (groupDef: VariationGroup | undefined, optId: string, t: (k: string) => string): string => {
+    if (!groupDef) return t(`variations.${optId}`);
+    if (!Array.isArray(groupDef) && groupDef.options_icons) {
+        const found = groupDef.options_icons.find(o => o.id === optId);
+        if (found) return t(found.label);
+    }
+    return t(`variations.${optId}`);
+};
 
 
 /**
@@ -121,7 +148,7 @@ export const getLegendGradient = (metric: MetricDef, domain: number[], isColorBl
 export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
     if (!properties) return undefined;
 
-    const resolveId = (id: string) => {
+    const resolveId = (id: string, useSuffixIfAvailable: boolean = true) => {
         let resolved = id;
         if (variations) {
             Object.entries(variations).forEach(([group, value]) => {
@@ -134,18 +161,29 @@ export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?
                 }
                 
                 if (shouldApply) {
+                    if (useSuffixIfAvailable && groupDef && !Array.isArray(groupDef) && groupDef.options_icons) {
+                        const iconOpt = groupDef.options_icons.find(o => o.id === value);
+                        if (iconOpt && iconOpt.suffix !== undefined) {
+                            if (resolved.includes(`_{${group}}`)) {
+                                resolved = resolved.replace(`_{${group}}`, iconOpt.suffix);
+                            } else {
+                                resolved = resolved.replace(`{${group}}`, iconOpt.suffix);
+                            }
+                            return;
+                        }
+                    }
                     resolved = resolved.replace(`{${group}}`, value);
                 } else {
-                    resolved = resolved.replace(`{${group}}`, '');
+                    resolved = resolved.replace(`_{${group}}`, '').replace(`{${group}}`, '');
                 }
             });
         }
         return resolved;
-    }
+    };
 
-    const idsToTry = [
-        resolveId(metric.id) + (filter.suffix || '')
-    ].filter(Boolean) as string[];
+    const candidate1 = resolveId(metric.id, true) + (filter.suffix || '');
+    const candidate2 = resolveId(metric.id, false) + (filter.suffix || '');
+    const idsToTry = Array.from(new Set([candidate1, candidate2])).filter(Boolean);
 
     for (const id of idsToTry) {
         if (properties[id] !== undefined) {
@@ -172,15 +210,30 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
     const regexes = patterns.map(pattern => {
         let regexSource = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         groups.forEach(group => {
-            // Constrain match to ONLY the predefined options to avoid capturing mode suffixes
             const groupDef = metric.id_variations![group];
-            const optionsGroup = Array.isArray(groupDef) ? groupDef : groupDef.options;
-            const options = optionsGroup
-                .slice()
-                .sort((a: string, b: string) => b.length - a.length)
-                .map((o: string) => o.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-                .join('|');
-            regexSource = regexSource.replace(`\\{${group}\\}`, `(?<${group}>${options})`);
+            const optionsGroup = getVariationOptions(groupDef);
+            const isIconGroup = groupDef && !Array.isArray(groupDef) && groupDef.options_icons;
+            if (isIconGroup) {
+                const suffixes = groupDef.options_icons!
+                    .map(o => o.suffix ?? `_${o.id}`)
+                    .map(s => s.replace(/^_/, ''))
+                    .filter(Boolean)
+                    .concat(optionsGroup)
+                    .map(o => o.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+                const options = Array.from(new Set(suffixes)).sort((a, b) => b.length - a.length).join('|');
+                if (regexSource.includes(`_\\{${group}\\}`)) {
+                    regexSource = regexSource.replace(`_\\{${group}\\}`, `(?:_(?<${group}>${options}))?`);
+                } else {
+                    regexSource = regexSource.replace(`\\{${group}\\}`, `(?<${group}>${options})?`);
+                }
+            } else {
+                const options = optionsGroup
+                    .slice()
+                    .sort((a: string, b: string) => b.length - a.length)
+                    .map((o: string) => o.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+                    .join('|');
+                regexSource = regexSource.replace(`\\{${group}\\}`, `(?<${group}>${options})`);
+            }
         });
         return new RegExp(`^${regexSource}(?:_.*)?$`);
     });
@@ -198,10 +251,24 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
                     const combo: Record<string, string> = {};
                     let allMatched = true;
                     groups.forEach(g => {
+                        const groupDef = metric.id_variations![g];
+                        const isIconGroup = groupDef && !Array.isArray(groupDef) && groupDef.options_icons;
                         if (match.groups![g]) {
-                            combo[g] = match.groups![g];
+                            const matchedVal = match.groups![g];
+                            if (isIconGroup) {
+                                const found = groupDef.options_icons!.find(o => o.id === matchedVal || o.suffix === `_${matchedVal}` || o.suffix === matchedVal);
+                                combo[g] = found ? found.id : matchedVal;
+                            } else {
+                                combo[g] = matchedVal;
+                            }
                         } else {
-                            allMatched = false;
+                            if (isIconGroup) {
+                                const emptySuffixOpt = groupDef.options_icons!.find(o => !o.suffix || o.suffix === '');
+                                if (emptySuffixOpt) combo[g] = emptySuffixOpt.id;
+                                else allMatched = false;
+                            } else {
+                                allMatched = false;
+                            }
                         }
                     });
 
@@ -215,6 +282,20 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
                 }
             }
         });
+    });
+
+    // Sort valid combinations based on the metric's predefined options order so the default option comes first
+    validCombinations.sort((a, b) => {
+        for (const g of groups) {
+            const groupDef = metric.id_variations![g];
+            const opts = getVariationOptions(groupDef);
+            const indexA = opts.indexOf(a[g]);
+            const indexB = opts.indexOf(b[g]);
+            if (indexA !== indexB) {
+                return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+            }
+        }
+        return 0;
     });
 
     console.log("Valid combinations for ", metric.id, validCombinations);

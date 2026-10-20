@@ -7,6 +7,7 @@ import { Tooltip } from './Tooltip';
 import { MapFilterDropdown } from './MapFilterDropdown';
 import { GlobalFilterSelector } from './GlobalFilterSelector';
 import { MapTools } from './MapTools';
+import { getVariationOptions } from '../utils';
 
 interface SidebarLeftProps {
     isDarkMode: boolean;
@@ -159,7 +160,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
 
             {/* Always Visible Global Filter Selector on Mobile */}
             {isMobile && !isOpen && (
-                <div className="fixed top-[168px] left-4 z-[1002]" data-tour="mobile-filter-selector">
+                <div className="fixed top-[168px] left-4 z-[1002] flex flex-col gap-2" data-tour="mobile-filter-selector">
                     <GlobalFilterSelector
                         value={activeFilter.id}
                         isDark={isDarkMode}
@@ -167,6 +168,43 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                             .map(f => ({ id: f.id, label: t(f.label), icon: f.icon }))}
                         onChange={(id) => setActiveFilterId?.(id)}
                     />
+                    {selectedMetric?.id_variations && Object.entries(selectedMetric.id_variations).map(([group, groupDef]) => {
+                        if (Array.isArray(groupDef) || !groupDef.options_icons || groupDef.options_icons.length < 2) return null;
+                        const currentVal = selectedVariations[group] || groupDef.options_icons[0].id;
+                        return (
+                            <GlobalFilterSelector
+                                key={group}
+                                value={currentVal}
+                                isDark={isDarkMode}
+                                options={groupDef.options_icons.map(opt => ({
+                                    id: opt.id,
+                                    label: t(opt.label),
+                                    icon: opt.icon
+                                }))}
+                                onChange={(id) => {
+                                    setSelectedVariations((prev: any) => {
+                                        const next = { ...prev, [group]: id };
+                                        if (discoveredVariations && discoveredVariations.length > 0) {
+                                            const currentComb = Object.keys(selectedMetric.id_variations || {}).reduce((acc, g) => {
+                                                const gDef = selectedMetric.id_variations![g];
+                                                const opts = getVariationOptions(gDef);
+                                                acc[g] = next[g] || opts[0];
+                                                return acc;
+                                            }, {} as Record<string, string>);
+                                            const isValid = discoveredVariations.some((validComb: any) => {
+                                                return Object.entries(currentComb).every(([k, v]) => validComb[k] === v);
+                                            });
+                                            if (!isValid) {
+                                                const fallback = discoveredVariations.find((c: any) => c[group] === id);
+                                                if (fallback) return { ...prev, ...fallback };
+                                            }
+                                        }
+                                        return next;
+                                    });
+                                }}
+                            />
+                        );
+                    })}
                 </div>
             )}
 
@@ -297,7 +335,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                 setSelectedVariations((prev: any) => {
                                                                     const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
                                                                         const gDef = m.id_variations![g];
-                                                                        const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                        const opts = getVariationOptions(gDef);
                                                                         acc[g] = prev[g] || opts[0];
                                                                         return acc;
                                                                     }, {} as Record<string, string>);
@@ -332,22 +370,23 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                             </span>
                                                         </button>
 
-                                                        {isSelected && m.id_variations && (
+                                                        {isSelected && m.id_variations && Object.values(m.id_variations).some(def => Array.isArray(def) || !def.options_icons) && (
                                                             <div className={`mt-2 mb-3 p-3 rounded-2xl space-y-3 ${isDarkMode ? 'bg-neutral-950/50' : 'bg-white/50 border border-neutral-100'}`}>
                                                                 {Object.entries(m.id_variations).map(([group, optionsDef], index, arr) => {
                                                                     if (!Array.isArray(optionsDef)) {
+                                                                        if (optionsDef.options_icons) return null;
                                                                         const allowedFilters = optionsDef.globalFilters || optionsDef.modes;
                                                                         if (allowedFilters && !allowedFilters.includes(activeFilter.id as any)) return null;
                                                                         if (optionsDef.viewLevels && !optionsDef.viewLevels.includes(viewLevel as any)) return null;
                                                                     }
-                                                                    const options = Array.isArray(optionsDef) ? optionsDef : optionsDef.options;
+                                                                    const options = getVariationOptions(optionsDef);
                                                                     let visibleOptions = options;
                                                                     if (validVariations && validVariations.length > 0) {
                                                                         const priorGroups = arr.slice(0, index).map(a => a[0]);
                                                                         const validSubset = validVariations.filter((comb: any) => {
                                                                             return priorGroups.every(g => {
                                                                                 const gDef = m.id_variations![g];
-                                                                                const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                                const opts = getVariationOptions(gDef);
                                                                                 return comb[g] === (selectedVariations[g] || opts[0]);
                                                                             });
                                                                         });
@@ -390,7 +429,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                                                 if (validVariations && validVariations.length > 0) {
                                                                                                     const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
                                                                                                         const gDef = m.id_variations![g];
-                                                                                                        const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                                                        const opts = getVariationOptions(gDef);
                                                                                                         acc[g] = next[g] || opts[0];
                                                                                                         return acc;
                                                                                                     }, {} as Record<string, string>);
@@ -426,7 +465,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                                                         if (validVariations && validVariations.length > 0) {
                                                                                                             const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
                                                                                                                 const gDef = m.id_variations![g];
-                                                                                                                const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                                                                const opts = getVariationOptions(gDef);
                                                                                                                 acc[g] = next[g] || opts[0];
                                                                                                                 return acc;
                                                                                                             }, {} as Record<string, string>);
@@ -457,7 +496,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                                 </div>
                                                                             )}
                                                                         </div>
-                                                                    );;
+                                                                    );
                                                                 })}
                                                             </div>
                                                         )}

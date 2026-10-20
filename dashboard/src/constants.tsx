@@ -143,7 +143,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     ],
     'metrics.categories.contextual': [
         {
-            id: 'thefts_n',
+            id: 'thefts_n_{police_force}',
+            id_variations: {
+                'police_force': {
+                    options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+                        { id: 'psp', label: 'filters_global.psp', suffix: '_psp', icon: 'icons/psp.png' },
+                        { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: 'icons/gnr.png' },
+                    ]
+                }
+            },
             icon: '🔐',
             label: 'metrics.contextual.thefts_n.label',
             description: 'metrics.contextual.thefts_n.description',
@@ -238,7 +247,7 @@ export const REGIONS = {
 } as const;
 
 export const GLOBAL_FILTERS = [
-    { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+    // { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
     { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
     { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
 
@@ -253,9 +262,6 @@ export const GLOBAL_FILTERS = [
     { id: 'women', label: 'filters_global.women', suffix: '_women', icon: '♀️' },
     { id: 'women_percentage', label: 'filters_global.women_percentage', suffix: '_women_percentage', icon: '♀️ ➗' },
 
-    { id: 'psp', label: 'filters_global.psp', suffix: '_psp', icon: 'icons/psp.png' },
-    { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: 'icons/gnr.png' },
-
     { id: 'protected', label: 'filters_global.protected', suffix: '_protected', icon: '🛡️🚲 ' },
     { id: 'active', label: 'filters_global.active', suffix: '_active', icon: '🚶‍♂️🚲' },
     { id: 'advisory', label: 'filters_global.advisory', suffix: '_advisory', icon: '🚙🚲' },
@@ -266,7 +272,7 @@ export const GLOBAL_FILTERS = [
 
 ] as const;
 
-export type GlobalFilterId = (typeof GLOBAL_FILTERS)[number]['id'];
+export type GlobalFilterId = (typeof GLOBAL_FILTERS)[number]['id'] | 'all' | '';
 
 // Backward compatibility aliases
 export const MODES = GLOBAL_FILTERS;

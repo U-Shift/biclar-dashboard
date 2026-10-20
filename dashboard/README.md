@@ -84,31 +84,44 @@ Each metric object adheres to the `MetricDef` type (defined in [`src/types.ts`](
 
 When resolving a metric value for a map feature, the dashboard constructs the target column name dynamically:
 
-$$\text{Final Property ID} = \text{metric.id (with placeholders replaced)} + \text{globalFilter.suffix}$$
+$$\text{Final Property ID} = \text{metric.id (with placeholders replaced)} + \text{effectiveGlobalFilter.suffix}$$
 
-1. **Placeholders**: Any `{group}` token in `metric.id` is replaced by the user's selected variation option.
-2. **Global filter suffix**: The selected global filter's `suffix` from `GLOBAL_FILTERS` (e.g. travel modes `_pt`, `_bike`, `_car` or bounds `_min`, `_max`) is appended to the end. If the filter has no suffix (e.g. `all`), nothing is appended.
+1. **Placeholders**: Any `{group}` (or `_{group}`) token in `metric.id` is replaced by the user's selected variation option.
+   - For `options_tags`: `{group}` is replaced by the selected tag string.
+   - For `options_icons`: if the option defines a `suffix`, `_{group}` is replaced by `suffix` (e.g. `thefts_n_{police_force}` with `suffix: ''` resolves to `thefts_n`, or with `suffix: '_psp'` resolves to `thefts_n_psp`).
+2. **Global filter suffix**: When a metric supports global filters, the active filter's `suffix` from `GLOBAL_FILTERS` (e.g. bounds `_min`, `_max`, or infrastructure types `_protected`) is appended. If no global filter applies to the metric, no global suffix is added.
 
 #### Defining Variations (`id_variations`)
 
-A variation group can be defined simply as an array of options or with constraints:
+A variation group is configured under `id_variations[groupName]` using either `options_tags` or `options_icons`:
 
 ```tsx
 id_variations: {
-    // 1. Simple array of option suffixes:
+    // 1. Tag-based variations (rendered as clickable chips in Left Sidebar):
     population_type: {
-        options: ['_population', '_adults', '_youth', '_elderly', '_women']
+        options_tags: ['_population', '_adults', '_youth', '_elderly', '_women']
     },
-    // 2. Options constrained by global filter or view level:
+    // 2. Continuous / ordinal variations (rendered as slider in Left Sidebar):
     walking_time: {
-        options: ['_15w', '_20w', '_30w'],
-        globalFilters: ['pt'],       // Only visible when PT filter is active (supports 'modes' as backward-compatible alias)
+        options_tags: ['_15w', '_20w', '_30w'],
+        globalFilters: ['pt'],       // Only visible when PT filter is active
         viewLevels: ['hex'],         // Only visible at hex grid level
-        formSlider: false,           // Render as radio/pill buttons instead of slider
+        formSlider: true,            // Render as a range slider instead of tag chips
         visible: true                // Set false to hide selector in UI
+    },
+    // 3. Icon-based variations (rendered floating on the map canvas via GlobalFilterSelector):
+    police_force: {
+        options_icons: [
+            { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+            { id: 'psp', label: 'filters_global.psp', suffix: '_psp', icon: 'icons/psp.png' },
+            { id: 'gnr', label: 'filters_global.gnr', suffix: '_gnr', icon: 'icons/gnr.png' },
+        ]
     }
 }
 ```
+
+- **`options_tags`**: Array of string identifiers. Rendered in the Left Sidebar as button chips (or as a slider when `formSlider: true`).
+- **`options_icons`**: Array of `VariationIconOption` objects (`{ id, label, suffix?, icon }`). Rendered directly in the floating map filter bar using `GlobalFilterSelector` (with tooltips, active rings, and image/emoji icon support), keeping the sidebar uncluttered.
 
 ### Step-by-Step: Adding a New Metric
 
@@ -119,7 +132,7 @@ id_variations: {
            id: 'parking_demand{scenario}',
            id_variations: {
                scenario: {
-                   options: ['_baseline', '_high_growth', '_low_growth']
+                   options_tags: ['_baseline', '_high_growth', '_low_growth']
                }
            },
            label: 'metrics.models.parking_demand.label',
@@ -161,10 +174,10 @@ export const GLOBAL_FILTERS = [
 1. **Context Agnostic**:
    - **Travel Modes**: `pt`, `bike`, `walk`, `car`, etc., appending suffixes like `_pt` or `_bike`.
    - **Bounds & Scenarios**: `min`, `max`, appending `_min` and `_max` (e.g. `model_mr_parking_residential_min` and `model_mr_parking_residential_max`).
-2. **Dynamic UI Discovery**:
-   - The floating selector (`GlobalFilterSelector`) on the map only renders options that actually exist in the dataset for the selected metric and view level.
-   - For example, if a metric only provides `_min` and `_max` columns, only the `⬇️` and `⬆️` buttons appear.
-   - If an indicator has fewer than 2 valid filter options, the selector automatically hides itself.
+2. **Dynamic UI Discovery & Metric Icon Variations**:
+   - The floating selector (`GlobalFilterSelector`) on the map renders available `GLOBAL_FILTERS` as well as any metric-specific `options_icons` variation groups defined on the active metric.
+   - For example, if a metric defines a `police_force` variation with `options_icons` for `🌐`, `psp`, and `gnr`, these appear as interactive icon buttons directly on the map canvas.
+   - If a filter or variation group has fewer than 2 valid options, its selector automatically hides itself.
 3. **Fallback Support (`suffixFallback`)**:
    - For calculated composite metrics (e.g. IMPT dynamic computation), `suffixFallback` specifies which suffix to fall back on if a mode or filter does not have a dedicated indicator column.
 4. **Backward Compatibility**:

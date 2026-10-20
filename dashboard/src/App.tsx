@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, DATA_BASE_URL, MUNICIPALITIES_LIMITS_FILE } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations } from './utils';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations, getVariationOptions } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
     const map = useMap();
@@ -51,7 +51,7 @@ const Dashboard = () => {
         FLAT_METRICS.forEach(m => {
             if (m.id_variations) {
                 Object.entries(m.id_variations).forEach(([group, options]) => {
-                    const opts = Array.isArray(options) ? options : options.options;
+                    const opts = getVariationOptions(options);
                     if (!initial[group]) initial[group] = opts[0];
                 });
             }
@@ -194,14 +194,6 @@ const Dashboard = () => {
     const selectedMetric = useMemo(() => FLAT_METRICS.find(m => m.id === selectedMetricId) || FLAT_METRICS[0], [selectedMetricId]);
     const selectedGlobalFilter = useMemo(() => GLOBAL_FILTERS.find(f => f.id === selectedGlobalFilterId) || GLOBAL_FILTERS[0], [selectedGlobalFilterId]);
 
-    // Log effective ID when selection changes
-    useEffect(() => {
-        let resId = selectedMetric.id;
-        Object.entries(selectedVariations).forEach(([k, v]) => resId = resId.replace(`{${k}}`, v));
-        const effectiveId = resId + (selectedGlobalFilter.suffix || '');
-        console.log(`[Metric Selection] ${selectedMetricId} -> ${effectiveId}`);
-    }, [selectedMetricId, selectedVariations, selectedGlobalFilterId, selectedMetric, selectedGlobalFilter]);
-
     // Helper to check if a specific filter is available for a metric at a certain view level
     const isGlobalFilterAvailable = useCallback((filterId: string, metricId: string, level: string) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
@@ -221,7 +213,7 @@ const Dashboard = () => {
     }, [dataState.geo, selectedVariations]);
 
     // Helper to check if a metric is available at a certain view level with the current filter
-    const isMetricAvailable = useCallback((metricId: string, level: string, filter = selectedGlobalFilter) => {
+    const isMetricAvailable = useCallback((metricId: string, level: string, filter?: any) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
         let checkMetric = metric;
 
@@ -233,9 +225,15 @@ const Dashboard = () => {
         const features = dataState.geo[level as ViewLevel]?.features;
         if (!features || !features.length) return false;
 
+        let filterToUse = filter;
+        if (!filterToUse) {
+            const isAvailable = isGlobalFilterAvailable(selectedGlobalFilterId, metricId, level);
+            filterToUse = isAvailable ? selectedGlobalFilter : (GLOBAL_FILTERS.find(f => isGlobalFilterAvailable(f.id, metricId, level)) || { id: '', suffix: '' });
+        }
+
         // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
-        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, filter, level, selectedVariations) !== undefined);
-    }, [dataState.geo, selectedGlobalFilter.suffix, selectedVariations]);
+        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, filterToUse, level, selectedVariations) !== undefined);
+    }, [dataState.geo, selectedGlobalFilter, selectedGlobalFilterId, selectedVariations, isGlobalFilterAvailable]);
 
     // Derive effective level and filter to ensure consistent rendering even before useEffect synchronizes state
     const effectiveLevel = useMemo(() => {
@@ -247,8 +245,32 @@ const Dashboard = () => {
         if (isGlobalFilterAvailable(selectedGlobalFilterId, selectedMetricId, effectiveLevel)) return selectedGlobalFilter;
         // Fallback to first available filter for this metric
         const firstAvailable = GLOBAL_FILTERS.find(f => isGlobalFilterAvailable(f.id, selectedMetricId, effectiveLevel));
-        return firstAvailable || GLOBAL_FILTERS[0];
+        if (firstAvailable) return firstAvailable;
+        // If metric does not support any global filters, do not append any global filter suffix
+        return { id: '' as GlobalFilterId, label: '', suffix: '', icon: '' };
     }, [selectedGlobalFilterId, selectedMetricId, effectiveLevel, dataState.geo, selectedGlobalFilter, selectedMetric, isGlobalFilterAvailable]);
+
+    // Log effective ID when selection changes
+    useEffect(() => {
+        let resId = selectedMetric.id;
+        Object.entries(selectedVariations).forEach(([k, v]) => {
+            const groupDef = selectedMetric.id_variations?.[k];
+            if (groupDef && !Array.isArray(groupDef) && groupDef.options_icons) {
+                const iconOpt = groupDef.options_icons.find(o => o.id === v);
+                if (iconOpt && iconOpt.suffix !== undefined) {
+                    if (resId.includes(`_{${k}}`)) {
+                        resId = resId.replace(`_{${k}}`, iconOpt.suffix);
+                    } else {
+                        resId = resId.replace(`{${k}}`, iconOpt.suffix);
+                    }
+                    return;
+                }
+            }
+            resId = resId.replace(`{${k}}`, v);
+        });
+        const effectiveId = resId + (effectiveGlobalFilter.suffix || '');
+        console.log(`[Metric Selection] ${selectedMetricId} -> ${effectiveId}`);
+    }, [selectedMetricId, selectedVariations, effectiveGlobalFilter, selectedMetric]);
 
     const discoveredVariations = useMemo(() => {
         const features = dataState.geo[effectiveLevel]?.features || [];
@@ -260,7 +282,7 @@ const Dashboard = () => {
         if (discoveredVariations.length > 0) {
             const currentComb = Object.keys(selectedMetric.id_variations || {}).reduce((acc, g) => {
                 const groupDef = selectedMetric.id_variations![g];
-                const opts = Array.isArray(groupDef) ? groupDef : groupDef.options;
+                const opts = getVariationOptions(groupDef);
                 acc[g] = selectedVariations[g] || opts[0];
                 return acc;
             }, {} as Record<string, string>);
@@ -701,7 +723,7 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        <div data-tour="filter-selector">
+                        <div data-tour="filter-selector" className="flex flex-col gap-3">
                             <GlobalFilterSelector
                                 value={effectiveGlobalFilter.id}
                                 isDark={isDarkMode}
@@ -709,6 +731,43 @@ const Dashboard = () => {
                                     .map(f => ({ id: f.id, label: t(f.label), icon: f.icon }))}
                                 onChange={(id) => setSelectedGlobalFilterId(id as GlobalFilterId)}
                             />
+                            {selectedMetric?.id_variations && Object.entries(selectedMetric.id_variations).map(([group, groupDef]) => {
+                                if (Array.isArray(groupDef) || !groupDef.options_icons || groupDef.options_icons.length < 2) return null;
+                                const currentVal = selectedVariations[group] || groupDef.options_icons[0].id;
+                                return (
+                                    <GlobalFilterSelector
+                                        key={group}
+                                        value={currentVal}
+                                        isDark={isDarkMode}
+                                        options={groupDef.options_icons.map(opt => ({
+                                            id: opt.id,
+                                            label: t(opt.label),
+                                            icon: opt.icon
+                                        }))}
+                                        onChange={(id) => {
+                                            setSelectedVariations(prev => {
+                                                const next = { ...prev, [group]: id };
+                                                if (discoveredVariations && discoveredVariations.length > 0) {
+                                                    const currentComb = Object.keys(selectedMetric.id_variations || {}).reduce((acc, g) => {
+                                                        const gDef = selectedMetric.id_variations![g];
+                                                        const opts = getVariationOptions(gDef);
+                                                        acc[g] = next[g] || opts[0];
+                                                        return acc;
+                                                    }, {} as Record<string, string>);
+                                                    const isValid = discoveredVariations.some((validComb: any) => {
+                                                        return Object.entries(currentComb).every(([k, v]) => validComb[k] === v);
+                                                    });
+                                                    if (!isValid) {
+                                                        const fallback = discoveredVariations.find((c: any) => c[group] === id);
+                                                        if (fallback) return { ...prev, ...fallback };
+                                                    }
+                                                }
+                                                return next;
+                                            });
+                                        }}
+                                    />
+                                );
+                            })}
                         </div>
                     </div>
                 )}
