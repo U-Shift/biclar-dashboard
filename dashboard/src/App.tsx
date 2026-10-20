@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { MapContainer, GeoJSON, Pane, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -96,6 +96,11 @@ const Dashboard = () => {
     const [showLegendMobile, setShowLegendMobile] = useState(false);
     const [rawLayersData, setRawLayersData] = useState<Record<string, any>>({});
     const [isLoadingRawLayer, setIsLoadingRawLayer] = useState(false);
+    const highlightedRawLayerRef = useRef<any>(null);
+
+    useEffect(() => {
+        highlightedRawLayerRef.current = null;
+    }, [selectedMetricId, isDarkMode, isColorBlindMode]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -912,7 +917,7 @@ const Dashboard = () => {
                                                 radius = 4 + Math.round(((val - min) / (max - min)) * 8);
                                             }
                                         }
-                                        return L.circleMarker(latlng, {
+                                        const marker = L.circleMarker(latlng, {
                                             radius,
                                             fillColor: color,
                                             color: isDarkMode ? '#1a1a1a' : '#ffffff',
@@ -920,6 +925,15 @@ const Dashboard = () => {
                                             opacity: 1,
                                             fillOpacity: 0.85
                                         });
+                                        (marker as any)._originalStyle = {
+                                            radius,
+                                            fillColor: color,
+                                            color: isDarkMode ? '#1a1a1a' : '#ffffff',
+                                            weight: 1.5,
+                                            opacity: 1,
+                                            fillOpacity: 0.85
+                                        };
+                                        return marker;
                                     }}
                                     onEachFeature={(f: any, l: L.Layer) => {
                                         const props = f?.properties || {};
@@ -935,6 +949,28 @@ const Dashboard = () => {
                                             : '';
                                         const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode);
 
+                                        const geomType = f?.geometry?.type;
+                                        const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
+                                        const originalStyle = (l as any)._originalStyle || (isLine ? {
+                                            color,
+                                            weight: 4.5,
+                                            opacity: 1,
+                                            lineCap: 'round',
+                                            lineJoin: 'round'
+                                        } : {
+                                            fillColor: color,
+                                            color: isDarkMode ? '#1a1a1a' : '#ffffff',
+                                            weight: 1,
+                                            opacity: 1,
+                                            fillOpacity: 0.85
+                                        });
+                                        (l as any)._originalStyle = originalStyle;
+                                        if (typeof (l as any).eachLayer === 'function') {
+                                            (l as any).eachLayer((child: any) => {
+                                                if (!child._originalStyle) child._originalStyle = originalStyle;
+                                            });
+                                        }
+
                                         const details = selectedMetric.get_details ? selectedMetric.get_details(props) : null;
                                         const detailsHtml = details && details.length > 0 ? `
                                             <table style="width: 100%; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 11px; border-collapse: collapse; text-align: left;">
@@ -949,8 +985,8 @@ const Dashboard = () => {
                                             </table>
                                         ` : '';
 
-                                        l.bindTooltip(`
-                                            <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; min-width: 140px; text-align: center; padding: 4px;">
+                                        const htmlContent = `
+                                            <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; min-width: 150px; text-align: center; padding: 4px;">
                                                 ${name ? `<div style="margin-bottom: 4px; font-size: 12px; font-weight: 800; color: #111;">${name}</div>` : ''}
                                                 <div style="font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase;">
                                                     ${t(selectedMetric.label)}
@@ -959,13 +995,55 @@ const Dashboard = () => {
                                                     ${formattedVal}${unitStr}
                                                 </div>
                                                 ${detailsHtml}
-                                            </div>`,
-                                            {
-                                                sticky: true,
-                                                direction: 'top',
-                                                offset: [0, -10]
+                                            </div>`;
+
+                                        l.bindTooltip(htmlContent, {
+                                            sticky: true,
+                                            direction: 'top',
+                                            offset: [0, -10]
+                                        });
+
+                                        l.bindPopup(htmlContent, {
+                                            offset: [0, -10],
+                                            closeButton: true,
+                                            autoClose: true
+                                        });
+
+                                        l.on({
+                                            click: (e: L.LeafletMouseEvent) => {
+                                                L.DomEvent.stopPropagation(e);
+                                                const path = (l as any);
+                                                if (highlightedRawLayerRef.current && highlightedRawLayerRef.current !== path) {
+                                                    const prev = highlightedRawLayerRef.current;
+                                                    if (prev._originalStyle && typeof prev.setStyle === 'function') {
+                                                        prev.setStyle(prev._originalStyle);
+                                                    }
+                                                }
+                                                highlightedRawLayerRef.current = path;
+                                                path.setStyle({ weight: 7, color: "#FFD4B8", opacity: 1 });
+                                                path.bringToFront();
+                                                if (typeof (l as any).closeTooltip === 'function') {
+                                                    (l as any).closeTooltip();
+                                                }
+                                                if (typeof (l as any).openPopup === 'function') {
+                                                    (l as any).openPopup();
+                                                }
+                                            },
+                                            popupclose: () => {
+                                                const path = (l as any);
+                                                if (path._originalStyle && typeof path.setStyle === 'function') {
+                                                    path.setStyle(path._originalStyle);
+                                                }
+                                                if (highlightedRawLayerRef.current === path) {
+                                                    highlightedRawLayerRef.current = null;
+                                                }
+                                            },
+                                            tooltipopen: () => {
+                                                if (typeof (l as any).isPopupOpen === 'function' && (l as any).isPopupOpen()) {
+                                                    (l as any).closeTooltip();
+                                                }
                                             }
-                                        );
+                                        });
                                     }}
                                 />
                             </Pane>

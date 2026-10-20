@@ -84,7 +84,8 @@
       "census_landuse": "Census & Land use",
       "models": "Parking dimensioning models",
       "contextual": "Contextual data",
-      "existing_infrastructure": "Existing infrastructure"
+      "existing_infrastructure": "Existing infrastructure",
+      "raw": "Raw data layers"
     },
     "models": {
       "mr": {

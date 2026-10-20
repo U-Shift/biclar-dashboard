@@ -307,10 +307,9 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 { value: 'Cycle track or lane', color: '#31a354', label: 'metrics.cycle_segregation.cycle_track_lane' },
                 { value: 'Advisory lane', color: '#78c679', label: 'metrics.cycle_segregation.advisory_lane' }
             ],
-            get_name: (p) => p.name || 'Ciclovia',
+            get_name: (p) => p.name || 'NA',
             get_details: (p) => [
-                ['OSM ID', p.osm_id || '-'],
-                ['Tipologia', p.cycle_segregation || '-']
+                ['OSM ID', p.osm_id || '-']
             ]
         },
         {
@@ -321,12 +320,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.existing_infrastructure.parking_capacity.description',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            format: (v) => Math.round(v || 0).toString(),
-            get_name: (p) => p.ID ? `Ponto #${p.ID}` : 'Estacionamento',
-            get_details: (p) => [
-                ['ID', p.ID ?? '-'],
-                ['Capacidade', p.capacity ? `${p.capacity} lugares` : '-']
-            ]
+            format: (v) => Math.round(v || 0).toString()
         }
     ]
 };

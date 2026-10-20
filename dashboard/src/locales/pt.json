@@ -85,7 +85,8 @@
       "census_population": "População Censos",
       "top_contributors": "Principais Contribuidores",
       "models": "Modelos Preditivos",
-      "existing_infrastructure": "Infraestrutura Existente"
+      "existing_infrastructure": "Infraestrutura Existente",
+      "raw": "Dados Geográficos"
     },
     "existing_infrastructure": {
       "cycleways_length": {
