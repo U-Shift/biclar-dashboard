@@ -100,7 +100,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         highlightedRawLayerRef.current = null;
-    }, [selectedMetricId, isDarkMode, isColorBlindMode]);
+    }, [selectedMetricId, nutFilter, isDarkMode, isColorBlindMode]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -401,9 +401,26 @@ const Dashboard = () => {
         };
     }, [dataState.limits, nutFilter]);
 
+    const filteredRawData = useMemo(() => {
+        if (!selectedMetric.url) return null;
+        const rawData = rawLayersData[selectedMetric.url];
+        if (!rawData?.features) return rawData;
+
+        // When features have region_id and a specific region is selected, filter by region_id
+        const hasRegionId = rawData.features.some((f: any) => f.properties?.region_id != null);
+        if (!hasRegionId || nutFilter === REGION_KEYS[0]) {
+            return rawData;
+        }
+
+        return {
+            ...rawData,
+            features: rawData.features.filter((f: any) => f.properties?.region_id === nutFilter)
+        };
+    }, [selectedMetric.url, rawLayersData, nutFilter]);
+
     const currentDomain = useMemo(() => {
         if (selectedMetric.url) {
-            const rawData = rawLayersData[selectedMetric.url];
+            const rawData = filteredRawData;
             if (!rawData?.features?.length) return [0, 1];
             const values = rawData.features
                 .map((f: any) => f.properties?.[selectedMetric.id])
@@ -418,7 +435,7 @@ const Dashboard = () => {
             .filter((v: any) => !isMetricValueIgnored(v, selectedMetric));
 
         return getMetricDomain(values, selectedMetric);
-    }, [computedGeoData, selectedMetric, rawLayersData, effectiveGlobalFilter, selectedVariations, effectiveLevel]);
+    }, [computedGeoData, selectedMetric, filteredRawData, effectiveGlobalFilter, selectedVariations, effectiveLevel]);
 
     // Precompute domains for all metrics shown in details to support dynamic coloring
     const allDomains = useMemo(() => {
@@ -879,11 +896,11 @@ const Dashboard = () => {
                             <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveGlobalFilter.id}-${isDarkMode}-${isColorBlindMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
 
-                        {selectedMetric.url && rawLayersData[selectedMetric.url] && (
+                        {selectedMetric.url && filteredRawData && (
                             <Pane name="raw-layer-pane" style={{ zIndex: 420 }}>
                                 <GeoJSON
-                                    key={`raw-${selectedMetric.id}-${selectedMetric.url}-${isDarkMode}-${isColorBlindMode}`}
-                                    data={rawLayersData[selectedMetric.url]}
+                                    key={`raw-${selectedMetric.id}-${selectedMetric.url}-${nutFilter}-${isDarkMode}-${isColorBlindMode}`}
+                                    data={filteredRawData}
                                     style={(f: any) => {
                                         const val = f?.properties?.[selectedMetric.id];
                                         const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode);

@@ -159,6 +159,7 @@ The dashboard allows adding raw geographic feature layers (e.g. cycleway polylin
 - **Flexible Data Types**: The layer `id` specifies the feature property in the GeoJSON to display:
   - **Categorical (strings)**: Uses `legendCategories` with `{ value, color, label }` to map string property values (e.g. `cycle_segregation`) to colors and legend entries.
   - **Numerical (numbers)**: Uses `scaleMethod`, `pallete`, and `format` to scale colors and calculate domains dynamically from the GeoJSON features. Points render as clean circle markers with proportional sizing.
+- **Region Filtering (`region_id`)**: If the GeoJSON features contain a `region_id` property (e.g. `PT1A`, `PT1B`), the map's Region filter automatically filters the layer to only display features belonging to the selected region, and dynamically updates any numerical scale domains.
 - **Custom Display Name (`get_name`)**: A function `(properties: any) => string` that extracts or formats the feature's title in the tooltip (e.g. `p.name || 'Ciclovia'`). If omitted, falls back to `properties.name`.
 - **Feature Details Table (`get_details`)**: A function `(properties: any) => [string, string | number][]` returning an array of `[label, value]` tuples rendered as a clean, styled metadata table at the bottom of the hover tooltip.
 
