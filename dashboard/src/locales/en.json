@@ -81,10 +81,11 @@
   "metrics": {
     "categories": {
       "ratios": "Bike parking ratios",
-      "census_landuse": "Census & Land use",
+      "census": "Census",
+      "land_use": "Land use",
       "models": "Parking dimensioning models",
       "contextual": "Contextual data",
-      "existing_infrastructure": "Existing infrastructure",
+      "mobility": "Mobility",
       "raw": "Raw data layers"
     },
     "models": {
@@ -105,7 +106,7 @@
         "description": "Number of bicycle thefts reported to the authorities"
       }
     },
-    "existing_infrastructure": {
+    "mobility": {
       "cycleways_length": {
         "label": "Cycleways length",
         "description": "Length of bike paths"
@@ -128,7 +129,7 @@
       "cycle_track_lane": "Cycle track or lane",
       "advisory_lane": "Advisory lane"
     },
-    "census_landuse": {
+    "census": {
       "dasymetric_population": {
         "label": "Population",
         "description": "Number of residents"
@@ -137,10 +138,6 @@
         "label": "Population ratios",
         "description": "Percentage of population groups"
       },
-      "dasymetric_buildings": {
-        "label": "Buildings",
-        "description": "Number of buildings"
-      },
       "dasymetric_population_dependency_ratio": {
         "label": "Age dependency ratio",
         "description": "Ratio of dependent population (children and elderly) to working-age population"
@@ -148,6 +145,12 @@
       "dasymetric_households": {
         "label": "Households",
         "description": "Number of households"
+      }
+    },
+    "land_use": {
+      "dasymetric_buildings": {
+        "label": "Buildings",
+        "description": "Number of buildings"
       }
     }
   },

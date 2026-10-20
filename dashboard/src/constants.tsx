@@ -126,7 +126,28 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
         }
     ],
     // Tab 2
-    'metrics.categories.existing_infrastructure': [
+    'metrics.categories.ratios': [
+        {
+            id: 'model_mr_ratio_residential_{min_max}',
+            id_variations: {
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
+            icon: '🏘️',
+            label: 'metrics.models.mr_ratio.residential.label',
+            description: 'metrics.models.mr_ratio.residential.description',
+            pallete: COLORS.WhiteToGreen,
+            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
+            sources: ['ruma', 'rumus', 'literature_todo']
+            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
+        },
+    ],
+    'metrics.categories.mobility': [
         {
             id: 'cycleways_length_{type}',
             id_variations: {
@@ -139,8 +160,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 }
             },
             icon: '🚴‍♂️',
-            label: 'metrics.existing_infrastructure.cycleways_length.label',
-            description: 'metrics.existing_infrastructure.cycleways_length.description',
+            label: 'metrics.mobility.cycleways_length.label',
+            description: 'metrics.mobility.cycleways_length.description',
             format: (v) => Math.round(v / 100 || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
@@ -158,12 +179,99 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 }
             },
             icon: '🅿️',
-            label: 'metrics.existing_infrastructure.parking.label',
-            description: 'metrics.existing_infrastructure.parking.description',
+            label: 'metrics.mobility.parking.label',
+            description: 'metrics.mobility.parking.description',
             format: (v) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             // sources: TBD
+        }
+    ],
+    'metrics.categories.census': [
+        {
+            id: 'dasymetric_population_{group}',
+            id_variations: {
+                'group': {
+                    options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+                        { id: 'adults', label: 'filters_global.adults', suffix: '_adults', icon: '👩' },
+                        { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
+                        { id: 'youth_percentage', label: 'filters_global.youth_percentage', suffix: '_youth_percentage', icon: '👶 ➗' },
+                        { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
+                        { id: 'elderly_percentage', label: 'filters_global.elderly_percentage', suffix: '_elderly_percentage', icon: '🧓 ➗' },
+                        { id: 'women', label: 'filters_global.women', suffix: '_women', icon: '♀️' },
+                        { id: 'women_percentage', label: 'filters_global.women_percentage', suffix: '_women_percentage', icon: '♀️ ➗' },
+                    ]
+                }
+            },
+            icon: '👥',
+            label: 'metrics.census.dasymetric_population.label',
+            description: 'metrics.census.dasymetric_population.description',
+            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['census'],
+            unit: (filter, _value, variations) => {
+                console.log("dasymetric_population filter", filter, _value, variations)
+                if (filter && filter.includes("percentage")) return "%";
+                if (variations && variations["group"] && variations["group"].includes("percentage")) return "%";
+                return undefined;
+            }
+        },
+        {
+            id: 'dasymetric_dependency_ratio_{group}',
+            id_variations: {
+                'group': {
+                    options_icons: [
+                        { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
+                        { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
+                    ]
+                }
+            },
+            icon: '🎂',
+            label: 'metrics.census.dasymetric_population_dependency_ratio.label',
+            description: 'metrics.census.dasymetric_population_dependency_ratio.description',
+            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
+            unit: () => '%',
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['census']
+        },
+        {
+            id: 'dasymetric_households',
+            icon: '🏡',
+            label: 'metrics.census.dasymetric_households.label',
+            description: 'metrics.census.dasymetric_households.description',
+            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['census']
+        }
+    ],
+    'metrics.categories.land_use': [
+        {
+            id: 'dasymetric_buildings_{time}',
+            id_variations: {
+                'time': {
+                    options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+                        { id: 'pre1945', label: 'filters_global.buildings_pre1945', suffix: '_pre1945', icon: '🗝️' },
+                        { id: 'pre1945_percentage', label: 'filters_global.buildings_pre1945_percentage', suffix: '_pre1945_percentage', icon: '🗝️➗' },
+                    ]
+                }
+            },
+            icon: '🏘️',
+            label: 'metrics.land_use.dasymetric_buildings.label',
+            description: 'metrics.land_use.dasymetric_buildings.description',
+            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['census'],
+            unit: (filter, _value, variations) => {
+                if (filter && filter.includes("percentage")) return "%";
+                if (variations && variations["time"] && variations["time"].includes("percentage")) return "%";
+                return undefined;
+            }
         }
     ],
     'metrics.categories.contextual': [
@@ -187,119 +295,13 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['psp', 'gnr']
         }
     ],
-    'metrics.categories.ratios': [
-        {
-            id: 'model_mr_ratio_residential_{min_max}',
-            id_variations: {
-                'min_max': {
-                    options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
-                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
-                    ]
-                }
-            },
-            icon: '🏘️',
-            label: 'metrics.models.mr_ratio.residential.label',
-            description: 'metrics.models.mr_ratio.residential.description',
-            pallete: COLORS.WhiteToGreen,
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            scaleMethod: continuousScale,
-            sources: ['ruma', 'rumus', 'literature_todo']
-            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
-        },
-    ],
-    'metrics.categories.census_landuse': [
-        {
-            id: 'dasymetric_population_{group}',
-            id_variations: {
-                'group': {
-                    options_icons: [
-                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
-                        { id: 'adults', label: 'filters_global.adults', suffix: '_adults', icon: '👩' },
-                        { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
-                        { id: 'youth_percentage', label: 'filters_global.youth_percentage', suffix: '_youth_percentage', icon: '👶 ➗' },
-                        { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
-                        { id: 'elderly_percentage', label: 'filters_global.elderly_percentage', suffix: '_elderly_percentage', icon: '🧓 ➗' },
-                        { id: 'women', label: 'filters_global.women', suffix: '_women', icon: '♀️' },
-                        { id: 'women_percentage', label: 'filters_global.women_percentage', suffix: '_women_percentage', icon: '♀️ ➗' },
-                    ]
-                }
-            },
-            icon: '👥',
-            label: 'metrics.census_landuse.dasymetric_population.label',
-            description: 'metrics.census_landuse.dasymetric_population.description',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['census'],
-            unit: (filter, _value, variations) => {
-                console.log("dasymetric_population filter", filter, _value, variations)
-                if (filter && filter.includes("percentage")) return "%";
-                if (variations && variations["group"] && variations["group"].includes("percentage")) return "%";
-                return undefined;
-            }
-        },
-        {
-            id: 'dasymetric_dependency_ratio_{group}',
-            id_variations: {
-                'group': {
-                    options_icons: [
-                        { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
-                        { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
-                    ]
-                }
-            },
-            icon: '🎂',
-            label: 'metrics.census_landuse.dasymetric_population_dependency_ratio.label',
-            description: 'metrics.census_landuse.dasymetric_population_dependency_ratio.description',
-            format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
-            unit: () => '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['census']
-        },
-        {
-            id: 'dasymetric_households',
-            icon: '🏡',
-            label: 'metrics.census_landuse.dasymetric_households.label',
-            description: 'metrics.census_landuse.dasymetric_households.description',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['census']
-        },
-        {
-            id: 'dasymetric_buildings_{time}',
-            id_variations: {
-                'time': {
-                    options_icons: [
-                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
-                        { id: 'pre1945', label: 'filters_global.buildings_pre1945', suffix: '_pre1945', icon: '🗝️' },
-                        { id: 'pre1945_percentage', label: 'filters_global.buildings_pre1945_percentage', suffix: '_pre1945_percentage', icon: '🗝️➗' },
-                    ]
-                }
-            },
-            icon: '🏘️',
-            label: 'metrics.census_landuse.dasymetric_buildings.label',
-            description: 'metrics.census_landuse.dasymetric_buildings.description',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['census'],
-            unit: (filter, _value, variations) => {
-                if (filter && filter.includes("percentage")) return "%";
-                if (variations && variations["time"] && variations["time"].includes("percentage")) return "%";
-                return undefined;
-            }
-        }
-    ],
     'metrics.categories.raw': [
         {
             id: 'cycle_segregation',
             url: `${DATA_BASE_URL}layer_cycleways.geojson`,
             icon: '🛣️',
-            label: 'metrics.existing_infrastructure.cycle_segregation.label',
-            description: 'metrics.existing_infrastructure.cycle_segregation.description',
+            label: 'metrics.mobility.cycle_segregation.label',
+            description: 'metrics.mobility.cycle_segregation.description',
             format: (v) => String(v || ''),
             pallete: ['#006837', '#31a354', '#78c679'],
             legendCategories: [
@@ -316,8 +318,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'capacity',
             url: `${DATA_BASE_URL}layer_parking.geojson`,
             icon: '🚲',
-            label: 'metrics.existing_infrastructure.parking_capacity.label',
-            description: 'metrics.existing_infrastructure.parking_capacity.description',
+            label: 'metrics.mobility.parking_capacity.label',
+            description: 'metrics.mobility.parking_capacity.description',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             format: (v) => Math.round(v || 0).toString()
