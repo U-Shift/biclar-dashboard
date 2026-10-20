@@ -293,6 +293,42 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             }
         }
     ],
+    'metrics.categories.raw': [
+        {
+            id: 'cycle_segregation',
+            url: `${DATA_BASE_URL}layer_cycleways.geojson`,
+            icon: '🛣️',
+            label: 'metrics.existing_infrastructure.cycle_segregation.label',
+            description: 'metrics.existing_infrastructure.cycle_segregation.description',
+            format: (v) => String(v || ''),
+            pallete: ['#006837', '#31a354', '#78c679'],
+            legendCategories: [
+                { value: 'Protected Active', color: '#006837', label: 'metrics.cycle_segregation.protected_active' },
+                { value: 'Cycle track or lane', color: '#31a354', label: 'metrics.cycle_segregation.cycle_track_lane' },
+                { value: 'Advisory lane', color: '#78c679', label: 'metrics.cycle_segregation.advisory_lane' }
+            ],
+            get_name: (p) => p.name || 'Ciclovia',
+            get_details: (p) => [
+                ['OSM ID', p.osm_id || '-'],
+                ['Tipologia', p.cycle_segregation || '-']
+            ]
+        },
+        {
+            id: 'capacity',
+            url: `${DATA_BASE_URL}layer_parking.geojson`,
+            icon: '🚲',
+            label: 'metrics.existing_infrastructure.parking_capacity.label',
+            description: 'metrics.existing_infrastructure.parking_capacity.description',
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            format: (v) => Math.round(v || 0).toString(),
+            get_name: (p) => p.ID ? `Ponto #${p.ID}` : 'Estacionamento',
+            get_details: (p) => [
+                ['ID', p.ID ?? '-'],
+                ['Capacidade', p.capacity ? `${p.capacity} lugares` : '-']
+            ]
+        }
+    ]
 };
 
 export const METRICS = Object.freeze(
@@ -314,7 +350,7 @@ export const REGIONS = {
 } as const;
 
 export const GLOBAL_FILTERS = [
-    // { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+    { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
 ] as const;
 
 export type GlobalFilterId = (typeof GLOBAL_FILTERS)[number]['id'] | 'all' | '';

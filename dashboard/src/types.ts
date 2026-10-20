@@ -50,14 +50,18 @@ export type MetricDef = {
     scaleMin?: number; // Force a minimum value for the scale domain
     scaleMax?: number; // Force a maximum value for the scale domain
     format: (v: number, min: number, max: number, filter: GlobalFilterId, variations?: Record<string, string>) => string;
-    legendCategories?: { color: string; label: string }[]; // Specific legend categories for non-continuous layers
+    legendCategories?: { color: string; label: string; value?: string }[]; // Specific legend categories for non-continuous layers
     // Area details sidebar (opens on the right, when user clicks on a feature)
     showAlwaysOnDetails?: boolean; // If true, the variable is always visible in the details sidebar. By default, variables are only visible when selected.
     // IMPT Calculation
     isCalculated?: boolean; // Identifies this metric as a dynamically computed index
     isContributory?: boolean; // Identifies that this metric can be used to compute a dynamic index
     defaultWeight?: number; // Default weight to start with (e.g. 0.25)
-    // External data
+    // External data / Raw GeoJSON layers
+    url?: string; // URL to fetch custom raw GeoJSON layer when selected
+    get_name?: (properties: any) => string; // Function that receives the feature properties object and returns its display name
+    get_details?: (properties: any) => [string, string | number][]; // Function that receives the feature properties object and returns a list of [label, value] tuples for the tooltip table
     auxiliaryDataUrl?: string; // URL to fetch additional data when selected
     renderAuxiliaryData?: (data: any, metricId: string, t: (key: string) => string, limit?: number) => React.ReactNode;
 };
+

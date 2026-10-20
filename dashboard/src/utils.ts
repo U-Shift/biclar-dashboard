@@ -147,6 +147,9 @@ export const getLegendGradient = (metric: MetricDef, domain: number[], isColorBl
  */
 export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
     if (!properties) return undefined;
+    if (metric.url) {
+        return properties[metric.id];
+    }
 
     const resolveId = (id: string, useSuffixIfAvailable: boolean = true) => {
         let resolved = id;
@@ -301,5 +304,41 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
     console.log("Valid combinations for ", metric.id, validCombinations);
 
     return validCombinations;
+};
+
+/**
+ * Resolves color for a raw data layer feature, supporting both categorical and numerical values.
+ */
+export const getRawFeatureColor = (
+    val: any,
+    metric: MetricDef,
+    domain: number[],
+    isColorBlindMode: boolean = false
+): string => {
+    if (val === undefined || val === null) {
+        return 'rgba(0,0,0,0.05)';
+    }
+
+    // Categorical matching first so string values are not flagged as NaN by isMetricValueIgnored
+    if (metric.legendCategories && metric.legendCategories.length > 0) {
+        const strVal = String(val).trim().toLowerCase();
+        const matched = metric.legendCategories.find(
+            cat => (cat.value && cat.value.toLowerCase() === strVal) ||
+                   (cat.label && cat.label.toLowerCase() === strVal)
+        );
+        if (matched) return matched.color;
+    }
+
+    if (isMetricValueIgnored(val, metric)) {
+        return 'rgba(0,0,0,0.05)';
+    }
+
+    // Numerical matching
+    if (typeof val === 'number' || (!isNaN(Number(val)) && typeof val !== 'boolean')) {
+        const numVal = typeof val === 'number' ? val : Number(val);
+        return getColor(numVal, domain, metric, isColorBlindMode);
+    }
+
+    return metric.pallete?.[0] || '#3b82f6';
 };
 

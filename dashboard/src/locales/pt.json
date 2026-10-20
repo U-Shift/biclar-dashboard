@@ -85,12 +85,30 @@
       "census_population": "População Censos",
       "top_contributors": "Principais Contribuidores",
       "models": "Modelos Preditivos",
-      "cos_builtarea_title": "Edificado",
-      "cos_builtarea_desc": "Classes de Edificado",
-      "cos_builtarea_cat_vertical": "Vertical Contínua",
-      "cos_builtarea_cat_horizontal": "Horizontal Contínua",
-      "cos_builtarea_cat_discontinuous": "Descontínua",
-      "cos_builtarea_cat_other": "Descontínua Esparsa"
+      "existing_infrastructure": "Infraestrutura Existente"
+    },
+    "existing_infrastructure": {
+      "cycleways_length": {
+        "label": "Extensão de ciclovias",
+        "description": "Extensão da rede ciclável"
+      },
+      "parking": {
+        "label": "Estacionamento",
+        "description": "Pontos e capacidade de estacionamento de bicicletas"
+      },
+      "cycle_segregation": {
+        "label": "Ciclovias (Tipologia)",
+        "description": "Rede ciclável classificada por tipo de segregação"
+      },
+      "parking_capacity": {
+        "label": "Estacionamento (Capacidade)",
+        "description": "Capacidade dos pontos de estacionamento para bicicletas"
+      }
+    },
+    "cycle_segregation": {
+      "protected_active": "Ativa Protegida",
+      "cycle_track_lane": "Pista/Faixa Ciclável",
+      "advisory_lane": "Faixa Sugerida"
     },
     "models": {
       "mr": {

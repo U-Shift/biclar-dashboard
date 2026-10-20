@@ -112,7 +112,20 @@
       "parking": {
         "label": "Parking",
         "description": "Number of parking points and associated capacity"
+      },
+      "cycle_segregation": {
+        "label": "Cycleways (Typology)",
+        "description": "Cycle network classified by segregation type"
+      },
+      "parking_capacity": {
+        "label": "Parking (Capacity)",
+        "description": "Capacity of bicycle parking facilities"
       }
+    },
+    "cycle_segregation": {
+      "protected_active": "Protected Active",
+      "cycle_track_lane": "Cycle track or lane",
+      "advisory_lane": "Advisory lane"
     },
     "census_landuse": {
       "dasymetric_population": {

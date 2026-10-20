@@ -31,8 +31,6 @@ interface SidebarLeftProps {
     discoveredVariations: Record<string, string>[];
     selectedGlobalFilter?: { id: string };
     viewLevel: string;
-    showBuiltArea: boolean;
-    setShowBuiltArea: (val: boolean) => void;
     isMobile?: boolean;
     isOpen?: boolean;
     setIsOpen?: (val: boolean) => void;
@@ -90,7 +88,6 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     weights, setWeights, resetWeights, setIsAHPModalOpen,
     selectedVariations, setSelectedVariations,
     discoveredVariations, selectedGlobalFilter, viewLevel,
-    showBuiltArea, setShowBuiltArea,
     isMobile, isOpen, setIsOpen,
     nutFilter, setNutFilter, setViewLevel, setSelectedGlobalFilterId,
     isMetricAvailable, isGlobalFilterAvailable,
@@ -631,8 +628,6 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                             isDarkMode={isDarkMode}
                                             mapStyle={mapStyle}
                                             setMapStyle={setMapStyle}
-                                            showBuiltArea={showBuiltArea}
-                                            setShowBuiltArea={setShowBuiltArea}
                                             onZoomIn={onZoomIn}
                                             onZoomOut={onZoomOut}
                                             onChange={() => {

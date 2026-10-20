@@ -150,6 +150,64 @@ id_variations: {
 
 ---
 
+### Raw Data Layers (Custom GeoJSON)
+
+The dashboard allows adding raw geographic feature layers (e.g. cycleway polylines, parking point locations, or custom zones) with their own dedicated GeoJSON files in `METRIC_DATA`:
+
+- **On-Demand Loading**: Files for these layers are **only fetched when the user selects the layer**, ensuring fast initial load times.
+- **Coordinate Reference System**: All GeoJSON files must be provided in **`EPSG:4326` (WGS84, `[longitude, latitude]`)**.
+- **Flexible Data Types**: The layer `id` specifies the feature property in the GeoJSON to display:
+  - **Categorical (strings)**: Uses `legendCategories` with `{ value, color, label }` to map string property values (e.g. `cycle_segregation`) to colors and legend entries.
+  - **Numerical (numbers)**: Uses `scaleMethod`, `pallete`, and `format` to scale colors and calculate domains dynamically from the GeoJSON features. Points render as clean circle markers with proportional sizing.
+- **Custom Display Name (`get_name`)**: A function `(properties: any) => string` that extracts or formats the feature's title in the tooltip (e.g. `p.name || 'Ciclovia'`). If omitted, falls back to `properties.name`.
+- **Feature Details Table (`get_details`)**: A function `(properties: any) => [string, string | number][]` returning an array of `[label, value]` tuples rendered as a clean, styled metadata table at the bottom of the hover tooltip.
+
+#### Example 1: Categorical Raw Layer (Cycleways by Segregation)
+
+```tsx
+{
+    id: 'cycle_segregation',
+    url: `${DATA_BASE_URL}layer_cycleways.geojson`,
+    icon: '🛣️',
+    label: 'metrics.existing_infrastructure.cycle_segregation.label',
+    description: 'metrics.existing_infrastructure.cycle_segregation.description',
+    format: (v) => String(v || ''),
+    pallete: ['#006837', '#31a354', '#78c679'],
+    legendCategories: [
+        { value: 'Protected Active', color: '#006837', label: 'metrics.cycle_segregation.protected_active' },
+        { value: 'Cycle track or lane', color: '#31a354', label: 'metrics.cycle_segregation.cycle_track_lane' },
+        { value: 'Advisory lane', color: '#78c679', label: 'metrics.cycle_segregation.advisory_lane' }
+    ],
+    get_name: (p) => p.name || 'Ciclovia',
+    get_details: (p) => [
+        ['OSM ID', p.osm_id || '-'],
+        ['Tipologia', p.cycle_segregation || '-']
+    ]
+}
+```
+
+#### Example 2: Numerical Raw Layer (Bicycle Parking Capacity)
+
+```tsx
+{
+    id: 'capacity',
+    url: `${DATA_BASE_URL}layer_parking.geojson`,
+    icon: '🚲',
+    label: 'metrics.existing_infrastructure.parking_capacity.label',
+    description: 'metrics.existing_infrastructure.parking_capacity.description',
+    scaleMethod: continuousScale,
+    pallete: COLORS.WhiteToGreen,
+    format: (v) => Math.round(v || 0).toString(),
+    get_name: (p) => p.ID ? `Ponto #${p.ID}` : 'Estacionamento',
+    get_details: (p) => [
+        ['ID', p.ID ?? '-'],
+        ['Capacidade', p.capacity ? `${p.capacity} lugares` : '-']
+    ]
+}
+```
+
+---
+
 ## Global Filters (`GLOBAL_FILTERS`)
 
 The dashboard features a context-agnostic global filter system registered in `GLOBAL_FILTERS` inside [`src/constants.tsx`](src/constants.tsx).

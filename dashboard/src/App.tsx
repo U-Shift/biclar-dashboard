@@ -18,8 +18,8 @@ import { Loader2, Activity, Layers, Globe, Info, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
-import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, DATA_BASE_URL, MUNICIPALITIES_LIMITS_FILE } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations, getVariationOptions } from './utils';
+import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, MUNICIPALITIES_LIMITS_FILE } from './constants';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations, getVariationOptions, getRawFeatureColor } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
     const map = useMap();
@@ -94,17 +94,8 @@ const Dashboard = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [showLegendMobile, setShowLegendMobile] = useState(false);
-    const [showBuiltArea, setShowBuiltArea] = useState(false);
-    const [builtAreaData, setBuiltAreaData] = useState<any>(null);
-
-    useEffect(() => {
-        if ((showBuiltArea || selectedMetricId === 'cos_builtarea') && !builtAreaData) {
-            fetch(`${DATA_BASE_URL}cos_builtarea.geojson`)
-                .then(r => r.json())
-                .then(d => setBuiltAreaData(d))
-                .catch(e => console.error("Error loading built area:", e));
-        }
-    }, [showBuiltArea, selectedMetricId, builtAreaData]);
+    const [rawLayersData, setRawLayersData] = useState<Record<string, any>>({});
+    const [isLoadingRawLayer, setIsLoadingRawLayer] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
@@ -194,6 +185,22 @@ const Dashboard = () => {
     const selectedMetric = useMemo(() => FLAT_METRICS.find(m => m.id === selectedMetricId) || FLAT_METRICS[0], [selectedMetricId]);
     const selectedGlobalFilter = useMemo(() => GLOBAL_FILTERS.find(f => f.id === selectedGlobalFilterId) || GLOBAL_FILTERS[0], [selectedGlobalFilterId]);
 
+    useEffect(() => {
+        if (selectedMetric.url && !rawLayersData[selectedMetric.url]) {
+            setIsLoadingRawLayer(true);
+            fetch(selectedMetric.url)
+                .then(r => {
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.json();
+                })
+                .then(d => {
+                    setRawLayersData(prev => ({ ...prev, [selectedMetric.url!]: d }));
+                })
+                .catch(e => console.error("Error loading raw data layer:", e))
+                .finally(() => setIsLoadingRawLayer(false));
+        }
+    }, [selectedMetric.url, rawLayersData]);
+
     // Helper to check if a specific filter is available for a metric at a certain view level
     const isGlobalFilterAvailable = useCallback((filterId: string, metricId: string, level: string) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
@@ -215,6 +222,7 @@ const Dashboard = () => {
     // Helper to check if a metric is available at a certain view level with the current filter
     const isMetricAvailable = useCallback((metricId: string, level: string, filter?: any) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
+        if (metric?.url) return true;
         let checkMetric = metric;
 
         if (metric?.isCalculated) {
@@ -389,13 +397,23 @@ const Dashboard = () => {
     }, [dataState.limits, nutFilter]);
 
     const currentDomain = useMemo(() => {
+        if (selectedMetric.url) {
+            const rawData = rawLayersData[selectedMetric.url];
+            if (!rawData?.features?.length) return [0, 1];
+            const values = rawData.features
+                .map((f: any) => f.properties?.[selectedMetric.id])
+                .filter((v: any) => typeof v === 'number' && !isNaN(v) && !isMetricValueIgnored(v, selectedMetric));
+            if (!values.length) return [0, 1];
+            return getMetricDomain(values, selectedMetric);
+        }
+
         if (!computedGeoData?.features?.length) return [0, 1];
         const values = computedGeoData.features
             .map((f: any) => getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations))
             .filter((v: any) => !isMetricValueIgnored(v, selectedMetric));
 
         return getMetricDomain(values, selectedMetric);
-    }, [computedGeoData, selectedMetric, effectiveGlobalFilter, selectedVariations, effectiveLevel]);
+    }, [computedGeoData, selectedMetric, rawLayersData, effectiveGlobalFilter, selectedVariations, effectiveLevel]);
 
     // Precompute domains for all metrics shown in details to support dynamic coloring
     const allDomains = useMemo(() => {
@@ -655,8 +673,6 @@ const Dashboard = () => {
                 discoveredVariations={discoveredVariations}
                 selectedGlobalFilter={effectiveGlobalFilter}
                 viewLevel={effectiveLevel}
-                showBuiltArea={showBuiltArea}
-                setShowBuiltArea={setShowBuiltArea}
                 isMobile={isMobile}
                 isOpen={isSidebarOpen}
                 setIsOpen={setIsSidebarOpen}
@@ -690,22 +706,24 @@ const Dashboard = () => {
                 {!isMobile && (
                     <div className="absolute top-8 left-[416px] z-[1002] flex flex-col gap-4 items-start pointer-events-none">
                         <div className="flex gap-4 pointer-events-auto items-center">
-                            <div data-tour="view-level">
-                                <MapFilterDropdown
-                                    label={t('map.view_level')}
-                                    value={viewLevel}
-                                    isDark={isDarkMode}
-                                    icon={<Layers className="w-3.5 h-3.5" />}
-                                    options={(['hex', 'freguesia', 'municipality'] as const)
-                                        .filter(l => isMetricAvailable(selectedMetricId, l, effectiveGlobalFilter))
-                                        .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
-                                    onChange={(id) => {
-                                        setViewLevel(id as ViewLevel);
-                                        setZoomRequest(null);
-                                        setSelectedFeature(null);
-                                    }}
-                                />
-                            </div>
+                            {!selectedMetric.url && (
+                                <div data-tour="view-level">
+                                    <MapFilterDropdown
+                                        label={t('map.view_level')}
+                                        value={viewLevel}
+                                        isDark={isDarkMode}
+                                        icon={<Layers className="w-3.5 h-3.5" />}
+                                        options={(['hex', 'freguesia', 'municipality'] as const)
+                                            .filter(l => isMetricAvailable(selectedMetricId, l, effectiveGlobalFilter))
+                                            .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
+                                        onChange={(id) => {
+                                            setViewLevel(id as ViewLevel);
+                                            setZoomRequest(null);
+                                            setSelectedFeature(null);
+                                        }}
+                                    />
+                                </div>
+                            )}
 
                             <div data-tour="region-selector">
                                 <MapFilterDropdown
@@ -843,47 +861,116 @@ const Dashboard = () => {
                         <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
                         <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
-                        {!isMobile && <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} showBuiltArea={showBuiltArea} setShowBuiltArea={setShowBuiltArea} />}
-                        <Pane name="builtarea-pane" style={{ zIndex: 350 }}>
-                            {(showBuiltArea || selectedMetricId === 'cos_builtarea') && builtAreaData && (
+                        {!isMobile && <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} />}
+                        
+                        {isLoadingRawLayer && (
+                            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[1200] px-4 py-2 rounded-full backdrop-blur-md shadow-xl border flex items-center gap-2 bg-white/90 border-neutral-200 text-neutral-800 text-xs font-bold pointer-events-none">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                                <span>{t('common.loading', 'Carregando camada...')}</span>
+                            </div>
+                        )}
+
+                        {!selectedMetric.url && computedGeoData?.features && (
+                            <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveGlobalFilter.id}-${isDarkMode}-${isColorBlindMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                        )}
+
+                        {selectedMetric.url && rawLayersData[selectedMetric.url] && (
+                            <Pane name="raw-layer-pane" style={{ zIndex: 420 }}>
                                 <GeoJSON
-                                    key={`builtarea-${isDarkMode}-${isColorBlindMode}`}
-                                    data={builtAreaData}
+                                    key={`raw-${selectedMetric.id}-${selectedMetric.url}-${isDarkMode}-${isColorBlindMode}`}
+                                    data={rawLayersData[selectedMetric.url]}
                                     style={(f: any) => {
-                                        const cls = f?.properties?.classification || '';
-                                        let fillColor = '#fed976';
-                                        if (cls === 'Áreas edificadas residenciais contínuas predominantemente verticais') {
-                                            fillColor = '#800026';
-                                        } else if (cls === 'Áreas edificadas residenciais contínuas predominantemente horizontais') {
-                                            fillColor = '#e31a1c';
-                                        } else if (cls === 'Áreas edificadas residenciais descontínuas') {
-                                            fillColor = '#fd8d3c';
+                                        const val = f?.properties?.[selectedMetric.id];
+                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode);
+                                        const geomType = f?.geometry?.type;
+                                        const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
+                                        if (isLine) {
+                                            return {
+                                                color,
+                                                weight: 4.5,
+                                                opacity: 1,
+                                                lineCap: 'round',
+                                                lineJoin: 'round'
+                                            };
                                         }
                                         return {
-                                            fillColor,
-                                            weight: 0.5,
+                                            fillColor: color,
+                                            weight: 1,
                                             opacity: 1,
                                             color: isDarkMode ? '#1a1a1a' : '#ffffff',
                                             fillOpacity: 0.85
                                         };
                                     }}
-                                    onEachFeature={(f, l) => {
-                                        if (f.properties?.classification) {
-                                            l.bindTooltip(`
-                                                <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; max-width: 200px; text-align: center; text-wrap: wrap; ">
-                                                ${f.properties.classification}
-                                                </div>`,
-                                                {
-                                                    sticky: true, direction: 'top', offset: [0, -10]
-                                                });
+                                    pointToLayer={(feature: any, latlng: L.LatLng) => {
+                                        const val = feature?.properties?.[selectedMetric.id];
+                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode);
+                                        let radius = 6;
+                                        if (typeof val === 'number' && currentDomain.length >= 2) {
+                                            const min = currentDomain[0];
+                                            const max = currentDomain[currentDomain.length - 1];
+                                            if (max > min) {
+                                                radius = 4 + Math.round(((val - min) / (max - min)) * 8);
+                                            }
                                         }
+                                        return L.circleMarker(latlng, {
+                                            radius,
+                                            fillColor: color,
+                                            color: isDarkMode ? '#1a1a1a' : '#ffffff',
+                                            weight: 1.5,
+                                            opacity: 1,
+                                            fillOpacity: 0.85
+                                        });
+                                    }}
+                                    onEachFeature={(f: any, l: L.Layer) => {
+                                        const props = f?.properties || {};
+                                        const val = props[selectedMetric.id];
+                                        const name = selectedMetric.get_name
+                                            ? selectedMetric.get_name(props)
+                                            : (props.name || '');
+                                        const formattedVal = selectedMetric.format
+                                            ? selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id, selectedVariations)
+                                            : String(val ?? '');
+                                        const unitStr = selectedMetric.unit?.(effectiveGlobalFilter.id, val, selectedVariations)
+                                            ? ` ${selectedMetric.unit(effectiveGlobalFilter.id, val, selectedVariations)}`
+                                            : '';
+                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode);
+
+                                        const details = selectedMetric.get_details ? selectedMetric.get_details(props) : null;
+                                        const detailsHtml = details && details.length > 0 ? `
+                                            <table style="width: 100%; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 11px; border-collapse: collapse; text-align: left;">
+                                                <tbody>
+                                                    ${details.map(([label, value]) => `
+                                                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                                            <td style="padding: 3px 6px 3px 0; font-weight: 600; color: #666; white-space: nowrap;">${label}</td>
+                                                            <td style="padding: 3px 0 3px 6px; font-weight: 800; color: #111; text-align: right;">${value}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        ` : '';
+
+                                        l.bindTooltip(`
+                                            <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; min-width: 140px; text-align: center; padding: 4px;">
+                                                ${name ? `<div style="margin-bottom: 4px; font-size: 12px; font-weight: 800; color: #111;">${name}</div>` : ''}
+                                                <div style="font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase;">
+                                                    ${t(selectedMetric.label)}
+                                                </div>
+                                                <div style="font-size: 14px; font-weight: 900; color: ${color}; margin-top: 2px;">
+                                                    ${formattedVal}${unitStr}
+                                                </div>
+                                                ${detailsHtml}
+                                            </div>`,
+                                            {
+                                                sticky: true,
+                                                direction: 'top',
+                                                offset: [0, -10]
+                                            }
+                                        );
                                     }}
                                 />
-                            )}
-                        </Pane>
-                        {computedGeoData?.features && selectedMetricId !== 'cos_builtarea' && (
-                            <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveGlobalFilter.id}-${isDarkMode}-${isColorBlindMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                            </Pane>
                         )}
+
                         <Pane name="limits-pane" style={{ zIndex: 450 }}>
                             {effectiveLevel !== 'municipality' && filteredLimits && (
                                 <GeoJSON key={`limits-${nutFilter}-${isDarkMode}`} data={filteredLimits as any} style={{ fillOpacity: 0, weight: 4, color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }} interactive={false} />
@@ -893,7 +980,7 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {(selectedFeature || (!isMobile && viewLevel !== 'hex')) && selectedMetricId !== 'cos_builtarea' && (
+            {(selectedFeature || (!isMobile && viewLevel !== 'hex')) && !selectedMetric.url && (
                 <SidebarRight
                     isDarkMode={isDarkMode}
                     isColorBlindMode={isColorBlindMode}
