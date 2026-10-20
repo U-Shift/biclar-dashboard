@@ -115,11 +115,11 @@
         "description": "Number of parking points and associated capacity"
       },
       "cycle_segregation": {
-        "label": "Cycleways (Typology)",
+        "label": "Cycleways",
         "description": "Cycle network classified by segregation type"
       },
       "parking_capacity": {
-        "label": "Parking (Capacity)",
+        "label": "Parking",
         "description": "Capacity of bicycle parking facilities"
       }
     },

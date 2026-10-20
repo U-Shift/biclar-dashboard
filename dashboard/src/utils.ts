@@ -342,3 +342,32 @@ export const getRawFeatureColor = (
     return metric.pallete?.[0] || '#3b82f6';
 };
 
+/**
+ * Calculates a high-contrast foreground color (#111 or #fff) for a given hex or rgba color.
+ */
+export const getContrastColor = (color: string): string => {
+    if (!color) return '#111';
+    let r = 255, g = 255, b = 255;
+    if (color.startsWith('#')) {
+        const hex = color.slice(1);
+        if (hex.length === 3) {
+            r = parseInt(hex[0] + hex[0], 16);
+            g = parseInt(hex[1] + hex[1], 16);
+            b = parseInt(hex[2] + hex[2], 16);
+        } else if (hex.length >= 6) {
+            r = parseInt(hex.slice(0, 2), 16);
+            g = parseInt(hex.slice(2, 4), 16);
+            b = parseInt(hex.slice(4, 6), 16);
+        }
+    } else if (color.startsWith('rgb')) {
+        const match = color.match(/\d+/g);
+        if (match && match.length >= 3) {
+            r = parseInt(match[0], 10);
+            g = parseInt(match[1], 10);
+            b = parseInt(match[2], 10);
+        }
+    }
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 135) ? '#111' : '#fff';
+};
+

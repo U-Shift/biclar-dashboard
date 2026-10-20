@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, MUNICIPALITIES_LIMITS_FILE } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations, getVariationOptions, getRawFeatureColor } from './utils';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
     const map = useMap();
@@ -488,13 +488,6 @@ const Dashboard = () => {
             : '';
 
         const metricColor = getColor(val, currentDomain, selectedMetric, isColorBlindMode);
-        const getContrastColor = (hexcolor: string) => {
-            const r = parseInt(hexcolor.slice(1, 3), 16);
-            const g = parseInt(hexcolor.slice(3, 5), 16);
-            const b = parseInt(hexcolor.slice(5, 7), 16);
-            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-            return (yiq >= 128) ? '#111' : '#fff';
-        };
         const contrastColor = getContrastColor(metricColor);
 
         const isIgnored = isMetricValueIgnored(val, selectedMetric);
@@ -506,7 +499,7 @@ const Dashboard = () => {
                 ${!isIgnored ? `
                 <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
                     <span style="font-size: 10px; font-weight: 700; color: #444; text-transform: uppercase;">${t(selectedMetric.label)}</span>
-                    <span style="font-size: 11px; font-weight: 700; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); white-space: nowrap;">
+                    <span style="font-size: 11px; font-weight: 700; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.12); white-space: nowrap;">
                         ${formattedVal}${selectedMetric.unit?.(effectiveGlobalFilter.id, val, selectedVariations) ? ' ' + selectedMetric.unit(effectiveGlobalFilter.id, val, selectedVariations) : ''}
                     </span>
                 </div>
@@ -1002,14 +995,18 @@ const Dashboard = () => {
                                             </table>
                                         ` : '';
 
+                                        const contrastColor = getContrastColor(color);
+
                                         const htmlContent = `
                                             <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; min-width: 150px; text-align: center; padding: 4px;">
                                                 ${name ? `<div style="margin-bottom: 4px; font-size: 12px; font-weight: 800; color: #111;">${name}</div>` : ''}
                                                 <div style="font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase;">
                                                     ${t(selectedMetric.label)}
                                                 </div>
-                                                <div style="font-size: 14px; font-weight: 900; color: ${color}; margin-top: 2px;">
-                                                    ${formattedVal}${unitStr}
+                                                <div style="margin-top: 6px; margin-bottom: 4px; display: inline-flex; align-items: center; justify-content: center;">
+                                                    <span style="font-size: 12px; font-weight: 800; background-color: ${color}; color: ${contrastColor}; padding: 3px 12px; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.1); white-space: nowrap;">
+                                                        ${formattedVal}${unitStr}
+                                                    </span>
                                                 </div>
                                                 ${detailsHtml}
                                             </div>`;
