@@ -919,7 +919,7 @@ const Dashboard = () => {
                                             fillColor: color,
                                             weight: 1,
                                             opacity: 1,
-                                            color: isDarkMode ? '#1a1a1a' : '#ffffff',
+                                            color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)',
                                             fillOpacity: 0.85
                                         };
                                     }}
@@ -937,7 +937,7 @@ const Dashboard = () => {
                                         const marker = L.circleMarker(latlng, {
                                             radius,
                                             fillColor: color,
-                                            color: isDarkMode ? '#1a1a1a' : '#ffffff',
+                                            color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)',
                                             weight: 1.5,
                                             opacity: 1,
                                             fillOpacity: 0.85
@@ -945,7 +945,7 @@ const Dashboard = () => {
                                         (marker as any)._originalStyle = {
                                             radius,
                                             fillColor: color,
-                                            color: isDarkMode ? '#1a1a1a' : '#ffffff',
+                                            color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)',
                                             weight: 1.5,
                                             opacity: 1,
                                             fillOpacity: 0.85
@@ -976,8 +976,8 @@ const Dashboard = () => {
                                             lineJoin: 'round'
                                         } : {
                                             fillColor: color,
-                                            color: isDarkMode ? '#1a1a1a' : '#ffffff',
-                                            weight: 1,
+                                            color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)',
+                                            weight: 1.5,
                                             opacity: 1,
                                             fillOpacity: 0.85
                                         });
