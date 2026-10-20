@@ -266,21 +266,35 @@ const Dashboard = () => {
     // Log effective ID when selection changes
     useEffect(() => {
         let resId = selectedMetric.id;
-        Object.entries(selectedVariations).forEach(([k, v]) => {
-            const groupDef = selectedMetric.id_variations?.[k];
-            if (groupDef && !Array.isArray(groupDef) && groupDef.options_icons) {
-                const iconOpt = groupDef.options_icons.find(o => o.id === v);
-                if (iconOpt && iconOpt.suffix !== undefined) {
-                    if (resId.includes(`_{${k}}`)) {
-                        resId = resId.replace(`_{${k}}`, iconOpt.suffix);
-                    } else {
-                        resId = resId.replace(`{${k}}`, iconOpt.suffix);
+        if (selectedMetric.id_variations) {
+            Object.entries(selectedMetric.id_variations).forEach(([k, groupDef]) => {
+                const v = selectedVariations[k] ?? (Array.isArray(groupDef) ? groupDef[0] : (groupDef.options_icons ? groupDef.options_icons[0].id : undefined));
+                if (v === undefined) return;
+                let token = k;
+                if (!resId.includes(`{${k}}`) && !resId.includes(`_{${k}}`)) {
+                    const match = resId.match(/\{([a-zA-Z0-9_]+)\}/);
+                    if (match && Object.keys(selectedMetric.id_variations || {}).length === 1) {
+                        token = match[1];
                     }
-                    return;
                 }
-            }
-            resId = resId.replace(`{${k}}`, v);
-        });
+                if (groupDef && !Array.isArray(groupDef) && groupDef.options_icons) {
+                    const iconOpt = groupDef.options_icons.find(o => o.id === v);
+                    if (iconOpt && iconOpt.suffix !== undefined) {
+                        if (resId.includes(`_{${token}}`)) {
+                            resId = resId.replace(`_{${token}}`, iconOpt.suffix);
+                        } else {
+                            resId = resId.replace(`{${token}}`, iconOpt.suffix);
+                        }
+                        return;
+                    }
+                }
+                if (resId.includes(`_{${token}}`)) {
+                    resId = resId.replace(`_{${token}}`, `_${v}`);
+                } else {
+                    resId = resId.replace(`{${token}}`, v);
+                }
+            });
+        }
         const effectiveId = resId + (effectiveGlobalFilter.suffix || '');
         console.log(`[Metric Selection] ${selectedMetricId} -> ${effectiveId}`);
     }, [selectedMetricId, selectedVariations, effectiveGlobalFilter, selectedMetric]);

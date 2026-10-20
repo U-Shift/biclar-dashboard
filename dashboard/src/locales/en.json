@@ -76,7 +76,8 @@
     "rumus": "RUMUS (Seixal)",
     "literature_todo": "Literature (TODO!)",
     "psp": "Polícia de Segurança Pública",
-    "gnr": "Guarda Nacional Repúblicana"
+    "gnr": "Guarda Nacional Repúblicana",
+    "TML": "TML"
   },
   "metrics": {
     "categories": {
@@ -122,6 +123,10 @@
       "parking_capacity": {
         "label": "Parking",
         "description": "Capacity of bicycle parking facilities"
+      },
+      "ticketing_n": {
+        "label": "Ticketing validations",
+        "description": "Number of public transport ticketing validations for a week day"
       }
     },
     "cycle_segregation": {
@@ -179,7 +184,12 @@
     "advisory": "Advisory",
     "active": "Active",
     "n_points": "Nr. points",
-    "n_capacity": "Capacity"
+    "n_capacity": "Capacity",
+    "train": "Train",
+    "bus": "Bus",
+    "metro": "Metro",
+    "ltr": "Light Rail",
+    "boat": "Ferry"
   },
   "about": {
     "p1": "Available soon....",

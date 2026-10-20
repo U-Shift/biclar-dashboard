@@ -106,6 +106,28 @@
         "description": "Capacidade dos pontos de estacionamento para bicicletas"
       }
     },
+    "mobility": {
+      "cycleways_length": {
+        "label": "Extensão de ciclovias",
+        "description": "Extensão da rede ciclável"
+      },
+      "parking": {
+        "label": "Estacionamento",
+        "description": "Pontos e capacidade de estacionamento de bicicletas"
+      },
+      "cycle_segregation": {
+        "label": "Ciclovias (Tipologia)",
+        "description": "Rede ciclável classificada por tipo de segregação"
+      },
+      "parking_capacity": {
+        "label": "Estacionamento (Capacidade)",
+        "description": "Capacidade dos pontos de estacionamento para bicicletas"
+      },
+      "ticketing_n": {
+        "label": "Validações de bilhética",
+        "description": "Número de validações de títulos de transporte público"
+      }
+    },
     "cycle_segregation": {
       "protected_active": "Ativa Protegida",
       "cycle_track_lane": "Pista/Faixa Ciclável",
@@ -423,7 +445,14 @@
     "elderly": "Idosos (65+)",
     "women": "Mulheres",
     "psp": "PSP",
-    "gnr": "GNR"
+    "gnr": "GNR",
+    "n_points": "Nº de pontos",
+    "n_capacity": "Capacidade",
+    "train": "Comboio",
+    "bus": "Autocarro",
+    "metro": "Metro",
+    "ltr": "Metro Ligeiro",
+    "boat": "Barco"
   },
   "modes": {
     "all": "Todos",

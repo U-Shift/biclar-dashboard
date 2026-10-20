@@ -185,7 +185,29 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             // sources: TBD
-        }
+        },
+        {
+            id: 'ticketing_n{mode}',
+            id_variations: {
+                'mode': {
+                    options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+                        { id: 'train', label: 'filters_global.train', suffix: '_train', icon: '🚆' },
+                        { id: 'bus', label: 'filters_global.bus', suffix: '_bus', icon: '🚌' },
+                        { id: 'metro', label: 'filters_global.metro', suffix: '_metro', icon: '🚇' },
+                        { id: 'ltr', label: 'filters_global.ltr', suffix: '_ltr', icon: '🚊' },
+                        { id: 'boat', label: 'filters_global.boat', suffix: '_boat', icon: '⛴️' },
+                    ]
+                }
+            },
+            icon: '🎫',
+            label: 'metrics.mobility.ticketing_n.label',
+            description: 'metrics.mobility.ticketing_n.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ["TML"]
+        },
     ],
     'metrics.categories.census': [
         {

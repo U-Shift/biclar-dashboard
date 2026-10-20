@@ -153,31 +153,45 @@ export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?
 
     const resolveId = (id: string, useSuffixIfAvailable: boolean = true) => {
         let resolved = id;
-        if (variations) {
-            Object.entries(variations).forEach(([group, value]) => {
-                const groupDef = metric.id_variations?.[group];
+        if (metric.id_variations) {
+            Object.entries(metric.id_variations).forEach(([group, groupDef]) => {
+                const value = variations?.[group] ?? (Array.isArray(groupDef) ? groupDef[0] : (groupDef.options_icons ? groupDef.options_icons[0].id : undefined));
+                if (value === undefined) return;
+
                 let shouldApply = true;
                 if (groupDef && !Array.isArray(groupDef)) {
                     const allowedFilters = groupDef.globalFilters || groupDef.modes;
                     if (allowedFilters && filter.id && !allowedFilters.includes(filter.id as any)) shouldApply = false;
                     if (groupDef.viewLevels && viewLevel && !groupDef.viewLevels.includes(viewLevel as any)) shouldApply = false;
                 }
+
+                let token = group;
+                if (!resolved.includes(`{${group}}`) && !resolved.includes(`_{${group}}`)) {
+                    const match = resolved.match(/\{([a-zA-Z0-9_]+)\}/);
+                    if (match && Object.keys(metric.id_variations || {}).length === 1) {
+                        token = match[1];
+                    }
+                }
                 
                 if (shouldApply) {
                     if (useSuffixIfAvailable && groupDef && !Array.isArray(groupDef) && groupDef.options_icons) {
                         const iconOpt = groupDef.options_icons.find(o => o.id === value);
                         if (iconOpt && iconOpt.suffix !== undefined) {
-                            if (resolved.includes(`_{${group}}`)) {
-                                resolved = resolved.replace(`_{${group}}`, iconOpt.suffix);
+                            if (resolved.includes(`_{${token}}`)) {
+                                resolved = resolved.replace(`_{${token}}`, iconOpt.suffix);
                             } else {
-                                resolved = resolved.replace(`{${group}}`, iconOpt.suffix);
+                                resolved = resolved.replace(`{${token}}`, iconOpt.suffix);
                             }
                             return;
                         }
                     }
-                    resolved = resolved.replace(`{${group}}`, value);
+                    if (resolved.includes(`_{${token}}`)) {
+                        resolved = resolved.replace(`_{${token}}`, `_${value}`);
+                    } else {
+                        resolved = resolved.replace(`{${token}}`, value);
+                    }
                 } else {
-                    resolved = resolved.replace(`_{${group}}`, '').replace(`{${group}}`, '');
+                    resolved = resolved.replace(`_{${token}}`, '').replace(`{${token}}`, '');
                 }
             });
         }
@@ -216,26 +230,39 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
             const groupDef = metric.id_variations![group];
             const optionsGroup = getVariationOptions(groupDef);
             const isIconGroup = groupDef && !Array.isArray(groupDef) && groupDef.options_icons;
+
+            let token = group;
+            if (!regexSource.includes(`\\{${group}\\}`) && !regexSource.includes(`_\\{${group}\\}`)) {
+                const matchToken = regexSource.match(/\\{([a-zA-Z0-9_]+)\\}/);
+                if (matchToken && groups.length === 1) {
+                    token = matchToken[1];
+                }
+            }
+
             if (isIconGroup) {
                 const suffixes = groupDef.options_icons!
                     .map(o => o.suffix ?? `_${o.id}`)
                     .map(s => s.replace(/^_/, ''))
                     .filter(Boolean)
-                    .concat(optionsGroup)
+                    .concat(optionsGroup.map(o => o.replace(/^_/, '')))
                     .map(o => o.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
                 const options = Array.from(new Set(suffixes)).sort((a, b) => b.length - a.length).join('|');
-                if (regexSource.includes(`_\\{${group}\\}`)) {
-                    regexSource = regexSource.replace(`_\\{${group}\\}`, `(?:_(?<${group}>${options}))?`);
+                if (regexSource.includes(`_\\{${token}\\}`)) {
+                    regexSource = regexSource.replace(`_\\{${token}\\}`, `(?:_(?<${group}>${options}))?`);
                 } else {
-                    regexSource = regexSource.replace(`\\{${group}\\}`, `(?<${group}>${options})?`);
+                    regexSource = regexSource.replace(`\\{${token}\\}`, `(?:_?(?<${group}>${options}))?`);
                 }
             } else {
-                const options = optionsGroup
-                    .slice()
+                const cleanOptions = optionsGroup
+                    .map(o => o.replace(/^_/, ''))
                     .sort((a: string, b: string) => b.length - a.length)
                     .map((o: string) => o.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
                     .join('|');
-                regexSource = regexSource.replace(`\\{${group}\\}`, `(?<${group}>${options})`);
+                if (regexSource.includes(`_\\{${token}\\}`)) {
+                    regexSource = regexSource.replace(`_\\{${token}\\}`, `(?:_(?<${group}>${cleanOptions}))`);
+                } else {
+                    regexSource = regexSource.replace(`\\{${token}\\}`, `(?:_?(?<${group}>${cleanOptions}))`);
+                }
             }
         });
         return new RegExp(`^${regexSource}(?:_.*)?$`);
@@ -256,13 +283,25 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
                     groups.forEach(g => {
                         const groupDef = metric.id_variations![g];
                         const isIconGroup = groupDef && !Array.isArray(groupDef) && groupDef.options_icons;
+                        const optionsGroup = getVariationOptions(groupDef);
                         if (match.groups![g]) {
                             const matchedVal = match.groups![g];
                             if (isIconGroup) {
-                                const found = groupDef.options_icons!.find(o => o.id === matchedVal || o.suffix === `_${matchedVal}` || o.suffix === matchedVal);
+                                const found = groupDef.options_icons!.find(o => 
+                                    o.id === matchedVal || 
+                                    o.id.replace(/^_/, '') === matchedVal ||
+                                    o.suffix === `_${matchedVal}` || 
+                                    o.suffix === matchedVal ||
+                                    (o.suffix && o.suffix.replace(/^_/, '') === matchedVal)
+                                );
                                 combo[g] = found ? found.id : matchedVal;
                             } else {
-                                combo[g] = matchedVal;
+                                const found = optionsGroup.find(o => 
+                                    o === matchedVal || 
+                                    o === `_${matchedVal}` ||
+                                    o.replace(/^_/, '') === matchedVal
+                                );
+                                combo[g] = found || matchedVal;
                             }
                         } else {
                             if (isIconGroup) {
@@ -270,7 +309,9 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
                                 if (emptySuffixOpt) combo[g] = emptySuffixOpt.id;
                                 else allMatched = false;
                             } else {
-                                allMatched = false;
+                                const emptyOpt = optionsGroup.find(o => o === '' || o === 'all');
+                                if (emptyOpt) combo[g] = emptyOpt;
+                                else allMatched = false;
                             }
                         }
                     });
