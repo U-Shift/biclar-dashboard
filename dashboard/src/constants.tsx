@@ -107,7 +107,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     // Tab 1 (first only)
     'metrics.categories.models': [
         {
-            id: 'model_mr_parking_residential',
+            id: 'model_mr_parking_residential_{min_max}',
+            id_variations: {
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
             label: 'metrics.models.mr.label',
             description: 'metrics.models.mr.description',
             format: (v) => Math.round(v || 0).toString(),
@@ -120,7 +128,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     // Tab 2
     'metrics.categories.existing_infrastructure': [
         {
-            id: 'cycleways_length',
+            id: 'cycleways_length_{type}',
+            id_variations: {
+                'type': {
+                    options_icons: [
+                        { id: 'protected', label: 'filters_global.protected', suffix: '_protected', icon: '🛡️🚲 ' },
+                        { id: 'active', label: 'filters_global.active', suffix: '_active', icon: '🚶‍♂️🚲' },
+                        { id: 'advisory', label: 'filters_global.advisory', suffix: '_advisory', icon: '🚙🚲' }
+                    ]
+                }
+            },
             icon: '🚴‍♂️',
             label: 'metrics.existing_infrastructure.cycleways_length.label',
             description: 'metrics.existing_infrastructure.cycleways_length.description',
@@ -131,7 +148,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             // sources: TBD
         },
         {
-            id: 'parking',
+            id: 'parking_{metric}',
+            id_variations: {
+                'metric': {
+                    options_icons: [
+                        { id: 'n_points', label: 'filters_global.n_points', suffix: '_n_points', icon: '📍' },
+                        { id: 'n_capacity', label: 'filters_global.n_capacity', suffix: '_n_capacity', icon: '🚲📦' },
+                    ]
+                }
+            },
             icon: '🅿️',
             label: 'metrics.existing_infrastructure.parking.label',
             description: 'metrics.existing_infrastructure.parking.description',
@@ -164,7 +189,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     ],
     'metrics.categories.ratios': [
         {
-            id: 'model_mr_ratio_residential',
+            id: 'model_mr_ratio_residential_{min_max}',
+            id_variations: {
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
             icon: '🏘️',
             label: 'metrics.models.mr_ratio.residential.label',
             description: 'metrics.models.mr_ratio.residential.description',
@@ -177,7 +210,21 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     ],
     'metrics.categories.census_landuse': [
         {
-            id: 'dasymetric_population',
+            id: 'dasymetric_population_{group}',
+            id_variations: {
+                'group': {
+                    options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+                        { id: 'adults', label: 'filters_global.adults', suffix: '_adults', icon: '👩' },
+                        { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
+                        { id: 'youth_percentage', label: 'filters_global.youth_percentage', suffix: '_youth_percentage', icon: '👶 ➗' },
+                        { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
+                        { id: 'elderly_percentage', label: 'filters_global.elderly_percentage', suffix: '_elderly_percentage', icon: '🧓 ➗' },
+                        { id: 'women', label: 'filters_global.women', suffix: '_women', icon: '♀️' },
+                        { id: 'women_percentage', label: 'filters_global.women_percentage', suffix: '_women_percentage', icon: '♀️ ➗' },
+                    ]
+                }
+            },
             icon: '👥',
             label: 'metrics.census_landuse.dasymetric_population.label',
             description: 'metrics.census_landuse.dasymetric_population.description',
@@ -185,13 +232,23 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['census'],
-            unit: (filter, _value, _variations) => {
+            unit: (filter, _value, variations) => {
+                console.log("dasymetric_population filter", filter, _value, variations)
                 if (filter && filter.includes("percentage")) return "%";
+                if (variations && variations["group"] && variations["group"].includes("percentage")) return "%";
                 return undefined;
             }
         },
         {
-            id: 'dasymetric_dependency_ratio',
+            id: 'dasymetric_dependency_ratio_{group}',
+            id_variations: {
+                'group': {
+                    options_icons: [
+                        { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
+                        { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
+                    ]
+                }
+            },
             icon: '🎂',
             label: 'metrics.census_landuse.dasymetric_population_dependency_ratio.label',
             description: 'metrics.census_landuse.dasymetric_population_dependency_ratio.description',
@@ -212,7 +269,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['census']
         },
         {
-            id: 'dasymetric_buildings',
+            id: 'dasymetric_buildings_{time}',
+            id_variations: {
+                'time': {
+                    options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+                        { id: 'pre1945', label: 'filters_global.buildings_pre1945', suffix: '_pre1945', icon: '🗝️' },
+                        { id: 'pre1945_percentage', label: 'filters_global.buildings_pre1945_percentage', suffix: '_pre1945_percentage', icon: '🗝️➗' },
+                    ]
+                }
+            },
             icon: '🏘️',
             label: 'metrics.census_landuse.dasymetric_buildings.label',
             description: 'metrics.census_landuse.dasymetric_buildings.description',
@@ -220,8 +286,9 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['census'],
-            unit: (filter, _value, _variations) => {
+            unit: (filter, _value, variations) => {
                 if (filter && filter.includes("percentage")) return "%";
+                if (variations && variations["time"] && variations["time"].includes("percentage")) return "%";
                 return undefined;
             }
         }
@@ -248,28 +315,6 @@ export const REGIONS = {
 
 export const GLOBAL_FILTERS = [
     // { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
-    { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
-    { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
-
-    { id: 'pre1945', label: 'filters_global.buildings_pre1945', suffix: '_pre1945', icon: '🗝️' },
-    { id: 'pre1945_percentage', label: 'filters_global.buildings_pre1945_percentage', suffix: '_pre1945_percentage', icon: '🗝️➗' },
-
-    { id: 'adults', label: 'filters_global.adults', suffix: '_adults', icon: '👩' },
-    { id: 'youth', label: 'filters_global.youth', suffix: '_youth', icon: '👶' },
-    { id: 'youth_percentage', label: 'filters_global.youth_percentage', suffix: '_youth_percentage', icon: '👶 ➗' },
-    { id: 'elderly', label: 'filters_global.elderly', suffix: '_elderly', icon: '🧓' },
-    { id: 'elderly_percentage', label: 'filters_global.elderly_percentage', suffix: '_elderly_percentage', icon: '🧓 ➗' },
-    { id: 'women', label: 'filters_global.women', suffix: '_women', icon: '♀️' },
-    { id: 'women_percentage', label: 'filters_global.women_percentage', suffix: '_women_percentage', icon: '♀️ ➗' },
-
-    { id: 'protected', label: 'filters_global.protected', suffix: '_protected', icon: '🛡️🚲 ' },
-    { id: 'active', label: 'filters_global.active', suffix: '_active', icon: '🚶‍♂️🚲' },
-    { id: 'advisory', label: 'filters_global.advisory', suffix: '_advisory', icon: '🚙🚲' },
-
-    { id: 'n_points', label: 'filters_global.n_points', suffix: '_n_points', icon: '📍' },
-    { id: 'n_capacity', label: 'filters_global.n_capacity', suffix: '_n_capacity', icon: '🚲📦' },
-
-
 ] as const;
 
 export type GlobalFilterId = (typeof GLOBAL_FILTERS)[number]['id'] | 'all' | '';
