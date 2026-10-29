@@ -437,8 +437,11 @@ const Dashboard = () => {
             const rawData = filteredRawData;
             if (!rawData?.features?.length) return [0, 1];
             const values = rawData.features
-                .map((f: any) => f.properties?.[selectedMetric.id])
-                .filter((v: any) => typeof v === 'number' && !isNaN(v) && !isMetricValueIgnored(v, selectedMetric));
+                .filter((f: any) => {
+                    const v = f.properties?.[selectedMetric.id];
+                    return typeof v === 'number' && !isNaN(v) && !isMetricValueIgnored(v, selectedMetric, f.properties);
+                })
+                .map((f: any) => f.properties?.[selectedMetric.id]);
             if (!values.length) return [0, 1];
             return getMetricDomain(values, selectedMetric);
         }
@@ -910,7 +913,7 @@ const Dashboard = () => {
                                     data={filteredRawData}
                                     style={(f: any) => {
                                         const val = f?.properties?.[selectedMetric.id];
-                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode);
+                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode, f?.properties);
                                         const geomType = f?.geometry?.type;
                                         const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
                                         if (isLine) {
@@ -932,7 +935,7 @@ const Dashboard = () => {
                                     }}
                                     pointToLayer={(feature: any, latlng: L.LatLng) => {
                                         const val = feature?.properties?.[selectedMetric.id];
-                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode);
+                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode, feature?.properties);
                                         let radius = 6;
                                         if (typeof val === 'number' && currentDomain.length >= 2) {
                                             const min = currentDomain[0];
@@ -971,7 +974,7 @@ const Dashboard = () => {
                                         const unitStr = selectedMetric.unit?.(effectiveGlobalFilter.id, val, selectedVariations)
                                             ? ` ${selectedMetric.unit(effectiveGlobalFilter.id, val, selectedVariations)}`
                                             : '';
-                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode);
+                                        const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode, props);
 
                                         const geomType = f?.geometry?.type;
                                         const isLine = geomType === 'LineString' || geomType === 'MultiLineString';

@@ -156,7 +156,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                             (fallbackId ? selectedFeature[fallbackId] : undefined) ??
                                             selectedFeature[m.id];
 
-                                        if (isMetricValueIgnored(val, m)) return null;
+                                        if (isMetricValueIgnored(val, m, selectedFeature)) return null;
 
                                         return (
                                             <div key={m.id} className="h-full min-w-0">

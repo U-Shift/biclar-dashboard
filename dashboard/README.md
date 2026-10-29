@@ -75,7 +75,7 @@ Each metric object adheres to the `MetricDef` type (defined in [`src/types.ts`](
 | `sources` | `string[]` | Optional. Source keys matched against `sources` in translation files (e.g. `['census', 'osm']`). |
 | `default` | `boolean` | Set to `true` to make this the initial selected metric on dashboard load. |
 | `showAlwaysOnDetails`| `boolean` | If `true`, this metric appears in the right "Area Details" sidebar even when not currently selected on the map. |
-| `ignoreValues` | `any[]` | Array of specific values to exclude from scale calculation (e.g. `[null, 0, -999]`). |
+| `filterValues` | `(properties, value?, filter?, variations?) => boolean` | Optional filter function returning `true` for features/rows to display (e.g. `(props, val, filter, variations) => variations?.group?.includes('percentage') ? props.dasymetric_population_adults > 1 : true`). If `false`, the feature is excluded from scale calculation and treated as having no data for this metric. |
 | `scaleMin` / `scaleMax` | `number` | Optional hard bounds for the legend scale domain. |
 | `scaleMinEqualsMax` | `boolean` | For diverging metrics centered at 0: ensures `[-max, +max]` domain. |
 | `legendCategories` | `{ color, label }[]` | Explicit discrete legend categories for categorical layers (e.g. Land Use classes). |

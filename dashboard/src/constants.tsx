@@ -238,6 +238,14 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 if (filter && filter.includes("percentage")) return "%";
                 if (variations && variations["group"] && variations["group"].includes("percentage")) return "%";
                 return undefined;
+            },
+            filterValues: (properties, _value, filter, variations) => {
+                const isPercentage = (filter && String(filter).includes("percentage")) ||
+                    (variations?.['group'] && variations['group'].includes("percentage"));
+                if (isPercentage) {
+                    return properties?.dasymetric_population > 1;
+                }
+                return true;
             }
         },
         {
@@ -257,7 +265,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             unit: () => '%',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: ['census']
+            sources: ['census'],
         },
         {
             id: 'dasymetric_households',
@@ -289,6 +297,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['census'],
+            filterValues: (properties) => properties?.dasymetric_buildings > 1,
             unit: (filter, _value, variations) => {
                 if (filter && filter.includes("percentage")) return "%";
                 if (variations && variations["time"] && variations["time"].includes("percentage")) return "%";

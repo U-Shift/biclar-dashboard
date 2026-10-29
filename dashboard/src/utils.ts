@@ -30,11 +30,28 @@ export const getVariationOptionLabel = (groupDef: VariationGroup | undefined, op
 
 
 /**
- * Checks if a value should be ignored based on metric settings and common data issues (null, undefined, NaN).
+ * Checks if a value should be ignored based on metric settings and common data issues (null, undefined, NaN),
+ * or custom row/feature filtering condition.
  */
-
-export const isMetricValueIgnored = (val: any, metric: MetricDef): boolean => {
-    return val === null || val === undefined || isNaN(Number(val)) || (metric.ignoreValues?.includes(val) ?? false);
+export const isMetricValueIgnored = (val: any, metric: MetricDef, properties?: any, filter?: any, variations?: Record<string, string>): boolean => {
+    if (val === null || val === undefined || isNaN(Number(val))) return true;
+    if (metric.filterValues && properties !== undefined) {
+        const filterId = typeof filter === 'object' && filter !== null ? filter.id : filter;
+        const effectiveVariations: Record<string, string> = { ...variations };
+        if (metric.id_variations) {
+            Object.entries(metric.id_variations).forEach(([group, groupDef]) => {
+                if (!effectiveVariations[group]) {
+                    effectiveVariations[group] = Array.isArray(groupDef)
+                        ? groupDef[0]
+                        : (groupDef.options_icons ? groupDef.options_icons[0].id : '');
+                }
+            });
+        }
+        if (!metric.filterValues(properties, val, filterId, effectiveVariations)) {
+            return true;
+        }
+    }
+    return false;
 };
 /**
  * Generates a scale (domain or breaks) based on the metric's scaling method.
@@ -147,8 +164,25 @@ export const getLegendGradient = (metric: MetricDef, domain: number[], isColorBl
  */
 export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
     if (!properties) return undefined;
+
+    const filterId = filter?.id;
+    const effectiveVariations: Record<string, string> = { ...variations };
+    if (metric.id_variations) {
+        Object.entries(metric.id_variations).forEach(([group, groupDef]) => {
+            if (!effectiveVariations[group]) {
+                effectiveVariations[group] = Array.isArray(groupDef)
+                    ? groupDef[0]
+                    : (groupDef.options_icons ? groupDef.options_icons[0].id : '');
+            }
+        });
+    }
+
     if (metric.url) {
-        return properties[metric.id];
+        const val = properties[metric.id];
+        if (metric.filterValues && !metric.filterValues(properties, val, filterId, effectiveVariations)) {
+            return undefined;
+        }
+        return val;
     }
 
     const resolveId = (id: string, useSuffixIfAvailable: boolean = true) => {
@@ -204,7 +238,11 @@ export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?
 
     for (const id of idsToTry) {
         if (properties[id] !== undefined) {
-            return properties[id];
+            const val = properties[id];
+            if (metric.filterValues && !metric.filterValues(properties, val, filterId, effectiveVariations)) {
+                return undefined;
+            }
+            return val;
         }
     }
     return undefined;
@@ -354,7 +392,8 @@ export const getRawFeatureColor = (
     val: any,
     metric: MetricDef,
     domain: number[],
-    isColorBlindMode: boolean = false
+    isColorBlindMode: boolean = false,
+    properties?: any
 ): string => {
     if (val === undefined || val === null) {
         return 'rgba(0,0,0,0.05)';
@@ -370,7 +409,7 @@ export const getRawFeatureColor = (
         if (matched) return matched.color;
     }
 
-    if (isMetricValueIgnored(val, metric)) {
+    if (isMetricValueIgnored(val, metric, properties)) {
         return 'rgba(0,0,0,0.05)';
     }
 
