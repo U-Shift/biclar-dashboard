@@ -294,7 +294,37 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 if (variations && variations["time"] && variations["time"].includes("percentage")) return "%";
                 return undefined;
             }
-        }
+        },
+        {
+            id: 'pois_n_school_students_{school_type}',
+            id_variations: {
+                'school_type': {
+                    options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
+                        { id: 'childcare', label: 'metrics.land_use.pois_n_school_students.childcare', suffix: 'childcare', icon: '🍼' },
+                        { id: 'primary_school', label: 'metrics.land_use.pois_n_school_students.primary_school', suffix: 'primary_school', icon: '🍎' },
+                        { id: 'secondary_school', label: 'metrics.land_use.pois_n_school_students.secondary_school', suffix: 'secondary_school', icon: '📚' }
+                    ]
+                }
+            },
+            icon: '🎒',
+            label: 'metrics.land_use.pois_n_school_students.label',
+            description: 'metrics.land_use.pois_n_school_students.description',
+            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: []
+        },
+        {
+            id: 'pois_n_university_students',
+            icon: '🎓',
+            label: 'metrics.land_use.pois_n_university_students.label',
+            description: 'metrics.land_use.pois_n_university_students.description',
+            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: []
+        },
     ],
     'metrics.categories.contextual': [
         {

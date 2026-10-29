@@ -156,6 +156,17 @@
       "dasymetric_buildings": {
         "label": "Buildings",
         "description": "Number of buildings"
+      },
+      "pois_n_school_students": {
+        "label": "School students",
+        "description": "Number of students for schools (public and private)",
+        "childcare": "Childcare",
+        "primary_school": "Primary school",
+        "secondary_school": "Secondary school"
+      },
+      "pois_n_university_students": {
+        "label": "University students",
+        "description": "Number of students for universities"
       }
     }
   },
