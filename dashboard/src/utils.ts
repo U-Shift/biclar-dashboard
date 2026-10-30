@@ -19,11 +19,14 @@ export const getVariationOptions = (groupDef: VariationGroup | undefined): strin
 /**
  * Helper to get the display label for an option in a VariationGroup.
  */
-export const getVariationOptionLabel = (groupDef: VariationGroup | undefined, optId: string, t: (k: string) => string): string => {
-    if (!groupDef) return t(`variations.${optId}`);
-    if (!Array.isArray(groupDef) && groupDef.options_icons) {
+export const getVariationOptionLabel = (groupDef: VariationGroup | undefined, optId: string, t: (k: string, opts?: any) => any): string => {
+    if (groupDef && !Array.isArray(groupDef) && groupDef.options_icons) {
         const found = groupDef.options_icons.find(o => o.id === optId);
         if (found) return t(found.label);
+    }
+    const variationsObj = t('variations', { returnObjects: true });
+    if (variationsObj && typeof variationsObj === 'object' && optId in variationsObj) {
+        return variationsObj[optId];
     }
     return t(`variations.${optId}`);
 };

@@ -7,7 +7,7 @@ import { Tooltip } from './Tooltip';
 import { MapFilterDropdown } from './MapFilterDropdown';
 import { GlobalFilterSelector } from './GlobalFilterSelector';
 import { MapTools } from './MapTools';
-import { getVariationOptions } from '../utils';
+import { getVariationOptions, getVariationOptionLabel } from '../utils';
 
 interface SidebarLeftProps {
     isDarkMode: boolean;
@@ -404,7 +404,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                                 </label>
                                                                                 {isSlider && (
                                                                                     <span className={`text-[11px] font-black ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`}>
-                                                                                        {t(`variations.${selectedOpt}`)}
+                                                                                        {getVariationOptionLabel(optionsDef, selectedOpt, t)}
                                                                                     </span>
                                                                                 )}
                                                                             </div>
@@ -486,7 +486,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                                                     ? 'bg-primary text-white shadow-sm ring-1 ring-secondary-yellow/30'
                                                                                                     : (isDarkMode ? 'bg-neutral-800 text-neutral-500 hover:text-neutral-300' : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200')}`}
                                                                                             >
-                                                                                                {t(`variations.${opt}`)}
+                                                                                                {getVariationOptionLabel(optionsDef, opt, t)}
                                                                                             </button>
                                                                                         );
                                                                                     })}

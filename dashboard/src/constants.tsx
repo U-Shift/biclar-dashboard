@@ -405,8 +405,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             }
         },
         {
-            id: 'gbfs_n_vehicles_all_{time}',
+            id: 'gbfs_avg_vehicles_per_update_{period}_{time}',
             id_variations: {
+                period: {
+                    options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: 'all', icon: '🌐' },
+                        { id: 'week', label: 'filters_global.week', suffix: 'week', icon: '🏢' },
+                        { id: 'weekend', label: 'filters_global.weekend', suffix: 'weekend', icon: '🍃' },
+                    ]
+                },
                 time: {
                     options_tags: ['0.1', '1.2', '2.3', '3.4', '4.5', '5.6', '6.7', '7.8', '8.9', '9.10', '10.11', '11.12', '12.13', '13.14', '14.15', '15.16', '16.17', '17.18', '18.19', '19.20', '20.21', '21.22', '22.23', '23.24'],
                     formSlider: true
@@ -417,7 +424,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.contextual.gbfs.description',
             format: (v) => Math.round(v || 0).toLocaleString('pt-PT'),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen
+            pallete: COLORS.WhiteToGreen,
+            sources: ['BIRD', 'LIME', 'BOLT', 'GIRA']
         }
     ],
     'metrics.categories.raw': [
