@@ -243,11 +243,13 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                     {isColorBlindMode ? <Eye className="w-5 h-5 text-secondary-green" /> : <EyeOff className="w-5 h-5" />}
                                 </button>
                             </Tooltip>
+                            {/*
                             <Tooltip content={i18n.language === 'en' ? 'Português' : 'English'} isDarkMode={true}>
                                 <button data-tour="language-toggle" onClick={toggleLanguage} className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
                                     <Languages className="w-5 h-5" />
                                 </button>
                             </Tooltip>
+                            */}
                             <Tooltip content={t('tooltips.download_data')} isDarkMode={true}>
                                 <button data-tour="download-modal-btn" onClick={() => setShowDownload(true)} className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
                                     <Download className="w-5 h-5" />
