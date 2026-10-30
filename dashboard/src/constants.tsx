@@ -153,6 +153,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id_variations: {
                 'type': {
                     options_icons: [
+                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
                         { id: 'protected', label: 'filters_global.protected', suffix: '_protected', icon: '🛡️🚲 ' },
                         { id: 'active', label: 'filters_global.active', suffix: '_active', icon: '🚶‍♂️🚲' },
                         { id: 'advisory', label: 'filters_global.advisory', suffix: '_advisory', icon: '🚙🚲' }
@@ -165,8 +166,14 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v) => Math.round(v / 100 || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            unit: () => "km"
+            unit: () => "km",
             // sources: TBD
+            filterValues: (properties, _value, _filter, variations) => {
+                if (variations?.['type'] && variations['type'].includes("protected")) return properties?.cycleways_length_protected > 0;
+                if (variations?.['type'] && variations['type'].includes("active")) return properties?.cycleways_length_active > 0;
+                if (variations?.['type'] && variations['type'].includes("advisory")) return properties?.cycleways_length_advisory > 0;
+                return properties?.cycleways_length > 0;
+            }
         },
         {
             id: 'parking_{metric}',
@@ -185,6 +192,11 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             // sources: TBD
+            filterValues: (properties, _value, _filter, variations) => {
+                if (variations?.['metric'] && variations['metric'].includes("n_points")) return properties?.parking_n_points > 0;
+                if (variations?.['metric'] && variations['metric'].includes("n_capacity")) return properties?.parking_n_capacity > 0;
+                return true;
+            }
         },
         {
             id: 'ticketing_n{mode}',
@@ -206,7 +218,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: ["TML"]
+            sources: ["TML"],
+            filterValues: (properties, _value, _filter, variations) => {
+                if (variations?.['mode'] && variations['mode'].includes("train")) return properties?.ticketing_n_train > 0;
+                if (variations?.['mode'] && variations['mode'].includes("bus")) return properties?.ticketing_n_bus > 0;
+                if (variations?.['mode'] && variations['mode'].includes("metro")) return properties?.ticketing_n_metro > 0;
+                if (variations?.['mode'] && variations['mode'].includes("ltr")) return properties?.ticketing_n_ltr > 0;
+                if (variations?.['mode'] && variations['mode'].includes("boat")) return properties?.ticketing_n_boat > 0;
+                return properties?.ticketing_n > 0;
+            }
         },
     ],
     'metrics.categories.census': [
@@ -314,7 +334,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 if (variations && variations["time"] && variations["time"].includes("percentage")) return "%";
                 return undefined;
             },
-            filterValues: (properties, _value, filter, variations) => {
+            filterValues: (properties, _value, _filter, variations) => {
                 if (variations?.['time'] && variations['time'].includes("percentage")) {
                     return properties?.dasymetric_buildings > 1;
                 }
@@ -339,7 +359,13 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: []
+            sources: [],
+            filterValues: (properties, _value, _filter, variations) => {
+                if (variations?.['school_type'] && variations['school_type'].includes("childcare")) return properties?.pois_n_school_students_childcare > 0;
+                if (variations?.['school_type'] && variations['school_type'].includes("primary_school")) return properties?.pois_n_school_students_primary_school > 0;
+                if (variations?.['school_type'] && variations['school_type'].includes("secondary_school")) return properties?.pois_n_school_students_secondary_school > 0;
+                return properties?.pois_n_school_students > 0;
+            }
         },
         {
             id: 'pois_n_university_students',
@@ -349,7 +375,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: []
+            sources: [],
+            filterValues: (properties) => properties?.pois_n_university_students > 0
         },
     ],
     'metrics.categories.contextual': [
@@ -370,7 +397,12 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: ['psp', 'gnr']
+            sources: ['psp', 'gnr'],
+            filterValues: (properties, _value, _filter, variations) => {
+                if (variations?.['police_force'] && variations['police_force'].includes("psp")) return properties?.thefts_n_psp > 0;
+                if (variations?.['police_force'] && variations['police_force'].includes("gnr")) return properties?.thefts_n_gnr > 0;
+                return properties?.thefts_n > 0;
+            }
         },
         {
             id: 'gbfs_n_vehicles_all_{time}',
