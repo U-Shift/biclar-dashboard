@@ -47,6 +47,7 @@ export type MetricDef = {
     scaleMinEqualsMax?: boolean; // If true, the scale will be [a,b], such that a = -b and |a| = |b| and the midpoint is 0
     steps?: number; // Number of scale breaks for discrete scales (e.g. 5 for quintiles, 10 for deciles)
     filterValues?: (properties: any, value?: any, filter?: any, variations?: Record<string, string>) => boolean; // Function to filter features/rows to display based on attributes, value, filter, and/or variations (returns true to show, false to hide/ignore)
+    filterColorRamp?: (properties: any, value?: any, filter?: any, variations?: Record<string, string>) => boolean; // Function to filter values used for color ramp / scale domain calculation while still displaying the feature (returns true to include in color ramp calculation, false to exclude)
     scaleMin?: number; // Force a minimum value for the scale domain
     scaleMax?: number; // Force a maximum value for the scale domain
     format: (v: number, min: number, max: number, filter: GlobalFilterId, variations?: Record<string, string>) => string;

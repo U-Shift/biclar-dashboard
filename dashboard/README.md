@@ -76,6 +76,7 @@ Each metric object adheres to the `MetricDef` type (defined in [`src/types.ts`](
 | `default` | `boolean` | Set to `true` to make this the initial selected metric on dashboard load. |
 | `showAlwaysOnDetails`| `boolean` | If `true`, this metric appears in the right "Area Details" sidebar even when not currently selected on the map. |
 | `filterValues` | `(properties, value?, filter?, variations?) => boolean` | Optional filter function returning `true` for features/rows to display (e.g. `(props, val, filter, variations) => variations?.group?.includes('percentage') ? props.dasymetric_population_adults > 1 : true`). If `false`, the feature is excluded from scale calculation and treated as having no data for this metric. |
+| `filterColorRamp` | `(properties, value?, filter?, variations?) => boolean` | Optional complementary filter function returning `true` for features/values to include when computing the color ramp scale domain (min/max or quantiles). If `false`, the feature's value is still displayed on the map, tooltips, and charts (clamped to the ramp bounds), but is excluded from the color ramp calculation (e.g. to prevent extreme outliers from skewing the color scale). |
 | `scaleMin` / `scaleMax` | `number` | Optional hard bounds for the legend scale domain. |
 | `scaleMinEqualsMax` | `boolean` | For diverging metrics centered at 0: ensures `[-max, +max]` domain. |
 | `legendCategories` | `{ color, label }[]` | Explicit discrete legend categories for categorical layers (e.g. Land Use classes). |

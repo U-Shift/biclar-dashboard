@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, MUNICIPALITIES_LIMITS_FILE } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor } from './utils';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
     const map = useMap();
@@ -439,7 +439,7 @@ const Dashboard = () => {
             const values = rawData.features
                 .filter((f: any) => {
                     const v = f.properties?.[selectedMetric.id];
-                    return typeof v === 'number' && !isNaN(v) && !isMetricValueIgnored(v, selectedMetric, f.properties);
+                    return typeof v === 'number' && !isNaN(v) && !isMetricValueExcludedFromColorRamp(v, selectedMetric, f.properties, effectiveGlobalFilter, selectedVariations);
                 })
                 .map((f: any) => f.properties?.[selectedMetric.id]);
             if (!values.length) return [0, 1];
@@ -448,8 +448,12 @@ const Dashboard = () => {
 
         if (!computedGeoData?.features?.length) return [0, 1];
         const values = computedGeoData.features
-            .map((f: any) => getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations))
-            .filter((v: any) => !isMetricValueIgnored(v, selectedMetric));
+            .map((f: any) => ({
+                val: getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations),
+                props: f.properties
+            }))
+            .filter(({ val, props }: any) => !isMetricValueExcludedFromColorRamp(val, selectedMetric, props, effectiveGlobalFilter, selectedVariations))
+            .map(({ val }: any) => val);
 
         return getMetricDomain(values, selectedMetric);
     }, [computedGeoData, selectedMetric, filteredRawData, effectiveGlobalFilter, selectedVariations, effectiveLevel]);
@@ -461,17 +465,25 @@ const Dashboard = () => {
         FLAT_METRICS.filter(m => m.showAlwaysOnDetails || m.id === selectedMetricId).forEach(m => {
             let filterToUse = effectiveGlobalFilter;
             let values = computedGeoData.features
-                .map((f: any) => getMetricValue(f.properties, m, filterToUse, effectiveLevel, selectedVariations))
-                .filter((v: any) => !isMetricValueIgnored(v, m));
+                .map((f: any) => ({
+                    val: getMetricValue(f.properties, m, filterToUse, effectiveLevel, selectedVariations),
+                    props: f.properties
+                }))
+                .filter(({ val, props }: any) => !isMetricValueExcludedFromColorRamp(val, m, props, filterToUse, selectedVariations))
+                .map(({ val }: any) => val);
 
             if (values.length === 0 && m.showAlwaysOnDetails) {
                 const fallbackFilter = GLOBAL_FILTERS.find(f =>
-                    computedGeoData.features.some((feat: any) => !isMetricValueIgnored(getMetricValue(feat.properties, m, f, effectiveLevel, selectedVariations), m))
+                    computedGeoData.features.some((feat: any) => !isMetricValueExcludedFromColorRamp(getMetricValue(feat.properties, m, f, effectiveLevel, selectedVariations), m, feat.properties, f, selectedVariations))
                 );
                 if (fallbackFilter) {
                     values = computedGeoData.features
-                        .map((f: any) => getMetricValue(f.properties, m, fallbackFilter, effectiveLevel, selectedVariations))
-                        .filter((v: any) => !isMetricValueIgnored(v, m));
+                        .map((f: any) => ({
+                            val: getMetricValue(f.properties, m, fallbackFilter, effectiveLevel, selectedVariations),
+                            props: f.properties
+                        }))
+                        .filter(({ val, props }: any) => !isMetricValueExcludedFromColorRamp(val, m, props, fallbackFilter, selectedVariations))
+                        .map(({ val }: any) => val);
                 }
             }
 
@@ -894,7 +906,7 @@ const Dashboard = () => {
                         <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
                         {!isMobile && <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} />}
-                        
+
                         {isLoadingRawLayer && (
                             <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[1200] px-4 py-2 rounded-full backdrop-blur-md shadow-xl border flex items-center gap-2 bg-white/90 border-neutral-200 text-neutral-800 text-xs font-bold pointer-events-none">
                                 <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
@@ -941,7 +953,8 @@ const Dashboard = () => {
                                             const min = currentDomain[0];
                                             const max = currentDomain[currentDomain.length - 1];
                                             if (max > min) {
-                                                radius = 4 + Math.round(((val - min) / (max - min)) * 8);
+                                                const clampedRatio = Math.max(0, Math.min(1, (val - min) / (max - min)));
+                                                radius = 4 + Math.round(clampedRatio * 8);
                                             }
                                         }
                                         const marker = L.circleMarker(latlng, {

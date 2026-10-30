@@ -53,6 +53,31 @@ export const isMetricValueIgnored = (val: any, metric: MetricDef, properties?: a
     }
     return false;
 };
+
+/**
+ * Checks if a value should be excluded from the color ramp / scale domain calculation,
+ * while still remaining visible on the map, tooltips, and details.
+ */
+export const isMetricValueExcludedFromColorRamp = (val: any, metric: MetricDef, properties?: any, filter?: any, variations?: Record<string, string>): boolean => {
+    if (isMetricValueIgnored(val, metric, properties, filter, variations)) return true;
+    if (metric.filterColorRamp && properties !== undefined) {
+        const filterId = typeof filter === 'object' && filter !== null ? filter.id : filter;
+        const effectiveVariations: Record<string, string> = { ...variations };
+        if (metric.id_variations) {
+            Object.entries(metric.id_variations).forEach(([group, groupDef]) => {
+                if (!effectiveVariations[group]) {
+                    effectiveVariations[group] = Array.isArray(groupDef)
+                        ? groupDef[0]
+                        : (groupDef.options_icons ? groupDef.options_icons[0].id : '');
+                }
+            });
+        }
+        if (!metric.filterColorRamp(properties, val, filterId, effectiveVariations)) {
+            return true;
+        }
+    }
+    return false;
+};
 /**
  * Generates a scale (domain or breaks) based on the metric's scaling method.
  */
@@ -92,14 +117,20 @@ export const getMetricDomain = (values: number[], metric: MetricDef): number[] =
 const getPaletteIndex = (val: number, domain: number[], paletteLength: number): number => {
     if (domain.length > 2) {
         // Discrete scale breaks (quantiles/slices)
+        const nSlices = domain.length - 1;
         let sliceIdx = 0;
-        for (let i = 0; i < domain.length - 1; i++) {
-            if (val >= domain[i] && val <= domain[i + 1]) {
-                sliceIdx = i;
-                break;
+        if (val <= domain[0]) {
+            sliceIdx = 0;
+        } else if (val >= domain[domain.length - 1]) {
+            sliceIdx = nSlices - 1;
+        } else {
+            for (let i = 0; i < nSlices; i++) {
+                if (val >= domain[i] && val <= domain[i + 1]) {
+                    sliceIdx = i;
+                    break;
+                }
             }
         }
-        const nSlices = domain.length - 1;
         return Math.min(Math.floor((sliceIdx / nSlices) * paletteLength), paletteLength - 1);
     } else {
         // Continuous linear interpolation mapping
