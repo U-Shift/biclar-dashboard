@@ -111,7 +111,7 @@
       },
       "gbfs": {
         "label": "Shared mobility vehicles",
-        "description": "Average number of parked vehicles (not in a trip)"
+        "description": "Average number of parked vehicles (not in a trip). Missing data for BOLT (Lisboa, Almada) and BIRD (Oeiras)."
       }
     },
     "mobility": {
