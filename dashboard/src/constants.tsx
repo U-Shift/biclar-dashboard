@@ -240,12 +240,10 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 return undefined;
             },
             filterValues: (properties, _value, filter, variations) => {
-                const isPercentage = (filter && String(filter).includes("percentage")) ||
-                    (variations?.['group'] && variations['group'].includes("percentage"));
-                if (isPercentage) {
+                if (variations?.['group'] && variations['group'].includes("percentage")) {
                     return properties?.dasymetric_population > 1;
                 }
-                return true;
+                return properties?.dasymetric_population > 0;
             }
         },
         {
@@ -258,6 +256,18 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                     ]
                 }
             },
+            filterColorRamp: (properties, _value, filter, variations) => {
+                // console.log("filterColorRamp", properties, _value, filter, variations);
+                // HEX, elder, P95 62.298
+                if (properties.h3_address && variations?.['group'] && variations['group'].includes("elderly")) {
+                    if (properties.dasymetric_dependency_ratio_elderly > 100) return false;
+                }
+                // HEX, youth, P95 31.92
+                if (properties.h3_address && variations?.['group'] && variations['group'].includes("youth")) {
+                    if (properties.dasymetric_dependency_ratio_youth > 100) return false;
+                }
+                return true;
+            },
             icon: '🎂',
             label: 'metrics.census.dasymetric_population_dependency_ratio.label',
             description: 'metrics.census.dasymetric_population_dependency_ratio.description',
@@ -266,6 +276,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['census'],
+            filterValues: (properties) => properties?.dasymetric_population > 0
         },
         {
             id: 'dasymetric_households',
@@ -275,7 +286,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: ['census']
+            sources: ['census'],
+            filterValues: (properties) => properties?.dasymetric_households > 0
         }
     ],
     'metrics.categories.land_use': [
@@ -297,11 +309,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['census'],
-            filterValues: (properties) => properties?.dasymetric_buildings > 1,
             unit: (filter, _value, variations) => {
                 if (filter && filter.includes("percentage")) return "%";
                 if (variations && variations["time"] && variations["time"].includes("percentage")) return "%";
                 return undefined;
+            },
+            filterValues: (properties, _value, filter, variations) => {
+                if (variations?.['time'] && variations['time'].includes("percentage")) {
+                    return properties?.dasymetric_buildings > 1;
+                }
+                return properties?.dasymetric_buildings > 0;
             }
         },
         {
