@@ -90,18 +90,33 @@
       "models": "Parking dimensioning models",
       "contextual": "Contextual data",
       "mobility": "Mobility",
-      "raw": "Raw data layers"
+      "raw": "Raw data layers",
+      "models_mr": "Minimum Ratios Model"
     },
     "models": {
       "mr": {
-        "label": "Minimum Ratios",
+        "label": "Minimum Ratios (Aggregated)",
         "description": "Number of bicycle parking spots according to land use and associated (minimum and maximum) ratios"
       },
-      "mr_ratio": {
-        "residential": {
-          "label": "Residential",
-          "description": "Number of (minimum and maximum) parking spots per household"
-        }
+      "mr_residential": {
+        "label": "Minimum Ratios (Residential)",
+        "description": "Number of bicycle parking spots based on residential land use"
+      },
+      "mr_pois": {
+        "label": "Minimum Ratios (POIs)",
+        "description": "Number of bicycle parking spots based on services and other points of interest"
+      },
+      "mr_pt": {
+        "label": "Minimum Ratios (Public Transport)",
+        "description": "Number of bicycle parking spots based on public transport demand"
+      },
+      "mr_schools": {
+        "label": "Minimum Ratios (Schools)",
+        "description": "Number of bicycle parking spots based on schools and university students"
+      },
+      "mr_residential_ratios": {
+        "label": "Minimum Ratios (Residential)",
+        "description": "Number of (minimum and maximum) parking spots per household"
       }
     },
     "contextual": {
@@ -359,7 +374,35 @@
     "20.21": "8 to 9 p.m.",
     "21.22": "9 to 10 p.m.",
     "22.23": "10 to 11 p.m.",
-    "23.24": "11 p.m. to 12 a.m."
+    "23.24": "11 p.m. to 12 a.m.",
+    "category": "Category",
+    "category_poi": "Category",
+    "category_pt": "Category",
+    "category_schools": "Category",
+    "total": "Total",
+    "residential": "Residential",
+    "poi_total": "All categories",
+    "poi_retail_large": "Large Retail",
+    "poi_retail_small": "Small Retail",
+    "poi_healthcare_centres": "Healthcare Centres",
+    "poi_cultural": "Cultural",
+    "poi_hotel_hostel": "Hotels & Hostels",
+    "poi_cafe_restaurant": "Cafes & Restaurants",
+    "poi_sports_facility": "Sports Facilities",
+    "poi_office_industry": "Offices & Industry",
+    "poi_recreational_area": "Recreational Areas",
+    "poi_bar": "Bars",
+    "pt_total": "All modes",
+    "pt_bus": "Bus Stops",
+    "pt_train": "Train Stations",
+    "pt_metro": "Metro Stations",
+    "pt_ltr": "Light Rail Stations",
+    "pt_boat": "Ferry Terminals",
+    "schools_total": "All (Schools + Universities)",
+    "schools_childcare": "Childcare",
+    "schools_primary": "Primary Schools",
+    "schools_secondary": "Secondary Schools",
+    "schools_university": "Universities"
   },
   "tutorial": {
     "title_welcome": "Welcome!",

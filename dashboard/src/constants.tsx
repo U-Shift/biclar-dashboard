@@ -105,9 +105,9 @@ export const logarithmicScale: ScaleMethod = (values, steps = 5) => {
 
 const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     // Tab 1 (first only)
-    'metrics.categories.models': [
+    'metrics.categories.models_mr': [
         {
-            id: 'model_mr_parking_residential_{min_max}',
+            id: 'model_mr_parking_total_{min_max}',
             id_variations: {
                 'min_max': {
                     options_icons: [
@@ -123,9 +123,123 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true
+        },
+        {
+            id: 'model_mr_parking_residential_{min_max}',
+            id_variations: {
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
+            icon: '🏘️',
+            label: 'metrics.models.mr_residential.label',
+            description: 'metrics.models.mr_residential.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            default: true,
+            showAlwaysOnDetails: true
+        },
+        {
+            id: 'model_mr_parking_{category_poi}_{min_max}',
+            id_variations: {
+                'category_poi': {
+                    options_tags: [
+                        // POIS
+                        'poi_total',
+                        'poi_retail_large',
+                        'poi_retail_small',
+                        'poi_healthcare_centres',
+                        'poi_cultural',
+                        'poi_hotel_hostel',
+                        'poi_cafe_restaurant',
+                        'poi_sports_facility',
+                        'poi_office_industry',
+                        'poi_recreational_area',
+                        'poi_bar'
+                    ]
+                },
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
+            icon: '📌',
+            label: 'metrics.models.mr_pois.label',
+            description: 'metrics.models.mr_pois.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            default: true,
+            showAlwaysOnDetails: true
+        },
+        {
+            id: 'model_mr_parking_{category_pt}_{min_max}',
+            id_variations: {
+                'category_pt': {
+                    options_tags: [
+                        // PT
+                        'pt_total',
+                        'pt_bus',
+                        'pt_train',
+                        'pt_metro',
+                        'pt_ltr',
+                        'pt_boat'
+                    ]
+                },
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
+            icon: '🚏',
+            label: 'metrics.models.mr_pt.label',
+            description: 'metrics.models.mr_pt.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            default: true,
+            showAlwaysOnDetails: true
+        },
+        {
+            id: 'model_mr_parking_{category_schools}_{min_max}',
+            id_variations: {
+                'category_schools': {
+                    options_tags: [
+                        // Schools
+                        'schools_total',
+                        'schools_childcare',
+                        'schools_primary',
+                        'schools_secondary',
+                        'schools_university'
+                    ]
+                },
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
+            icon: '✏️',
+            label: 'metrics.models.mr_schools.label',
+            description: 'metrics.models.mr_schools.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            default: true,
+            showAlwaysOnDetails: true
         }
     ],
     // Tab 2
+    /*
     'metrics.categories.ratios': [
         {
             id: 'model_mr_ratio_residential_{min_max}',
@@ -146,7 +260,100 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['ruma', 'rumus', 'literature_todo']
             //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
         },
+        {
+            id: 'model_mr_{category_poi}_{min_max}',
+            id_variations: {
+                'category_poi': {
+                    options_tags: [
+                        'poi_retail_large',
+                        'poi_retail_small',
+                        'poi_healthcare_centres',
+                        'poi_cultural',
+                        'poi_hotel_hostel',
+                        'poi_cafe_restaurant',
+                        'poi_sports_facility',
+                        'poi_office_industry',
+                        'poi_recreational_area',
+                        'poi_bar'
+                    ]
+                },
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
+            icon: '📌',
+            label: 'metrics.models.mr_pois.label',
+            description: 'metrics.models.mr_pois.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            default: true,
+            showAlwaysOnDetails: true
+        },
+        {
+            id: 'model_mr_parking_{category_pt}_{min_max}',
+            id_variations: {
+                'category_pt': {
+                    options_tags: [
+                        // PT
+                        'pt_total',
+                        'pt_bus',
+                        'pt_train',
+                        'pt_metro',
+                        'pt_ltr',
+                        'pt_boat'
+                    ]
+                },
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
+            icon: '🚏',
+            label: 'metrics.models.mr_pt.label',
+            description: 'metrics.models.mr_pt.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            default: true,
+            showAlwaysOnDetails: true
+        },
+        {
+            id: 'model_mr_parking_{category_schools}_{min_max}',
+            id_variations: {
+                'category_schools': {
+                    options_tags: [
+                        // Schools
+                        'schools_total',
+                        'schools_childcare',
+                        'schools_primary',
+                        'schools_secondary',
+                        'schools_university'
+                    ]
+                },
+                'min_max': {
+                    options_icons: [
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                    ]
+                }
+            },
+            icon: '✏️',
+            label: 'metrics.models.mr_schools.label',
+            description: 'metrics.models.mr_schools.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            default: true,
+            showAlwaysOnDetails: true
+        }
     ],
+    */
     'metrics.categories.mobility': [
         {
             id: 'cycleways_length_{type}',
