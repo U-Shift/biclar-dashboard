@@ -169,7 +169,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                     ]
                 }
             },
-            icon: '🛍️',
+            icon: '📌',
             label: 'metrics.models.mr_pois.label',
             description: 'metrics.models.mr_pois.description',
             format: (v) => Math.round(v || 0).toString(),
