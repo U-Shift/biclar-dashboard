@@ -83,7 +83,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                     const isIgnored = isMetricValueIgnored(val, selectedMetric);
                                     if (isIgnored) return null;
 
-                                    const rawFormattedVal = selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, activeFilter.id, selectedVariations);
+                                    const rawFormattedVal = String(selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1, activeFilter.id, selectedVariations) ?? '');
                                     const formattedVal = rawFormattedVal.split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.');
                                     const color = getColor(val, allDomains[selectedMetric.id] || [0, 1], selectedMetric, isColorBlindMode);
 
@@ -163,7 +163,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                 <DetailCard
                                                     key={m.id}
                                                     label={t(m.label)}
-                                                    value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 100, activeFilter.id, selectedVariations).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
+                                                    value={String(m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 100, activeFilter.id, selectedVariations) ?? '').split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
                                                     unit={m.unit?.(activeFilter.id, val, selectedVariations) || ""}
                                                     hexColor={getColor(val, allDomains[m.id] || [0, 100], m, isColorBlindMode)}
                                                     isDark={isDarkMode}
@@ -359,7 +359,7 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, filter: any, selectedFe
                     <DetailCard
                         key={m.id}
                         label={fullLabel}
-                        value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, effectiveFilter.id, selectedVariations).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
+                        value={String(m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1, effectiveFilter.id, selectedVariations) ?? '').split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
                         unit={m.unit?.(effectiveFilter.id, val, selectedVariations) || ""}
                         hexColor={getColor(val, allDomains[m.id] || [0, 1], m, isColorBlindMode)}
                         isDark={isDarkMode}
