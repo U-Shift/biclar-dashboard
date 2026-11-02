@@ -126,7 +126,12 @@
       },
       "gbfs": {
         "label": "Shared mobility vehicles",
-        "description": "Average number of parked vehicles (not in a trip). Missing data for BOLT (Lisboa, Almada) and BIRD (Oeiras)."
+        "description": "Average number of parked vehicles (not in a trip). Missing data for BOLT (Lisboa, Almada) and BIRD (Oeiras).",
+        "filters": {
+          "all": "All modes",
+          "bikes": "Bicycles",
+          "scooters": "Scooters"
+        }
       }
     },
     "mobility": {
@@ -326,6 +331,10 @@
     "_15w": "15 min",
     "_20w": "20 min",
     "_30w": "30 min",
+    "period": "Analysis period",
+    "all": "Any",
+    "week": "Week",
+    "weekend": "Weekend",
     "time_of_day": "Time of day",
     "_peak": "Peak Hour (08h - 09h)",
     "_night": "Night Time (22h - 23h)",

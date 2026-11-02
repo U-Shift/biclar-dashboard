@@ -612,13 +612,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             }
         },
         {
-            id: 'gbfs_avg_vehicles_per_update_{period}_{time}',
+            id: 'gbfs_avg_{vehicle_type}_per_update_{period}_{time}',
             id_variations: {
                 period: {
+                    options_tags: ['all', 'week', 'weekend'],
+                },
+                vehicle_type: {
                     options_icons: [
-                        { id: 'all', label: 'filters_global.all', suffix: 'all', icon: '🌐' },
-                        { id: 'week', label: 'filters_global.week', suffix: 'week', icon: '🏢' },
-                        { id: 'weekend', label: 'filters_global.weekend', suffix: 'weekend', icon: '🍃' },
+                        { id: 'all', label: 'metrics.contextual.gbfs.filters.all', suffix: '_vehicles', icon: '🌐' },
+                        { id: 'scooters', label: 'metrics.contextual.gbfs.filters.scooters', suffix: '_scooter', icon: '🛴' },
+                        { id: 'bikes', label: 'metrics.contextual.gbfs.filters.bikes', suffix: '_bicycle', icon: '🚲' },
                     ]
                 },
                 time: {
