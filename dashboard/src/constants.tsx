@@ -3,10 +3,10 @@ import { MetricDef, ViewLevel, ScaleMethod } from './types';
 export const DATA_BASE_URL = 'https://ushift.tecnico.ulisboa.pt/content/biclar/';
 export const AHP_SURVEY_URL = "https://script.google.com/macros/s/AKfycbx1F1XmBbgTDu0WKiRtR6I4ocouXsnVKMDz1DHuMjx79kgfQzP1M8-A-NPL4CjlugmL/exec";
 
-export const LEVEL_CONFIG: Partial<Record<ViewLevel, { file: string, parent?: ViewLevel, download_geojson: string, download_csv: string }>> = {
-    'municipality': { file: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_geojson: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_csv: `${DATA_BASE_URL}municipalities_dashboard.csv` },
-    'freguesia': { file: `${DATA_BASE_URL}parishes_dashboard.geojson`, parent: 'municipality', download_geojson: `${DATA_BASE_URL}parishes_dashboard.geojson`, download_csv: `${DATA_BASE_URL}parishes_dashboard.csv` },
-    'hex': { file: `${DATA_BASE_URL}grid_dashboard.geojson`, parent: 'freguesia', download_geojson: `${DATA_BASE_URL}grid_dashboard.geojson`, download_csv: `${DATA_BASE_URL}grid_dashboard.csv` }
+export const LEVEL_CONFIG: Partial<Record<ViewLevel, { file: string, csv?: string, parent?: ViewLevel, download_geojson: string, download_csv: string }>> = {
+    'municipality': { file: `${DATA_BASE_URL}municipalities_dashboard.geojson`, csv: `${DATA_BASE_URL}municipalities_dashboard.csv`, download_geojson: `${DATA_BASE_URL}municipalities_dashboard.geojson`, download_csv: `${DATA_BASE_URL}municipalities_dashboard.csv` },
+    'freguesia': { file: `${DATA_BASE_URL}parishes_dashboard.geojson`, csv: `${DATA_BASE_URL}parishes_dashboard.csv`, parent: 'municipality', download_geojson: `${DATA_BASE_URL}parishes_dashboard.geojson`, download_csv: `${DATA_BASE_URL}parishes_dashboard.csv` },
+    'hex': { file: `${DATA_BASE_URL}grid_dashboard.geojson`, csv: `${DATA_BASE_URL}grid_dashboard.csv`, parent: 'freguesia', download_geojson: `${DATA_BASE_URL}grid_dashboard.geojson`, download_csv: `${DATA_BASE_URL}grid_dashboard.csv` }
 };
 
 export const MUNICIPALITIES_LIMITS_FILE = `${DATA_BASE_URL}municipios_limits.geojson`;

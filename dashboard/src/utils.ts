@@ -485,3 +485,123 @@ export const getContrastColor = (color: string): string => {
     return (yiq >= 135) ? '#111' : '#fff';
 };
 
+/**
+ * Parses a single CSV line into an array of raw token strings, respecting double quotes.
+ */
+const parseCsvLine = (line: string): string[] => {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    const len = line.length;
+
+    for (let i = 0; i < len; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+            if (inQuotes && i + 1 < len && line[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+                current += ch;
+            }
+        } else if (ch === ',' && !inQuotes) {
+            result.push(current);
+            current = '';
+        } else {
+            current += ch;
+        }
+    }
+    result.push(current);
+    return result;
+};
+
+/**
+ * Parses a CSV string into an array of property objects with automatic number conversion.
+ */
+export const parseCsvToRecords = (csvText: string): Record<string, any>[] => {
+    const lines = csvText.split(/\r?\n/);
+    if (lines.length < 2) return [];
+
+    const headers = parseCsvLine(lines[0]).map(h => h.trim().replace(/^"|"$/g, ''));
+    const numCols = headers.length;
+    const records: Record<string, any>[] = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const values = parseCsvLine(line);
+        const row: Record<string, any> = {};
+
+        for (let j = 0; j < numCols; j++) {
+            const raw = values[j];
+            if (raw === undefined || raw === '' || raw === 'NA' || raw === 'null' || raw === 'NaN') {
+                continue;
+            }
+            if (raw.startsWith('"') && raw.endsWith('"')) {
+                row[headers[j]] = raw.slice(1, -1);
+            } else {
+                const num = Number(raw);
+                row[headers[j]] = !isNaN(num) ? num : raw;
+            }
+        }
+        records.push(row);
+    }
+
+    return records;
+};
+
+/**
+ * Merges GeoJSON geometries with metric attributes parsed from a CSV file.
+ * Matches features to CSV rows by `id` (or fallback identifiers `mid`, `pid`, `gid`, `h3_address`, or row index).
+ */
+export const mergeGeoJsonWithCsv = (geoJson: any, csvText: string): any => {
+    if (!geoJson?.features || !csvText) return geoJson;
+
+    const rows = parseCsvToRecords(csvText);
+    if (rows.length === 0) return geoJson;
+
+    const byId = new Map<string, Record<string, any>>();
+    const byAltKey = new Map<string, Record<string, any>>();
+
+    for (const row of rows) {
+        if (row.id !== undefined && row.id !== null) {
+            byId.set(String(row.id), row);
+        }
+        const alt = row.h3_address ?? row.gid ?? row.pid ?? row.mid;
+        if (alt !== undefined && alt !== null) {
+            byAltKey.set(String(alt), row);
+        }
+    }
+
+    const sameLength = geoJson.features.length === rows.length;
+
+    const features = geoJson.features.map((f: any, idx: number) => {
+        const props = f.properties || {};
+        let matchedRow: Record<string, any> | undefined;
+
+        if (props.id !== undefined && props.id !== null) {
+            matchedRow = byId.get(String(props.id)) || byAltKey.get(String(props.id));
+        }
+        if (!matchedRow) {
+            const alt = props.h3_address ?? props.gid ?? props.pid ?? props.mid;
+            if (alt !== undefined && alt !== null) {
+                matchedRow = byAltKey.get(String(alt)) || byId.get(String(alt));
+            }
+        }
+        if (!matchedRow && sameLength) {
+            matchedRow = rows[idx];
+        }
+
+        return {
+            ...f,
+            properties: matchedRow ? { ...props, ...matchedRow } : props
+        };
+    });
+
+    return {
+        ...geoJson,
+        features
+    };
+};
+

@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, MUNICIPALITIES_LIMITS_FILE } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor } from './utils';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor, mergeGeoJsonWithCsv } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
     const map = useMap();
@@ -157,13 +157,21 @@ const Dashboard = () => {
         const load = async () => {
             try {
                 const levels = (Object.keys(LEVEL_CONFIG) as ViewLevel[]).filter(l => Boolean(LEVEL_CONFIG[l]?.file));
-                const results = await Promise.all([
-                    ...levels.map(l => fetch(LEVEL_CONFIG[l]!.file).then(r => r.json())),
+                const [levelData, limits] = await Promise.all([
+                    Promise.all(levels.map(async (l) => {
+                        const cfg = LEVEL_CONFIG[l]!;
+                        const csvUrl = cfg.csv || cfg.download_csv;
+                        const [geoJson, csvText] = await Promise.all([
+                            fetch(cfg.file).then(r => r.json()),
+                            csvUrl ? fetch(csvUrl).then(r => r.ok ? r.text() : '') : Promise.resolve('')
+                        ]);
+                        return csvText ? mergeGeoJsonWithCsv(geoJson, csvText) : geoJson;
+                    })),
                     fetch(MUNICIPALITIES_LIMITS_FILE).then(r => r.json())
                 ]);
 
                 const geo: Record<string, any> = {};
-                levels.forEach((l, i) => { geo[l] = results[i]; });
+                levels.forEach((l, i) => { geo[l] = levelData[i]; });
 
                 // Create parent lookups for each level that serves as a parent
                 const parentLookup: Record<string, string> = {};
@@ -178,7 +186,7 @@ const Dashboard = () => {
                     }
                 });
 
-                setDataState({ geo, limits: results[levels.length], loading: false, error: null, parentLookup });
+                setDataState({ geo, limits, loading: false, error: null, parentLookup });
             } catch (err) {
                 console.error(err);
                 setDataState(s => ({ ...s, loading: false, error: "System encountered a data loading error." }));

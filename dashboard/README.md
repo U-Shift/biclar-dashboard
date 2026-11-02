@@ -307,15 +307,17 @@ Configured in `LEVEL_CONFIG` in [`src/constants.tsx`](src/constants.tsx):
 
 ### Required Feature Properties (`properties`)
 
-Each feature in the GeoJSON / CSV files **must** contain:
+To minimize file size, **GeoJSON files only need to store feature geometries and the linking identifier (`id`)**, while all metric columns and metadata (`name`, `group_id`, `region_id`, etc.) are loaded from the corresponding **CSV file** (`csv` / `download_csv` in `LEVEL_CONFIG`) and merged on load.
 
-| Property | Type | Requirement | Purpose |
+Each feature (across the merged GeoJSON + CSV dataset) **must** contain:
+
+| Property | Type | Required In | Purpose |
 | :--- | :--- | :--- | :--- |
-| `id` | `string \| number` | **Mandatory** | Unique identifier for each spatial unit (e.g. parish DICO code, hex H3 index). Required for hover states, selections, tooltips, and parent-child lookups. |
-| `name` | `string` | Optional | Human-friendly name (e.g. `"Alvalade"`, `"Cascais"`). Used in tooltips and performer charts. Falls back to `id` if absent. |
-| `group_id` | `string \| number` | **Mandatory for child levels** | Identifier of the parent feature in the level above. For example: hex features must have a `group_id` matching their containing `freguesia.id`. This powers:<br>1. **Subareas drilldown**: Clicking a parish displays its constituent hexes.<br>2. **Performer charts**: Child rows display their parent group name via `dataState.parentLookup`. |
-| `region_id` / `nuts2` | `string` | **Mandatory** | Regional code matching keys in `REGIONS` in `constants.tsx` (e.g. `'PT1A'` for Grande Lisboa, `'PT1B'` for Península de Setúbal, or `'metropolis'`). When the user selects a region filter, features are filtered by `f.properties?.region_id === nutFilter \|\| f.properties?.nuts2 === REGIONS[nutFilter].name`. |
-| Metric columns | `number \| string` | As configured | Attribute keys must exactly match the resolved metric IDs (e.g. `model_mr_parking_residential_min`, `dasymetric_population`, `mobility_infrastructure_length`). |
+| `id` | `string \| number` | **Both GeoJSON & CSV** *(or `mid` / `pid` / `gid` / `h3_address`)* | Unique identifier used to join each GeoJSON geometry with its corresponding CSV row, as well as for hover states, selections, tooltips, and parent-child lookups. |
+| `name` | `string` | **CSV only** *(optional)* | Human-friendly name (e.g. `"Alvalade"`, `"Cascais"`). Used in tooltips and performer charts. Falls back to `id` if absent. |
+| `group_id` | `string \| number` | **CSV only** *(mandatory for child levels)* | Identifier of the parent feature in the level above. For example: hex features must have a `group_id` matching their containing `freguesia.id`. This powers:<br>1. **Subareas drilldown**: Clicking a parish displays its constituent hexes.<br>2. **Performer charts**: Child rows display their parent group name via `dataState.parentLookup`. |
+| `region_id` / `nuts2` | `string` | **CSV only** *(mandatory)* | Regional code matching keys in `REGIONS` in `constants.tsx` (e.g. `'PT1A'` for Grande Lisboa, `'PT1B'` for Península de Setúbal, or `'metropolis'`). When the user selects a region filter, features are filtered by `f.properties?.region_id === nutFilter \|\| f.properties?.nuts2 === REGIONS[nutFilter].name`. |
+| Metric columns | `number \| string` | **CSV only** | Attribute keys must exactly match the resolved metric IDs (e.g. `model_mr_parking_residential_min`, `dasymetric_population`, `mobility_infrastructure_length`). |
 
 ### Required Municipalities Limits Properties (`MUNICIPALITIES_LIMITS_FILE`)
 
