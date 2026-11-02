@@ -653,8 +653,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v) => String(v || ''),
             pallete: ['#006837', '#31a354', '#78c679'],
             legendCategories: [
-                { value: 'Protected Active', color: '#006837', label: 'metrics.cycle_segregation.protected_active' },
-                { value: 'Cycle track or lane', color: '#31a354', label: 'metrics.cycle_segregation.cycle_track_lane' },
+                { value: 'Cycle track or lane', color: '#006837', label: 'metrics.cycle_segregation.cycle_track_lane' },
+                { value: 'Protected Active', color: '#31a354', label: 'metrics.cycle_segregation.protected_active' },
                 { value: 'Advisory lane', color: '#78c679', label: 'metrics.cycle_segregation.advisory_lane' }
             ],
             get_name: (p) => p.name || 'NA',
