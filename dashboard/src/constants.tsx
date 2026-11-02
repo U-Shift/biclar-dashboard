@@ -635,7 +635,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v) => Math.round(v || 0).toLocaleString('pt-PT'),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: ['BIRD', 'LIME', 'BOLT', 'GIRA']
+            sources: ['BIRD', 'LIME', 'GIRA'],
+            period: 'metrics.contextual.gbfs.period'
         }
     ],
     'metrics.categories.raw': [
