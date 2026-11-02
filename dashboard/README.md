@@ -73,6 +73,7 @@ Each metric object adheres to the `MetricDef` type (defined in [`src/types.ts`](
 | `scaleMethod` | `ScaleMethod` | Scaling algorithm: `continuousScale`, `equalCountScale`, `equalIntervalScale`, or `logarithmicScale`. |
 | `pallete` | `string[]` | Color ramp array (from `COLORS`, e.g. `COLORS.WhiteToBlue` or `COLORS.Viridis`). |
 | `sources` | `string[]` | Optional. Source keys matched against `sources` in translation files (e.g. `['census', 'osm']`). |
+| `period` | `string` | Optional. Translation key for the data collection/reference period (e.g. `'metrics.contextual.gbfs.period'` or a key under `periods` in translation files). |
 | `default` | `boolean` | Set to `true` to make this the initial selected metric on dashboard load. |
 | `showAlwaysOnDetails`| `boolean` | If `true`, this metric appears in the right "Area Details" sidebar even when not currently selected on the map. |
 | `filterValues` | `(properties, value?, filter?, variations?) => boolean` | Optional filter function returning `true` for features/rows to display (e.g. `(props, val, filter, variations) => variations?.group?.includes('percentage') ? props.dasymetric_population_adults > 1 : true`). If `false`, the feature is excluded from scale calculation and treated as having no data for this metric. |

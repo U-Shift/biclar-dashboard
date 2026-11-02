@@ -15,7 +15,8 @@
     "calculate": "Calcular",
     "fix": "Corrigir",
     "no_data": "Sem dados",
-    "source": "Fonte"
+    "source": "Fonte",
+    "period": "Período"
   },
   "tooltips": {
     "toggle_theme": "Alternar Tema",

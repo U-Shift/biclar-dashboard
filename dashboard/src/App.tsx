@@ -883,6 +883,11 @@ const Dashboard = () => {
                                             {t('common.source')}: {selectedMetric.sources.map(s => t(`sources.${s}`)).join(', ')}
                                         </p>
                                     )}
+                                    {selectedMetric.period && (
+                                        <p className={`text-[10px] opacity-40 ${selectedMetric.sources && selectedMetric.sources.length > 0 ? 'mt-1' : 'mt-2'} tracking-tight leading-snug`}>
+                                            {t('common.period')}: {i18n.exists(`periods.${selectedMetric.period}`) ? t(`periods.${selectedMetric.period}`) : t(selectedMetric.period)}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>

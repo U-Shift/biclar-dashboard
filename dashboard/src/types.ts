@@ -40,6 +40,7 @@ export type MetricDef = {
     description?: string;
     pallete: string[];
     sources?: string[];
+    period?: string;
     unit?: (filter: GlobalFilterId, value?: number, variations?: Record<string, string>) => string | undefined;
     default?: boolean; // Show by default
     // Display
