@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Languages, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle } from 'lucide-react';
+import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle } from 'lucide-react';
 import { MetricDef } from '../types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, GLOBAL_FILTERS } from '../constants';
 import { useTranslation } from 'react-i18next';
@@ -97,10 +97,12 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     const activeFilter = selectedGlobalFilter || { id: 'all' };
     const setActiveFilterId = setSelectedGlobalFilterId;
     const checkFilterAvailable = isGlobalFilterAvailable;
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
+    /*
     const toggleLanguage = () => {
         i18n.changeLanguage(i18n.language === 'en' ? 'pt' : 'en');
     };
+    */
 
     const [activeTab, setActiveTab] = useState<'index' | 'indicators'>('index');
 
