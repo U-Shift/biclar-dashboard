@@ -81,7 +81,8 @@
     "TML": "TML",
     "BIRD": "BIRD (Almada, Cascais, Lisboa)",
     "LIME": "LIME (Almada, Lisbon, Oeiras)",
-    "GIRA": "GIRA (Lisbon)"
+    "GIRA": "GIRA (Lisbon)",
+    "dgeec": "Direção-Geral de Estatísticas da Educação e Ciência"
   },
   "metrics": {
     "categories": {
@@ -123,7 +124,8 @@
     "contextual": {
       "thefts_n": {
         "label": "Bike thefts",
-        "description": "Number of bicycle thefts reported to the authorities"
+        "description": "Number of bicycle thefts reported to the authorities",
+        "period": "2021-Sep 2026"
       },
       "gbfs": {
         "label": "Shared mobility vehicles",
@@ -155,7 +157,8 @@
       },
       "ticketing_n": {
         "label": "Ticketing validations",
-        "description": "Number of public transport ticketing validations for a week day"
+        "description": "Number of public transport ticketing validations for a week day",
+        "period": "6th May 2026"
       }
     },
     "cycle_segregation": {

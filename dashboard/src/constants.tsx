@@ -426,6 +426,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ["TML"],
+            period: 'metrics.mobility.ticketing_n.period',
             filterValues: (properties, _value, _filter, variations) => {
                 if (variations?.['mode'] && variations['mode'].includes("train")) return properties?.ticketing_n_train > 0;
                 if (variations?.['mode'] && variations['mode'].includes("bus")) return properties?.ticketing_n_bus > 0;
@@ -566,7 +567,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: [],
+            sources: ['dgeec'],
             filterValues: (properties, _value, _filter, variations) => {
                 if (variations?.['school_type'] && variations['school_type'].includes("childcare")) return properties?.pois_n_school_students_childcare > 0;
                 if (variations?.['school_type'] && variations['school_type'].includes("primary_school")) return properties?.pois_n_school_students_primary_school > 0;
@@ -582,7 +583,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
-            sources: [],
+            sources: ['dgeec'],
             filterValues: (properties) => properties?.pois_n_university_students > 0
         },
     ],
@@ -605,6 +606,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['psp', 'gnr'],
+            period: 'metrics.contextual.thefts_n.period',
             filterValues: (properties, _value, _filter, variations) => {
                 if (variations?.['police_force'] && variations['police_force'].includes("psp")) return properties?.thefts_n_psp > 0;
                 if (variations?.['police_force'] && variations['police_force'].includes("gnr")) return properties?.thefts_n_gnr > 0;
