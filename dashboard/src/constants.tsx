@@ -239,10 +239,9 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
         }
     ],
     // Tab 2
-    /*
     'metrics.categories.ratios': [
         {
-            id: 'model_mr_ratio_residential_{min_max}',
+            id: 'model_mr_residential_{min_max}',
             id_variations: {
                 'min_max': {
                     options_icons: [
@@ -252,8 +251,9 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 }
             },
             icon: '🏘️',
-            label: 'metrics.models.mr_ratio.residential.label',
-            description: 'metrics.models.mr_ratio.residential.description',
+            unit: () => "/hh",
+            label: 'metrics.models.mr_ratio_residential.label',
+            description: 'metrics.models.mr_ratio_residential.description',
             pallete: COLORS.WhiteToGreen,
             format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
@@ -285,16 +285,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 }
             },
             icon: '📌',
-            label: 'metrics.models.mr_pois.label',
-            description: 'metrics.models.mr_pois.description',
-            format: (v) => Math.round(v || 0).toString(),
+            label: 'metrics.models.mr_ratio_pois.label',
+            description: 'metrics.models.mr_ratio_pois.description',
+            format: (v) => v,
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true
         },
         {
-            id: 'model_mr_parking_{category_pt}_{min_max}',
+            id: 'model_mr_{category_pt}_{min_max}',
             id_variations: {
                 'category_pt': {
                     options_tags: [
@@ -315,16 +315,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 }
             },
             icon: '🚏',
-            label: 'metrics.models.mr_pt.label',
-            description: 'metrics.models.mr_pt.description',
-            format: (v) => Math.round(v || 0).toString(),
+            label: 'metrics.models.mr_ratio_pt.label',
+            description: 'metrics.models.mr_ratio_pt.description',
+            format: (v) => v,
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true
         },
         {
-            id: 'model_mr_parking_{category_schools}_{min_max}',
+            id: 'model_mr_{category_schools}_{min_max}',
             id_variations: {
                 'category_schools': {
                     options_tags: [
@@ -344,16 +344,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 }
             },
             icon: '✏️',
-            label: 'metrics.models.mr_schools.label',
-            description: 'metrics.models.mr_schools.description',
-            format: (v) => Math.round(v || 0).toString(),
+            label: 'metrics.models.mr_ratio_schools.label',
+            description: 'metrics.models.mr_ratio_schools.description',
+            format: (v) => v,
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true
         }
     ],
-    */
     'metrics.categories.mobility': [
         {
             id: 'cycleways_length_{type}',

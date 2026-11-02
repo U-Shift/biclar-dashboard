@@ -116,9 +116,21 @@
         "label": "Minimum Ratios (Schools)",
         "description": "Number of bicycle parking spots based on schools and university students"
       },
-      "mr_residential_ratios": {
-        "label": "Minimum Ratios (Residential)",
+      "mr_ratio_residential": {
+        "label": "Residential",
         "description": "Number of (minimum and maximum) parking spots per household"
+      },
+      "mr_ratio_pois": {
+        "label": "Points of Interest",
+        "description": "Number of (minimum and maximum) parking spots per square meter of land use"
+      },
+      "mr_ratio_pt": {
+        "label": "Public Transport",
+        "description": "Number of (minimum and maximum) parking spots per passenger"
+      },
+      "mr_ratio_schools": {
+        "label": "Schools",
+        "description": "Number of (minimum and maximum) parking spots per student"
       }
     },
     "contextual": {
