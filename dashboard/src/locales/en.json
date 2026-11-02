@@ -194,7 +194,8 @@
         "description": "Number of students for schools (public and private)",
         "childcare": "Childcare",
         "primary_school": "Primary school",
-        "secondary_school": "Secondary school"
+        "secondary_school": "Secondary school",
+        "period": "School year 2024/25"
       },
       "pois_n_university_students": {
         "label": "University students",

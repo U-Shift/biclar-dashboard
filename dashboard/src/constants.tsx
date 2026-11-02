@@ -568,6 +568,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['dgeec'],
+            period: 'metrics.land_use.pois_n_school_students.period',
             filterValues: (properties, _value, _filter, variations) => {
                 if (variations?.['school_type'] && variations['school_type'].includes("childcare")) return properties?.pois_n_school_students_childcare > 0;
                 if (variations?.['school_type'] && variations['school_type'].includes("primary_school")) return properties?.pois_n_school_students_primary_school > 0;
@@ -584,6 +585,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['dgeec'],
+            period: 'metrics.land_use.pois_n_school_students.period',
             filterValues: (properties) => properties?.pois_n_university_students > 0
         },
     ],
