@@ -90,7 +90,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                     <h4 className="opacity-60 text-md lg:text-lg font-black tracking-tighter mt-3"><a href='https://ushift.pt' target='_blank'>U-Shift Lab, Instituto Superior Técnico</a></h4>
                     <p className='flex flex-wrap opacity-60'>Filipe Moura <a className='ml-1' href="https://orcid.org/0000-0001-7749-8490" target='_blank'><IdCard /></a>,
                         Gonçalo F. Matos <a className='ml-1' href="https://orcid.org/0009-0001-3489-1732" target='_blank'><IdCard /></a>,
-                        Miguel Alvelos
+                        Miguel Alvelos, Francisco Valério
                     </p>
                     <h4 className="opacity-60 text-md lg:text-lg font-black tracking-tighter mt-3"><a href='https://www.tmlmobilidade.pt/' target='_blank'>Transportes Metropolitanos de Lisboa (TML)</a></h4>
                     <p className='flex flex-wrap opacity-60'>
