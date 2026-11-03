@@ -372,6 +372,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v) => Math.round(v / 100 || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
+            sources: ['osm'],
             unit: () => "km",
             // sources: TBD
             filterValues: (properties, _value, _filter, variations) => {
@@ -397,6 +398,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
+            sources: ['osm'],
             // sources: TBD
             filterValues: (properties, _value, _filter, variations) => {
                 if (variations?.['metric'] && variations['metric'].includes("n_points")) return properties?.parking_n_points > 0;
@@ -651,6 +653,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility.cycle_segregation.description',
             format: (v) => String(v || ''),
             pallete: ['#006837', '#31a354', '#78c679'],
+            sources: ['osm'],
             legendCategories: [
                 { value: 'Cycle track or lane', color: '#006837', label: 'metrics.cycle_segregation.cycle_track_lane' },
                 { value: 'Protected Active', color: '#31a354', label: 'metrics.cycle_segregation.protected_active' },
@@ -669,6 +672,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility.parking_capacity.description',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
+            sources: ['osm'],
             format: (v) => Math.round(v || 0).toString()
         }
     ]
