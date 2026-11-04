@@ -257,7 +257,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.WhiteToGreen,
             format: (v, _min, _max, _filter) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            sources: ['ruma', 'rumus', 'literature_todo']
+            sources: ['ruma', 'rumus', 'celis_ladegaard_2008', 'kuster_peters_2018']
             //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
         },
         {
@@ -289,6 +289,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.models.mr_ratio_pois.description',
             format: (v) => String(v ?? 0),
             scaleMethod: continuousScale,
+            sources: ['celis_ladegaard_2008', 'kuster_peters_2018'],
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true
@@ -319,6 +320,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.models.mr_ratio_pt.description',
             format: (v) => String(v ?? 0),
             scaleMethod: continuousScale,
+            sources: ['celis_ladegaard_2008', 'kuster_peters_2018'],
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true
@@ -348,6 +350,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.models.mr_ratio_schools.description',
             format: (v) => String(v ?? 0),
             scaleMethod: continuousScale,
+            sources: ['celis_ladegaard_2008', 'kuster_peters_2018'],
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true

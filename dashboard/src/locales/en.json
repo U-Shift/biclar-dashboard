@@ -82,7 +82,9 @@
     "BIRD": "BIRD (Almada, Cascais, Lisboa)",
     "LIME": "LIME (Almada, Lisbon, Oeiras)",
     "GIRA": "GIRA (Lisbon)",
-    "dgeec": "Direção-Geral de Estatísticas da Educação e Ciência"
+    "dgeec": "Direção-Geral de Estatísticas da Educação e Ciência",
+    "celis_ladegaard_2008": "Celis and Bølling-Ladegaard (2008)",
+    "kuster_peters_2018": "Küster and Peters (2018)"
   },
   "metrics": {
     "categories": {
