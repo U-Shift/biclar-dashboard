@@ -551,18 +551,52 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             }
         },
         {
-            id: 'pois_n_school_students_{school_type}',
+            id: 'pois_n_{poi_type}',
+            id_variations: {
+                'poi_type': {
+                    options_tags: [
+                        // Schools
+                        'poi_total',
+                        'poi_schools',
+                        'poi_faculties',
+                        'poi_retail_large',
+                        'poi_retail_small',
+                        'poi_healthcare_centres',
+                        'poi_cultural',
+                        'poi_hotel_hostel',
+                        'poi_cafe_restaurant',
+                        'poi_sports_facility',
+                        'poi_office_industry',
+                        'poi_recreational_area',
+                        'poi_bar'
+                    ]
+                },
+
+            },
+            icon: '📌',
+            label: 'metrics.land_use.pois_n.label',
+            description: 'metrics.land_use.pois_n.description',
+            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['osm'],
+        },
+        {
+            id: 'pois_n_students_{school_type}',
             id_variations: {
                 'school_type': {
-                    options_icons: [
-                        { id: 'all', label: 'filters_global.all', suffix: '', icon: '🌐' },
-                        { id: 'childcare', label: 'metrics.land_use.pois_n_school_students.childcare', suffix: 'childcare', icon: '🍼' },
-                        { id: 'primary_school', label: 'metrics.land_use.pois_n_school_students.primary_school', suffix: 'primary_school', icon: '🍎' },
-                        { id: 'secondary_school', label: 'metrics.land_use.pois_n_school_students.secondary_school', suffix: 'secondary_school', icon: '📚' }
+                    options_tags: [
+                        // Schools
+                        'total',
+                        'school_childcare',
+                        'school_primary_school',
+                        'school_secondary_school',
+                        'university'
                     ]
-                }
+                },
+
             },
-            icon: '🎒',
+            icon: '✏️',
             label: 'metrics.land_use.pois_n_school_students.label',
             description: 'metrics.land_use.pois_n_school_students.description',
             format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
@@ -570,24 +604,6 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.WhiteToGreen,
             sources: ['dgeec'],
             period: 'metrics.land_use.pois_n_school_students.period',
-            filterValues: (properties, _value, _filter, variations) => {
-                if (variations?.['school_type'] && variations['school_type'].includes("childcare")) return properties?.pois_n_school_students_childcare > 0;
-                if (variations?.['school_type'] && variations['school_type'].includes("primary_school")) return properties?.pois_n_school_students_primary_school > 0;
-                if (variations?.['school_type'] && variations['school_type'].includes("secondary_school")) return properties?.pois_n_school_students_secondary_school > 0;
-                return properties?.pois_n_school_students > 0;
-            }
-        },
-        {
-            id: 'pois_n_university_students',
-            icon: '🎓',
-            label: 'metrics.land_use.pois_n_university_students.label',
-            description: 'metrics.land_use.pois_n_university_students.description',
-            format: (v, _min, _max, _filter) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['dgeec'],
-            period: 'metrics.land_use.pois_n_school_students.period',
-            filterValues: (properties) => properties?.pois_n_university_students > 0
         },
     ],
     'metrics.categories.contextual': [

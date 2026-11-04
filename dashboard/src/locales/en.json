@@ -201,12 +201,13 @@
         "label": "Buildings",
         "description": "Number of buildings"
       },
+      "pois_n": {
+        "label": "Number of POIs",
+        "description": "Number of points of interest, disaggregated by category"
+      },
       "pois_n_school_students": {
         "label": "School students",
         "description": "Number of students for schools (public and private)",
-        "childcare": "Childcare",
-        "primary_school": "Primary school",
-        "secondary_school": "Secondary school",
         "period": "School year 2024/25"
       },
       "pois_n_university_students": {
@@ -409,6 +410,8 @@
     "total": "Total",
     "residential": "Residential",
     "poi_total": "All categories",
+    "poi_schools": "Schools",
+    "poi_faculties": "Faculties",
     "poi_retail_large": "Large Retail",
     "poi_retail_small": "Small Retail",
     "poi_healthcare_centres": "Healthcare Centres",
@@ -429,7 +432,11 @@
     "schools_childcare": "Childcare",
     "schools_primary": "Primary Schools",
     "schools_secondary": "Secondary Schools",
-    "schools_university": "Universities"
+    "schools_university": "Universities",
+    "school_childcare": "Childcare",
+    "school_primary_school": "Primary school",
+    "school_secondary_school": "Secondary school",
+    "university": "University"
   },
   "tutorial": {
     "title_welcome": "Welcome!",
