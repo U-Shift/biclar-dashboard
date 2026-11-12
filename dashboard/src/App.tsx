@@ -114,38 +114,69 @@ const Dashboard = () => {
     }, []);
 
     const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+    const maplibreLayerRef = useRef<any>(null);
+    const tileLayerRef = useRef<L.TileLayer | null>(null);
 
     useEffect(() => {
         if (!mapInstance) return;
 
         const layerDef = MAP_LAYERS.find(l => l.id === mapStyle) || MAP_LAYERS[0];
-        let tileLayerObj: L.Layer;
 
         if (layerDef.id === 'carto') {
-            const styleUrl = (layerDef as any).getUrl ? (layerDef as any).getUrl(isDarkMode) : layerDef.url;
-            tileLayerObj = (L as any).maplibreGL({
-                style: styleUrl,
-            }).addTo(mapInstance);
+            if (tileLayerRef.current) {
+                mapInstance.removeLayer(tileLayerRef.current);
+                tileLayerRef.current = null;
+            }
 
-            const container = (tileLayerObj as any).getContainer?.();
+            const styleUrl = (layerDef as any).getUrl ? (layerDef as any).getUrl(isDarkMode) : layerDef.url;
+            if (!maplibreLayerRef.current) {
+                maplibreLayerRef.current = (L as any).maplibreGL({
+                    style: styleUrl,
+                }).addTo(mapInstance);
+            } else {
+                const glMap = maplibreLayerRef.current.getMaplibreMap?.();
+                if (glMap && typeof glMap.setStyle === 'function') {
+                    glMap.setStyle(styleUrl);
+                }
+            }
+
+            const container = maplibreLayerRef.current.getContainer?.();
             if (container) {
                 container.style.opacity = String((layerDef as any).getOpacity ? (layerDef as any).getOpacity(isDarkMode) : 1);
             }
         } else {
+            if (maplibreLayerRef.current) {
+                mapInstance.removeLayer(maplibreLayerRef.current);
+                maplibreLayerRef.current = null;
+            }
+            if (tileLayerRef.current) {
+                mapInstance.removeLayer(tileLayerRef.current);
+                tileLayerRef.current = null;
+            }
+
             const url = 'getUrl' in layerDef && typeof (layerDef as any).getUrl === 'function'
                 ? (layerDef as any).getUrl(isDarkMode)
                 : layerDef.url;
-            tileLayerObj = L.tileLayer(url!, {
+            tileLayerRef.current = L.tileLayer(url!, {
                 attribution: typeof layerDef.attribution === 'function' ? (layerDef.attribution as any)(isDarkMode) : layerDef.attribution,
             }).addTo(mapInstance);
         }
+    }, [mapInstance, mapStyle, isDarkMode]);
 
+    useEffect(() => {
         return () => {
-            if (mapInstance && tileLayerObj) {
-                mapInstance.removeLayer(tileLayerObj);
+            if (mapInstance) {
+                if (maplibreLayerRef.current) {
+                    mapInstance.removeLayer(maplibreLayerRef.current);
+                    maplibreLayerRef.current = null;
+                }
+                if (tileLayerRef.current) {
+                    mapInstance.removeLayer(tileLayerRef.current);
+                    tileLayerRef.current = null;
+                }
             }
         };
-    }, [mapInstance, mapStyle, isDarkMode]);
+    }, [mapInstance]);
 
     const [dataState, setDataState] = useState<{
         geo: Record<string, any>; limits: any; loading: boolean; error: string | null;
