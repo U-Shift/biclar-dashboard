@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, MUNICIPALITIES_LIMITS_FILE } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor, mergeGeoJsonWithCsv } from './utils';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, hasMetricInPropertyKeys, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor, mergeGeoJsonWithCsv } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
     const map = useMap();
@@ -237,8 +237,12 @@ const Dashboard = () => {
         }
 
         const filter = GLOBAL_FILTERS.find(f => f.id === filterId);
-        if (!filter || !dataState.geo[level as ViewLevel] || !checkMetric) return false;
-        const features = dataState.geo[level as ViewLevel]?.features;
+        const levelGeo = dataState.geo[level as ViewLevel];
+        if (!filter || !levelGeo || !checkMetric) return false;
+        if (levelGeo._propertyKeys && !checkMetric.filterValues) {
+            return hasMetricInPropertyKeys(levelGeo._propertyKeys, checkMetric, filter, level, selectedVariations);
+        }
+        const features = levelGeo.features;
         if (!features || !features.length) return false;
 
         // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
@@ -255,14 +259,19 @@ const Dashboard = () => {
             checkMetric = FLAT_METRICS.find(m => m.default) || metric;
         }
 
-        if (!dataState.geo[level as ViewLevel] || !checkMetric) return false;
-        const features = dataState.geo[level as ViewLevel]?.features;
+        const levelGeo = dataState.geo[level as ViewLevel];
+        if (!levelGeo || !checkMetric) return false;
+        const features = levelGeo.features;
         if (!features || !features.length) return false;
 
         let filterToUse = filter;
         if (!filterToUse) {
             const isAvailable = isGlobalFilterAvailable(selectedGlobalFilterId, metricId, level);
             filterToUse = isAvailable ? selectedGlobalFilter : (GLOBAL_FILTERS.find(f => isGlobalFilterAvailable(f.id, metricId, level)) || { id: '', suffix: '' });
+        }
+
+        if (levelGeo._propertyKeys && !checkMetric.filterValues) {
+            return hasMetricInPropertyKeys(levelGeo._propertyKeys, checkMetric, filterToUse, level, selectedVariations);
         }
 
         // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
@@ -321,8 +330,9 @@ const Dashboard = () => {
     }, [selectedMetricId, selectedVariations, effectiveGlobalFilter, selectedMetric]);
 
     const discoveredVariations = useMemo(() => {
-        const features = dataState.geo[effectiveLevel]?.features || [];
-        return discoverMetricVariations(selectedMetric, features);
+        const levelGeo = dataState.geo[effectiveLevel];
+        const features = levelGeo?.features || [];
+        return discoverMetricVariations(selectedMetric, features, levelGeo?._propertyKeys);
     }, [selectedMetric, dataState.geo, effectiveLevel]);
 
     // Automatically enforce valid variations for the selected metric

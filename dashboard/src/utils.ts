@@ -193,32 +193,9 @@ export const getLegendGradient = (metric: MetricDef, domain: number[], isColorBl
 };
 
 /**
- * Resolves the value of a metric from a feature's properties, considering 
- * global filter suffixes (e.g. modes, bounds), fallbacks, and optional alternative IDs.
+ * Resolves the candidate property keys for a metric given filter, viewLevel, and variations.
  */
-export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
-    if (!properties) return undefined;
-
-    const filterId = filter?.id;
-    const effectiveVariations: Record<string, string> = { ...variations };
-    if (metric.id_variations) {
-        Object.entries(metric.id_variations).forEach(([group, groupDef]) => {
-            if (!effectiveVariations[group]) {
-                effectiveVariations[group] = Array.isArray(groupDef)
-                    ? groupDef[0]
-                    : (groupDef.options_icons ? groupDef.options_icons[0].id : '');
-            }
-        });
-    }
-
-    if (metric.url) {
-        const val = properties[metric.id];
-        if (metric.filterValues && !metric.filterValues(properties, val, filterId, effectiveVariations)) {
-            return undefined;
-        }
-        return val;
-    }
-
+export const getMetricCandidateIds = (metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): string[] => {
     const resolveId = (id: string, useSuffixIfAvailable: boolean = true) => {
         let resolved = id;
         if (metric.id_variations) {
@@ -268,9 +245,53 @@ export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?
 
     const candidate1 = resolveId(metric.id, true) + (filter.suffix || '');
     const candidate2 = resolveId(metric.id, false) + (filter.suffix || '');
-    const idsToTry = Array.from(new Set([candidate1, candidate2])).filter(Boolean);
+    return candidate1 === candidate2 ? (candidate1 ? [candidate1] : []) : [candidate1, candidate2].filter(Boolean);
+};
 
-    for (const id of idsToTry) {
+/**
+ * Checks in O(1) time whether a metric has matching column(s) in a precomputed Set of property keys.
+ */
+export const hasMetricInPropertyKeys = (propertyKeys: Set<string> | undefined, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): boolean => {
+    if (!propertyKeys || propertyKeys.size === 0) return false;
+    if (metric.url) return true;
+    const idsToTry = getMetricCandidateIds(metric, filter, viewLevel, variations);
+    for (let i = 0; i < idsToTry.length; i++) {
+        if (propertyKeys.has(idsToTry[i])) return true;
+    }
+    return false;
+};
+
+/**
+ * Resolves the value of a metric from a feature's properties, considering 
+ * global filter suffixes (e.g. modes, bounds), fallbacks, and optional alternative IDs.
+ */
+export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
+    if (!properties) return undefined;
+
+    const filterId = filter?.id;
+    const effectiveVariations: Record<string, string> = { ...variations };
+    if (metric.id_variations) {
+        Object.entries(metric.id_variations).forEach(([group, groupDef]) => {
+            if (!effectiveVariations[group]) {
+                effectiveVariations[group] = Array.isArray(groupDef)
+                    ? groupDef[0]
+                    : (groupDef.options_icons ? groupDef.options_icons[0].id : '');
+            }
+        });
+    }
+
+    if (metric.url) {
+        const val = properties[metric.id];
+        if (metric.filterValues && !metric.filterValues(properties, val, filterId, effectiveVariations)) {
+            return undefined;
+        }
+        return val;
+    }
+
+    const idsToTry = getMetricCandidateIds(metric, filter, viewLevel, variations);
+
+    for (let i = 0; i < idsToTry.length; i++) {
+        const id = idsToTry[i];
         if (properties[id] !== undefined) {
             const val = properties[id];
             if (metric.filterValues && !metric.filterValues(properties, val, filterId, effectiveVariations)) {
@@ -283,10 +304,10 @@ export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?
 };
 
 /**
- * Dynamically discovers valid variation combinations for a metric by scanning feature properties.
+ * Dynamically discovers valid variation combinations for a metric by scanning property keys.
  */
-export const discoverMetricVariations = (metric: MetricDef, features: any[]): Record<string, string>[] => {
-    if (!metric.id_variations || !features || features.length === 0) return [];
+export const discoverMetricVariations = (metric: MetricDef, features: any[], cachedPropertyKeys?: Set<string>): Record<string, string>[] => {
+    if (!metric.id_variations || ((!features || features.length === 0) && (!cachedPropertyKeys || cachedPropertyKeys.size === 0))) return [];
 
     const groups = Object.keys(metric.id_variations);
     const validCombinations: Record<string, string>[] = [];
@@ -340,65 +361,70 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
         return new RegExp(`^${regexSource}(?:_.*)?$`);
     });
 
-    // Sample features to find valid keys (scanning all for robustness, but only unique keys)
-    features.forEach(f => {
-        if (!f.properties) return;
-        Object.keys(f.properties).forEach(key => {
-            if (seenKeys.has(key)) return;
-            seenKeys.add(key);
+    const processKey = (key: string) => {
+        if (seenKeys.has(key)) return;
+        seenKeys.add(key);
 
-            for (const regex of regexes) {
-                const match = key.match(regex);
-                if (match && match.groups) {
-                    const combo: Record<string, string> = {};
-                    let allMatched = true;
-                    groups.forEach(g => {
-                        const groupDef = metric.id_variations![g];
-                        const isIconGroup = groupDef && !Array.isArray(groupDef) && groupDef.options_icons;
-                        const optionsGroup = getVariationOptions(groupDef);
-                        if (match.groups![g]) {
-                            const matchedVal = match.groups![g];
-                            if (isIconGroup) {
-                                const found = groupDef.options_icons!.find(o => 
-                                    o.id === matchedVal || 
-                                    o.id.replace(/^_/, '') === matchedVal ||
-                                    o.suffix === `_${matchedVal}` || 
-                                    o.suffix === matchedVal ||
-                                    (o.suffix && o.suffix.replace(/^_/, '') === matchedVal)
-                                );
-                                combo[g] = found ? found.id : matchedVal;
-                            } else {
-                                const found = optionsGroup.find(o => 
-                                    o === matchedVal || 
-                                    o === `_${matchedVal}` ||
-                                    o.replace(/^_/, '') === matchedVal
-                                );
-                                combo[g] = found || matchedVal;
-                            }
+        for (const regex of regexes) {
+            const match = key.match(regex);
+            if (match && match.groups) {
+                const combo: Record<string, string> = {};
+                let allMatched = true;
+                groups.forEach(g => {
+                    const groupDef = metric.id_variations![g];
+                    const isIconGroup = groupDef && !Array.isArray(groupDef) && groupDef.options_icons;
+                    const optionsGroup = getVariationOptions(groupDef);
+                    if (match.groups![g]) {
+                        const matchedVal = match.groups![g];
+                        if (isIconGroup) {
+                            const found = groupDef.options_icons!.find(o => 
+                                o.id === matchedVal || 
+                                o.id.replace(/^_/, '') === matchedVal ||
+                                o.suffix === `_${matchedVal}` || 
+                                o.suffix === matchedVal ||
+                                (o.suffix && o.suffix.replace(/^_/, '') === matchedVal)
+                            );
+                            combo[g] = found ? found.id : matchedVal;
                         } else {
-                            if (isIconGroup) {
-                                const emptySuffixOpt = groupDef.options_icons!.find(o => !o.suffix || o.suffix === '');
-                                if (emptySuffixOpt) combo[g] = emptySuffixOpt.id;
-                                else allMatched = false;
-                            } else {
-                                const emptyOpt = optionsGroup.find(o => o === '' || o === 'all');
-                                if (emptyOpt) combo[g] = emptyOpt;
-                                else allMatched = false;
-                            }
+                            const found = optionsGroup.find(o => 
+                                o === matchedVal || 
+                                o === `_${matchedVal}` ||
+                                o.replace(/^_/, '') === matchedVal
+                            );
+                            combo[g] = found || matchedVal;
                         }
-                    });
+                    } else {
+                        if (isIconGroup) {
+                            const emptySuffixOpt = groupDef.options_icons!.find(o => !o.suffix || o.suffix === '');
+                            if (emptySuffixOpt) combo[g] = emptySuffixOpt.id;
+                            else allMatched = false;
+                        } else {
+                            const emptyOpt = optionsGroup.find(o => o === '' || o === 'all');
+                            if (emptyOpt) combo[g] = emptyOpt;
+                            else allMatched = false;
+                        }
+                    }
+                });
 
-                    if (allMatched) {
-                        const comboKey = Object.entries(combo).sort().map(e => e.join(':')).join('|');
-                        if (!seenCombos.has(comboKey)) {
-                            seenCombos.add(comboKey);
-                            validCombinations.push(combo);
-                        }
+                if (allMatched) {
+                    const comboKey = Object.entries(combo).sort().map(e => e.join(':')).join('|');
+                    if (!seenCombos.has(comboKey)) {
+                        seenCombos.add(comboKey);
+                        validCombinations.push(combo);
                     }
                 }
             }
+        }
+    };
+
+    if (cachedPropertyKeys && cachedPropertyKeys.size > 0) {
+        cachedPropertyKeys.forEach(processKey);
+    } else if (features) {
+        features.forEach(f => {
+            if (!f.properties) return;
+            Object.keys(f.properties).forEach(processKey);
         });
-    });
+    }
 
     // Sort valid combinations based on the metric's predefined options order so the default option comes first
     validCombinations.sort((a, b) => {
@@ -517,42 +543,60 @@ const parseCsvLine = (line: string): string[] => {
 
 /**
  * Parses a CSV string into an array of property objects with automatic number conversion.
+ * Iterates line-by-line without splitting the entire string into an intermediate array of lines.
  */
 export const parseCsvToRecords = (csvText: string): Record<string, any>[] => {
-    const lines = csvText.split(/\r?\n/);
-    if (lines.length < 2) return [];
+    const len = csvText.length;
+    if (len === 0) return [];
 
-    const headers = parseCsvLine(lines[0]).map(h => h.trim().replace(/^"|"$/g, ''));
+    let lineEnd = csvText.indexOf('\n');
+    if (lineEnd === -1) return [];
+
+    const firstLine = csvText.slice(0, lineEnd).replace(/\r$/, '');
+    const headers = parseCsvLine(firstLine).map(h => h.trim().replace(/^"|"$/g, ''));
     const numCols = headers.length;
     const records: Record<string, any>[] = [];
 
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
+    let lineStart = lineEnd + 1;
+    while (lineStart < len) {
+        lineEnd = csvText.indexOf('\n', lineStart);
+        if (lineEnd === -1) lineEnd = len;
 
-        const values = parseCsvLine(line);
-        const row: Record<string, any> = {};
+        let end = lineEnd;
+        if (end > lineStart && csvText.charCodeAt(end - 1) === 13) {
+            end--;
+        }
 
-        for (let j = 0; j < numCols; j++) {
-            const raw = values[j];
-            if (raw === undefined || raw === '' || raw === 'NA' || raw === 'null' || raw === 'NaN') {
-                continue;
-            }
-            if (raw.startsWith('"') && raw.endsWith('"')) {
-                row[headers[j]] = raw.slice(1, -1);
-            } else {
-                const num = Number(raw);
-                row[headers[j]] = !isNaN(num) ? num : raw;
+        if (end > lineStart) {
+            const line = csvText.slice(lineStart, end).trim();
+            if (line) {
+                const values = parseCsvLine(line);
+                const row: Record<string, any> = {};
+
+                for (let j = 0; j < numCols; j++) {
+                    const raw = values[j];
+                    if (raw === undefined || raw === '' || raw === 'NA' || raw === 'null' || raw === 'NaN') {
+                        continue;
+                    }
+                    if (raw.startsWith('"') && raw.endsWith('"')) {
+                        row[headers[j]] = raw.slice(1, -1);
+                    } else {
+                        const num = Number(raw);
+                        row[headers[j]] = !isNaN(num) ? num : raw;
+                    }
+                }
+                records.push(row);
             }
         }
-        records.push(row);
+
+        lineStart = lineEnd + 1;
     }
 
     return records;
 };
 
 /**
- * Merges GeoJSON geometries with metric attributes parsed from a CSV file.
+ * Merges GeoJSON geometries with metric attributes parsed from a CSV file in-place.
  * Matches features to CSV rows by `id` (or fallback identifiers `mid`, `pid`, `gid`, `h3_address`, or row index).
  */
 export const mergeGeoJsonWithCsv = (geoJson: any, csvText: string): any => {
@@ -564,7 +608,8 @@ export const mergeGeoJsonWithCsv = (geoJson: any, csvText: string): any => {
     const byId = new Map<string, Record<string, any>>();
     const byAltKey = new Map<string, Record<string, any>>();
 
-    for (const row of rows) {
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
         if (row.id !== undefined && row.id !== null) {
             byId.set(String(row.id), row);
         }
@@ -574,34 +619,51 @@ export const mergeGeoJsonWithCsv = (geoJson: any, csvText: string): any => {
         }
     }
 
-    const sameLength = geoJson.features.length === rows.length;
+    const features = geoJson.features;
+    const sameLength = features.length === rows.length;
 
-    const features = geoJson.features.map((f: any, idx: number) => {
-        const props = f.properties || {};
+    for (let idx = 0; idx < features.length; idx++) {
+        const f = features[idx];
+        const props = f.properties;
         let matchedRow: Record<string, any> | undefined;
 
-        if (props.id !== undefined && props.id !== null) {
-            matchedRow = byId.get(String(props.id)) || byAltKey.get(String(props.id));
-        }
-        if (!matchedRow) {
-            const alt = props.h3_address ?? props.gid ?? props.pid ?? props.mid;
-            if (alt !== undefined && alt !== null) {
-                matchedRow = byAltKey.get(String(alt)) || byId.get(String(alt));
+        if (props) {
+            if (props.id !== undefined && props.id !== null) {
+                matchedRow = byId.get(String(props.id)) || byAltKey.get(String(props.id));
+            }
+            if (!matchedRow) {
+                const alt = props.h3_address ?? props.gid ?? props.pid ?? props.mid;
+                if (alt !== undefined && alt !== null) {
+                    matchedRow = byAltKey.get(String(alt)) || byId.get(String(alt));
+                }
             }
         }
         if (!matchedRow && sameLength) {
             matchedRow = rows[idx];
         }
 
-        return {
-            ...f,
-            properties: matchedRow ? { ...props, ...matchedRow } : props
-        };
-    });
+        if (matchedRow) {
+            if (props) {
+                f.properties = Object.assign(matchedRow, props);
+            } else {
+                f.properties = matchedRow;
+            }
+        }
+    }
 
-    return {
-        ...geoJson,
-        features
-    };
+    const propertyKeys = new Set<string>();
+    for (let idx = 0; idx < features.length; idx++) {
+        const p = features[idx].properties;
+        if (p) {
+            for (const k in p) {
+                if (p[k] !== undefined) {
+                    propertyKeys.add(k);
+                }
+            }
+        }
+    }
+    geoJson._propertyKeys = propertyKeys;
+
+    return geoJson;
 };
 
