@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle } from 'lucide-react';
+import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle, Loader2 } from 'lucide-react';
 import { MetricDef } from '../types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, GLOBAL_FILTERS } from '../constants';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +45,7 @@ interface SidebarLeftProps {
     onZoomIn?: () => void;
     onZoomOut?: () => void;
     onDownloadAHP?: () => void;
+    isLoadingRawLayer?: boolean;
 }
 
 const AuxiliaryDataRenderer: React.FC<{
@@ -92,7 +93,8 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     nutFilter, setNutFilter, setViewLevel, setSelectedGlobalFilterId,
     isMetricAvailable, isGlobalFilterAvailable,
     mapStyle, setMapStyle,
-    onZoomIn, onZoomOut, onDownloadAHP
+    onZoomIn, onZoomOut, onDownloadAHP,
+    isLoadingRawLayer
 }) => {
     const activeFilter = selectedGlobalFilter || { id: 'all' };
     const setActiveFilterId = setSelectedGlobalFilterId;
@@ -365,10 +367,13 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                 ? 'bg-primary text-white shadow-lg ring-1 ring-secondary-yellow/30'
                                                                 : (isDarkMode ? 'hover:bg-neutral-800 text-neutral-500' : 'hover:bg-neutral-100 text-neutral-500')}`}
                                                         >
-                                                            <span className="flex items-center gap-3">
+                                                            <span className="flex items-center gap-3 min-w-0">
                                                                 <span>{m.icon}</span>
                                                                 <span className="truncate">{t(m.label)}</span>
                                                             </span>
+                                                            {isSelected && m.url && isLoadingRawLayer && (
+                                                                <Loader2 className="w-4 h-4 animate-spin flex-shrink-0 ml-2" />
+                                                            )}
                                                         </button>
 
                                                         {isSelected && m.id_variations && Object.values(m.id_variations).some(def => Array.isArray(def) || !def.options_icons) && (

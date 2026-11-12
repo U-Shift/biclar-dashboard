@@ -95,7 +95,8 @@ const Dashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [showLegendMobile, setShowLegendMobile] = useState(false);
     const [rawLayersData, setRawLayersData] = useState<Record<string, any>>({});
-    const [isLoadingRawLayer, setIsLoadingRawLayer] = useState(false);
+    const [loadingRawUrls, setLoadingRawUrls] = useState<Record<string, boolean>>({});
+    const [rawUrlsError, setRawUrlsError] = useState<Record<string, boolean>>({});
     const highlightedRawLayerRef = useRef<any>(null);
 
     useEffect(() => {
@@ -199,20 +200,32 @@ const Dashboard = () => {
     const selectedGlobalFilter = useMemo(() => GLOBAL_FILTERS.find(f => f.id === selectedGlobalFilterId) || GLOBAL_FILTERS[0], [selectedGlobalFilterId]);
 
     useEffect(() => {
-        if (selectedMetric.url && !rawLayersData[selectedMetric.url]) {
-            setIsLoadingRawLayer(true);
-            fetch(selectedMetric.url)
+        const url = selectedMetric.url;
+        if (url && !rawLayersData[url] && !loadingRawUrls[url] && !rawUrlsError[url]) {
+            setLoadingRawUrls(prev => ({ ...prev, [url]: true }));
+            fetch(url)
                 .then(r => {
                     if (!r.ok) throw new Error(`HTTP ${r.status}`);
                     return r.json();
                 })
                 .then(d => {
-                    setRawLayersData(prev => ({ ...prev, [selectedMetric.url!]: d }));
+                    setRawLayersData(prev => ({ ...prev, [url]: d }));
                 })
-                .catch(e => console.error("Error loading raw data layer:", e))
-                .finally(() => setIsLoadingRawLayer(false));
+                .catch(e => {
+                    console.error("Error loading raw data layer:", e);
+                    setRawUrlsError(prev => ({ ...prev, [url]: true }));
+                })
+                .finally(() => {
+                    setLoadingRawUrls(prev => {
+                        const next = { ...prev };
+                        delete next[url];
+                        return next;
+                    });
+                });
         }
-    }, [selectedMetric.url, rawLayersData]);
+    }, [selectedMetric.url, rawLayersData, loadingRawUrls, rawUrlsError]);
+
+    const isLoadingRawLayer = Boolean(selectedMetric.url && !rawLayersData[selectedMetric.url] && !rawUrlsError[selectedMetric.url]);
 
     // Helper to check if a specific filter is available for a metric at a certain view level
     const isGlobalFilterAvailable = useCallback((filterId: string, metricId: string, level: string) => {
@@ -739,6 +752,7 @@ const Dashboard = () => {
                 onZoomIn={() => mapInstance?.zoomIn()}
                 onZoomOut={() => mapInstance?.zoomOut()}
                 onDownloadAHP={handleDownloadAHP}
+                isLoadingRawLayer={isLoadingRawLayer}
             />
 
             <Tutorial
@@ -912,6 +926,18 @@ const Dashboard = () => {
                     </button>
                 )}
 
+                {isLoadingRawLayer && (
+                    <div className="absolute inset-0 z-[1005] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none transition-opacity duration-300">
+                        <div className={`px-6 py-4 rounded-2xl backdrop-blur-xl shadow-2xl border flex items-center gap-3.5 ${isDarkMode ? 'bg-neutral-900/95 border-neutral-800 text-neutral-100' : 'bg-white/95 border-neutral-200 text-neutral-800'}`}>
+                            <Loader2 className={`w-6 h-6 animate-spin ${isDarkMode ? 'text-secondary-cyan' : 'text-primary'}`} />
+                            <div className="flex flex-col">
+                                <span className="text-xs font-black uppercase tracking-widest">{t('common.loading', 'Loading...')}</span>
+                                <span className="text-[11px] font-bold opacity-50">{t(selectedMetric.label)}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="absolute inset-0">
                     <MapContainer center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
                         <MapRefCapture setMap={setMapInstance} />
@@ -919,13 +945,6 @@ const Dashboard = () => {
                         <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
                         {!isMobile && <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} />}
-
-                        {isLoadingRawLayer && (
-                            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[1200] px-4 py-2 rounded-full backdrop-blur-md shadow-xl border flex items-center gap-2 bg-white/90 border-neutral-200 text-neutral-800 text-xs font-bold pointer-events-none">
-                                <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                                <span>{t('common.loading', 'Carregando camada...')}</span>
-                            </div>
-                        )}
 
                         {!selectedMetric.url && computedGeoData?.features && (
                             <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveGlobalFilter.id}-${isDarkMode}-${isColorBlindMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
