@@ -1,12 +1,23 @@
-cff-version: 1.1.0
-message: "If you use this software, please cite it as below."
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  U-Shift/biclar-dashboard: an innovative tool for the
+  identification of priority locations for bicycle parking
+  equipment installation
+message: 'If you use this software, please cite it as below.'
+type: software
 authors:
-- family-names: F. Matos
-  given-names: Gonçalo
-  orcid: https://orcid.org/0009-0001-3489-1732
-- family-names: Félix
-  given-names: Rosa
-  orcid: https://orcid.org/0000-0002-5642-6006
-title: U-Shift/biclaR: Strategic cycle infrastructure planning tool
-version: 1.0
-date-released: 2026-04-29
+  - family-names: F. Matos
+    given-names: Gonçalo
+    orcid: 'https://orcid.org/0009-0001-3489-1732'
+  - family-names: Félix
+    given-names: Rosa
+    orcid: 'https://orcid.org/0000-0002-5642-6006'
+repository-code: 'https://github.com/U-Shift/biclar-dashboard'
+keywords:
+  - Cycling infrastructure
+  - Bicycle parking
+  - Decision support tools
+license: GPL-3.0
