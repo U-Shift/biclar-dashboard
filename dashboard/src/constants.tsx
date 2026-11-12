@@ -111,8 +111,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id_variations: {
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
@@ -129,8 +129,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id_variations: {
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
@@ -164,8 +164,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 },
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
@@ -194,8 +194,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 },
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
@@ -223,8 +223,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 },
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
@@ -245,8 +245,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id_variations: {
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
@@ -279,8 +279,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 },
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
@@ -310,8 +310,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 },
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
@@ -340,8 +340,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 },
                 'min_max': {
                     options_icons: [
-                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                         { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
                     ]
                 }
             },
