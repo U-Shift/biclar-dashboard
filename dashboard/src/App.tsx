@@ -939,7 +939,7 @@ const Dashboard = () => {
                 )}
 
                 <div className="absolute inset-0">
-                    <MapContainer center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
+                    <MapContainer preferCanvas={true} center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
                         <MapRefCapture setMap={setMapInstance} />
                         <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
                         <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
@@ -1125,7 +1125,7 @@ const Dashboard = () => {
                             </Pane>
                         )}
 
-                        <Pane name="limits-pane" style={{ zIndex: 450 }}>
+                        <Pane name="limits-pane" style={{ zIndex: 450, pointerEvents: 'none' }}>
                             {effectiveLevel !== 'municipality' && filteredLimits && (
                                 <GeoJSON key={`limits-${nutFilter}-${isDarkMode}`} data={filteredLimits as any} style={{ fillOpacity: 0, weight: 4, color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }} interactive={false} />
                             )}
