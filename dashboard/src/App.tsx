@@ -386,7 +386,7 @@ const Dashboard = () => {
             const fallbackId = filterAny.suffixFallback !== undefined ? `${dynamicMetricConfig.id}${filterAny.suffixFallback}` : undefined;
             console.log("Computing dynamic IMPT for", dynamicId, "(" + fallbackId + ")", dynamicMetricConfig, effectiveGlobalFilter, weights);
 
-            features = features.map((f: any, i: number) => {
+            features.forEach((f: any, i: number) => {
                 let accumulatedIndex = 0;
                 let totalWeight = 0;
 
@@ -413,14 +413,9 @@ const Dashboard = () => {
                 // Invert index, a lower ranking in aggregated dimensions means more poverty, and therefore a higher IMPT
                 // We normalize by totalWeight to keep the final index in the [0, 100] range
                 const computedIndex = totalWeight > 0 ? (100 * totalWeight - accumulatedIndex) / totalWeight : undefined;
-
-                return {
-                    ...f,
-                    properties: {
-                        ...f.properties,
-                        [dynamicId]: computedIndex
-                    }
-                };
+                if (f.properties) {
+                    f.properties[dynamicId] = computedIndex;
+                }
             });
         }
 
@@ -514,7 +509,7 @@ const Dashboard = () => {
     }, [computedGeoData, effectiveGlobalFilter, selectedVariations, selectedMetricId, effectiveLevel]);
 
 
-    const getStyle = (feature: any) => {
+    const getStyle = useCallback((feature: any) => {
         const val = getMetricValue(feature.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
@@ -525,45 +520,84 @@ const Dashboard = () => {
             fillOpacity: isSelected ? 3 : 0.75,
             dashArray: (effectiveLevel === 'freguesia' && !isSelected) ? '3' : '',
         };
+    }, [selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, selectedFeature, currentDomain, isColorBlindMode]);
+
+    const tooltipContextRef = useRef({
+        selectedMetric,
+        effectiveGlobalFilter,
+        effectiveLevel,
+        selectedVariations,
+        currentDomain,
+        isColorBlindMode,
+        parentLookup: dataState.parentLookup,
+        t
+    });
+    tooltipContextRef.current = {
+        selectedMetric,
+        effectiveGlobalFilter,
+        effectiveLevel,
+        selectedVariations,
+        currentDomain,
+        isColorBlindMode,
+        parentLookup: dataState.parentLookup,
+        t
     };
 
-    const onEachFeature = (feature: any, layer: any) => {
-        const props = feature.properties;
-        const val = getMetricValue(props, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
-        const formattedVal = selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id, selectedVariations);
+    const onEachFeature = useCallback((feature: any, layer: any) => {
+        const buildTooltipHtml = () => {
+            const props = feature.properties;
+            const {
+                selectedMetric: metric,
+                effectiveGlobalFilter: filter,
+                effectiveLevel: level,
+                selectedVariations: variations,
+                currentDomain: domain,
+                isColorBlindMode: colorBlind,
+                parentLookup,
+                t: translate
+            } = tooltipContextRef.current;
 
-        const parentLevel = LEVEL_CONFIG[effectiveLevel]?.parent;
-        const parentName = (parentLevel && props.group_id)
-            ? (dataState.parentLookup[`${parentLevel}-${props.group_id}`] || props.group_id)
-            : '';
+            const val = getMetricValue(props, metric, filter, level, variations);
+            const formattedVal = metric.format(val, domain[0], domain[domain.length - 1], filter.id, variations);
 
-        const metricColor = getColor(val, currentDomain, selectedMetric, isColorBlindMode);
-        const contrastColor = getContrastColor(metricColor);
+            const parentLevel = LEVEL_CONFIG[level]?.parent;
+            const parentName = (parentLevel && props.group_id)
+                ? (parentLookup[`${parentLevel}-${props.group_id}`] || props.group_id)
+                : '';
 
-        const isIgnored = isMetricValueIgnored(val, selectedMetric);
+            const metricColor = getColor(val, domain, metric, colorBlind);
+            const contrastColor = getContrastColor(metricColor);
 
-        layer.bindTooltip(`
-            <div style="font-family: sans-serif; padding: 6px; min-width: 140px;">
-                <div style="font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 2px;">${parentName}</div>
-                <div style="font-size: 13px; font-weight: 700; color: #111; line-height: 1.2;">${props.name || props.id}</div>
-                ${!isIgnored ? `
-                <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                    <span style="font-size: 10px; font-weight: 700; color: #444; text-transform: uppercase;">${t(selectedMetric.label)}</span>
-                    <span style="font-size: 11px; font-weight: 700; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.12); white-space: nowrap;">
-                        ${formattedVal}${selectedMetric.unit?.(effectiveGlobalFilter.id, val, selectedVariations) ? ' ' + selectedMetric.unit(effectiveGlobalFilter.id, val, selectedVariations) : ''}
-                    </span>
+            const isIgnored = isMetricValueIgnored(val, metric);
+
+            return `
+                <div style="font-family: sans-serif; padding: 6px; min-width: 140px;">
+                    <div style="font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 2px;">${parentName}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #111; line-height: 1.2;">${props.name || props.id}</div>
+                    ${!isIgnored ? `
+                    <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                        <span style="font-size: 10px; font-weight: 700; color: #444; text-transform: uppercase;">${translate(metric.label)}</span>
+                        <span style="font-size: 11px; font-weight: 700; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.12); white-space: nowrap;">
+                            ${formattedVal}${metric.unit?.(filter.id, val, variations) ? ' ' + metric.unit(filter.id, val, variations) : ''}
+                        </span>
+                    </div>
+                    ` : `<div style="margin-top: 8px; font-size: 9px; font-weight: 700; color: #bbb; text-transform: uppercase;">${translate('common.no_data')}</div>`}
                 </div>
-                ` : `<div style="margin-top: 8px; font-size: 9px; font-weight: 700; color: #bbb; text-transform: uppercase;">${t('common.no_data')}</div>`}
-            </div>
-        `, { sticky: true, opacity: 0.98, direction: 'top', offset: [0, -10] });
+            `;
+        };
 
         layer.on({
+            mouseover: () => {
+                if (!layer.getTooltip()) {
+                    layer.bindTooltip(buildTooltipHtml, { sticky: true, opacity: 0.98, direction: 'top', offset: [0, -10] }).openTooltip();
+                }
+            },
             click: (e: L.LeafletMouseEvent) => {
                 L.DomEvent.stopPropagation(e);
-                setSelectedFeature(props);
+                setSelectedFeature(feature.properties);
             }
         });
-    };
+    }, []);
 
     const toggleSection = (cat: string) => {
         setCollapsedSections(prev => {
@@ -947,19 +981,20 @@ const Dashboard = () => {
                         {!isMobile && <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} />}
 
                         {!selectedMetric.url && computedGeoData?.features && (
-                            <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveGlobalFilter.id}-${isDarkMode}-${isColorBlindMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                            <GeoJSON key={`${effectiveLevel}-${nutFilter}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
 
                         {selectedMetric.url && filteredRawData && (
                             <Pane name="raw-layer-pane" style={{ zIndex: 420 }}>
                                 <GeoJSON
-                                    key={`raw-${selectedMetric.id}-${selectedMetric.url}-${nutFilter}-${isDarkMode}-${isColorBlindMode}`}
+                                    key={`raw-${selectedMetric.id}-${selectedMetric.url}-${nutFilter}`}
                                     data={filteredRawData}
                                     style={(f: any) => {
                                         const val = f?.properties?.[selectedMetric.id];
                                         const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode, f?.properties);
                                         const geomType = f?.geometry?.type;
                                         const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
+                                        const isPoint = geomType === 'Point' || geomType === 'MultiPoint';
                                         if (isLine) {
                                             return {
                                                 color,
@@ -971,7 +1006,7 @@ const Dashboard = () => {
                                         }
                                         return {
                                             fillColor: color,
-                                            weight: 1,
+                                            weight: isPoint ? 1.5 : 1,
                                             opacity: 1,
                                             color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)',
                                             fillOpacity: 0.85
@@ -1008,19 +1043,63 @@ const Dashboard = () => {
                                         return marker;
                                     }}
                                     onEachFeature={(f: any, l: L.Layer) => {
+                                        const buildRawHtml = () => {
+                                            const props = f?.properties || {};
+                                            const {
+                                                selectedMetric: metric,
+                                                effectiveGlobalFilter: filter,
+                                                selectedVariations: variations,
+                                                currentDomain: domain,
+                                                isColorBlindMode: colorBlind,
+                                                t: translate
+                                            } = tooltipContextRef.current;
+
+                                            const val = props[metric.id];
+                                            const name = metric.get_name
+                                                ? metric.get_name(props)
+                                                : (props.name || '');
+                                            const formattedVal = metric.format
+                                                ? metric.format(val, domain[0], domain[domain.length - 1], filter.id, variations)
+                                                : String(val ?? '');
+                                            const unitStr = metric.unit?.(filter.id, val, variations)
+                                                ? ` ${metric.unit(filter.id, val, variations)}`
+                                                : '';
+                                            const color = getRawFeatureColor(val, metric, domain, colorBlind, props);
+
+                                            const details = metric.get_details ? metric.get_details(props) : null;
+                                            const detailsHtml = details && details.length > 0 ? `
+                                                <table style="width: 100%; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 11px; border-collapse: collapse; text-align: left;">
+                                                    <tbody>
+                                                        ${details.map(([label, value]) => `
+                                                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                                                <td style="padding: 3px 6px 3px 0; font-weight: 600; color: #666; white-space: nowrap;">${label}</td>
+                                                                <td style="padding: 3px 0 3px 6px; font-weight: 800; color: #111; text-align: right;">${value}</td>
+                                                            </tr>
+                                                        `).join('')}
+                                                    </tbody>
+                                                </table>
+                                            ` : '';
+
+                                            const contrastColor = getContrastColor(color);
+
+                                            return `
+                                                <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; min-width: 150px; text-align: center; padding: 4px;">
+                                                    ${name ? `<div style="margin-bottom: 4px; font-size: 12px; font-weight: 800; color: #111;">${name}</div>` : ''}
+                                                    <div style="font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase;">
+                                                        ${translate(metric.label)}
+                                                    </div>
+                                                    <div style="margin-top: 6px; margin-bottom: 4px; display: inline-flex; align-items: center; justify-content: center;">
+                                                        <span style="font-size: 12px; font-weight: 800; background-color: ${color}; color: ${contrastColor}; padding: 3px 12px; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.1); white-space: nowrap;">
+                                                            ${formattedVal}${unitStr}
+                                                        </span>
+                                                    </div>
+                                                    ${detailsHtml}
+                                                </div>`;
+                                        };
+
                                         const props = f?.properties || {};
                                         const val = props[selectedMetric.id];
-                                        const name = selectedMetric.get_name
-                                            ? selectedMetric.get_name(props)
-                                            : (props.name || '');
-                                        const formattedVal = selectedMetric.format
-                                            ? selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1], effectiveGlobalFilter.id, selectedVariations)
-                                            : String(val ?? '');
-                                        const unitStr = selectedMetric.unit?.(effectiveGlobalFilter.id, val, selectedVariations)
-                                            ? ` ${selectedMetric.unit(effectiveGlobalFilter.id, val, selectedVariations)}`
-                                            : '';
                                         const color = getRawFeatureColor(val, selectedMetric, currentDomain, isColorBlindMode, props);
-
                                         const geomType = f?.geometry?.type;
                                         const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
                                         const originalStyle = (l as any)._originalStyle || (isLine ? {
@@ -1043,49 +1122,19 @@ const Dashboard = () => {
                                             });
                                         }
 
-                                        const details = selectedMetric.get_details ? selectedMetric.get_details(props) : null;
-                                        const detailsHtml = details && details.length > 0 ? `
-                                            <table style="width: 100%; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 11px; border-collapse: collapse; text-align: left;">
-                                                <tbody>
-                                                    ${details.map(([label, value]) => `
-                                                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                                                            <td style="padding: 3px 6px 3px 0; font-weight: 600; color: #666; white-space: nowrap;">${label}</td>
-                                                            <td style="padding: 3px 0 3px 6px; font-weight: 800; color: #111; text-align: right;">${value}</td>
-                                                        </tr>
-                                                    `).join('')}
-                                                </tbody>
-                                            </table>
-                                        ` : '';
-
-                                        const contrastColor = getContrastColor(color);
-
-                                        const htmlContent = `
-                                            <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; min-width: 150px; text-align: center; padding: 4px;">
-                                                ${name ? `<div style="margin-bottom: 4px; font-size: 12px; font-weight: 800; color: #111;">${name}</div>` : ''}
-                                                <div style="font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase;">
-                                                    ${t(selectedMetric.label)}
-                                                </div>
-                                                <div style="margin-top: 6px; margin-bottom: 4px; display: inline-flex; align-items: center; justify-content: center;">
-                                                    <span style="font-size: 12px; font-weight: 800; background-color: ${color}; color: ${contrastColor}; padding: 3px 12px; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.1); white-space: nowrap;">
-                                                        ${formattedVal}${unitStr}
-                                                    </span>
-                                                </div>
-                                                ${detailsHtml}
-                                            </div>`;
-
-                                        l.bindTooltip(htmlContent, {
-                                            sticky: true,
-                                            direction: 'top',
-                                            offset: [0, -10]
-                                        });
-
-                                        l.bindPopup(htmlContent, {
-                                            offset: [0, -10],
-                                            closeButton: true,
-                                            autoClose: true
-                                        });
-
                                         l.on({
+                                            mouseover: () => {
+                                                if (!(l as any).getTooltip()) {
+                                                    l.bindTooltip(buildRawHtml, {
+                                                        sticky: true,
+                                                        direction: 'top',
+                                                        offset: [0, -10]
+                                                    });
+                                                    if (!(typeof (l as any).isPopupOpen === 'function' && (l as any).isPopupOpen())) {
+                                                        l.openTooltip();
+                                                    }
+                                                }
+                                            },
                                             click: (e: L.LeafletMouseEvent) => {
                                                 L.DomEvent.stopPropagation(e);
                                                 const path = (l as any);
@@ -1100,6 +1149,13 @@ const Dashboard = () => {
                                                 path.bringToFront();
                                                 if (typeof (l as any).closeTooltip === 'function') {
                                                     (l as any).closeTooltip();
+                                                }
+                                                if (!path.getPopup()) {
+                                                    path.bindPopup(buildRawHtml, {
+                                                        offset: [0, -10],
+                                                        closeButton: true,
+                                                        autoClose: true
+                                                    });
                                                 }
                                                 if (typeof (l as any).openPopup === 'function') {
                                                     (l as any).openPopup();
