@@ -150,16 +150,14 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                     options_tags: [
                         // POIS
                         'poi_total',
-                        'poi_retail_large',
-                        'poi_retail_small',
+                        'poi_retail',
                         'poi_healthcare_centres',
                         'poi_cultural',
                         'poi_hotel_hostel',
                         'poi_cafe_restaurant',
                         'poi_sports_facility',
-                        'poi_office_industry',
-                        'poi_recreational_area',
-                        'poi_bar'
+                        'poi_office',
+                        'poi_industry',
                     ]
                 },
                 'min_max': {
@@ -265,16 +263,14 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id_variations: {
                 'category_poi': {
                     options_tags: [
-                        'poi_retail_large',
-                        'poi_retail_small',
+                        'poi_retail',
                         'poi_healthcare_centres',
                         'poi_cultural',
                         'poi_hotel_hostel',
                         'poi_cafe_restaurant',
                         'poi_sports_facility',
-                        'poi_office_industry',
-                        'poi_recreational_area',
-                        'poi_bar'
+                        'poi_office',
+                        'poi_industry',
                     ]
                 },
                 'min_max': {
@@ -562,16 +558,14 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                         'poi_total',
                         'poi_schools',
                         'poi_faculties',
-                        'poi_retail_large',
-                        'poi_retail_small',
+                        'poi_retail',
                         'poi_healthcare_centres',
                         'poi_cultural',
                         'poi_hotel_hostel',
                         'poi_cafe_restaurant',
                         'poi_sports_facility',
-                        'poi_office_industry',
-                        'poi_recreational_area',
-                        'poi_bar'
+                        'poi_office',
+                        'poi_industry',
                     ]
                 },
 
