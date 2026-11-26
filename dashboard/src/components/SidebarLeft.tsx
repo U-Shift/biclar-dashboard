@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle, Loader2, Table2 } from 'lucide-react';
+import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Languages, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle, Loader2, Table2 } from 'lucide-react';
 import { MetricDef } from '../types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, GLOBAL_FILTERS } from '../constants';
 import { useTranslation } from 'react-i18next';
@@ -102,12 +102,10 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     const activeFilter = selectedGlobalFilter || { id: 'all' };
     const setActiveFilterId = setSelectedGlobalFilterId;
     const checkFilterAvailable = isGlobalFilterAvailable;
-    const { t } = useTranslation();
-    /*
+    const { t, i18n } = useTranslation();
     const toggleLanguage = () => {
         i18n.changeLanguage(i18n.language === 'en' ? 'pt' : 'en');
     };
-    */
 
     const [activeTab, setActiveTab] = useState<'index' | 'indicators'>('index');
 
@@ -250,13 +248,11 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                     {isColorBlindMode ? <Eye className="w-5 h-5 text-secondary-green" /> : <EyeOff className="w-5 h-5" />}
                                 </button>
                             </Tooltip>
-                            {/*
                             <Tooltip content={i18n.language === 'en' ? 'Português' : 'English'} isDarkMode={true}>
                                 <button data-tour="language-toggle" onClick={toggleLanguage} className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
                                     <Languages className="w-5 h-5" />
                                 </button>
                             </Tooltip>
-                            */}
                             <Tooltip content={t('tooltips.attribute_table')} isDarkMode={true}>
                                 <button
                                     data-tour="attribute-table-btn"
