@@ -42,7 +42,16 @@ export type MetricDef = {
     sources?: string[];
     period?: string;
     unit?: (filter: GlobalFilterId, value?: number, variations?: Record<string, string>) => string | undefined;
+    multiplier?: {
+        label: string; // Translation key for the multiplier input label (e.g. 'multipliers.bike_racks')
+        defaultValue?: number; // Default multiplier value (defaults to 1)
+        min?: number; // Minimum allowed value (defaults to 1)
+        max?: number; // Optional maximum allowed value
+        step?: number; // Numeric input step (defaults to 1)
+        unit?: (multiplier: number, filter: GlobalFilterId, value?: number, variations?: Record<string, string>) => string | undefined; // Optional dynamic unit formatter when multiplier is enabled
+    };
     default?: boolean; // Show by default
+    warning?: boolean | string; // Show a warning icon next to the metric in the sidebar list (true for default warning tooltip, or a translation key/message)
     // Display
     scaleMethod?: ScaleMethod;
     scaleMinEqualsMax?: boolean; // If true, the scale will be [a,b], such that a = -b and |a| = |b| and the midpoint is 0

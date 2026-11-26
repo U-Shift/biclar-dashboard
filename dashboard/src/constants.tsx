@@ -104,8 +104,14 @@ export const logarithmicScale: ScaleMethod = (values, steps = 5) => {
     return logScale;
 };
 
+// Metric category keys displayed in the first sidebar tab ("Outputs"); all other categories appear in the second tab ("Indicators")
+export const FIRST_TAB_CATEGORIES: string[] = [
+    'metrics.categories.models_mr',
+    'metrics.categories.impacts'
+];
+
 const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
-    // Tab 1 (first only)
+    // Tab 1 (configured via FIRST_TAB_CATEGORIES)
     'metrics.categories.models_mr': [
         {
             id: 'model_mr_parking_total_{min_max}',
@@ -235,6 +241,27 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true
+        }
+    ],
+    'metrics.categories.impacts': [
+        {
+            id: 'impact_perSpot_savedCO2',
+            icon: '💨',
+            label: 'metrics.impacts.savedCO2.label',
+            description: 'metrics.impacts.savedCO2.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            unit: () => "g CO₂e / bike rack / year",
+            warning: 'common.dummy_data_warning',
+            multiplier: {
+                label: 'multipliers.bike_racks',
+                defaultValue: 1,
+                min: 1,
+                step: 1,
+                unit: (n) => n === 1 ? "g CO₂e / bike rack / year" : `g CO₂e / ${n} bike racks / year`,
+            },
+            showAlwaysOnDetails: true,
         }
     ],
     // Tab 2

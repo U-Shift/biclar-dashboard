@@ -14,7 +14,8 @@
     "fix": "Corrigir",
     "no_data": "Sem dados",
     "source": "Fonte",
-    "period": "Período"
+    "period": "Período",
+    "dummy_data_warning": "Valores fictícios (dummy) apenas para validação de UX"
   },
   "tooltips": {
     "toggle_theme": "Alternar Tema",
@@ -92,7 +93,14 @@
       "contextual": "Dados contextuais",
       "mobility": "Mobilidade",
       "raw": "Dados geográficos",
-      "models_mr": "Modelo de Rácios Mínimos"
+      "models_mr": "Modelo de Rácios Mínimos",
+      "impacts": "Impactos Estimados"
+    },
+    "impacts": {
+      "savedCO2": {
+        "label": "Emissões de CO₂ poupadas",
+        "description": "Estimativa de emissões de CO₂e poupadas por ano por suporte de bicicleta instalado. Nota: valores fictícios (dummy) apenas para validação da experiência de utilização."
+      }
     },
     "models": {
       "mr": {
@@ -326,6 +334,9 @@
     "p95": "P95",
     "max": "Máximo",
     "sd": "Desvio Padrão"
+  },
+  "multipliers": {
+    "bike_racks": "Suportes de bicicleta"
   },
   "attribute_table": {
     "title": "Tabela de atributos",

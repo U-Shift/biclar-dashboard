@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Languages, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle, Loader2, Table2 } from 'lucide-react';
+import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Languages, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle, Loader2, Table2, AlertTriangle } from 'lucide-react';
 import { MetricDef } from '../types';
-import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, GLOBAL_FILTERS } from '../constants';
+import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, GLOBAL_FILTERS, FIRST_TAB_CATEGORIES } from '../constants';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './Tooltip';
 import { MapFilterDropdown } from './MapFilterDropdown';
@@ -48,6 +48,8 @@ interface SidebarLeftProps {
     onZoomOut?: () => void;
     onDownloadAHP?: () => void;
     isLoadingRawLayer?: boolean;
+    metricMultipliers?: Record<string, number>;
+    setMetricMultipliers?: React.Dispatch<React.SetStateAction<Record<string, number>>>;
 }
 
 const AuxiliaryDataRenderer: React.FC<{
@@ -97,7 +99,8 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     isMetricAvailable, isGlobalFilterAvailable,
     mapStyle, setMapStyle,
     onZoomIn, onZoomOut, onDownloadAHP,
-    isLoadingRawLayer
+    isLoadingRawLayer,
+    metricMultipliers, setMetricMultipliers
 }) => {
     const activeFilter = selectedGlobalFilter || { id: 'all' };
     const setActiveFilterId = setSelectedGlobalFilterId;
@@ -120,8 +123,8 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     }, [activeTab, collapsedSections, selectedMetric, startTutorial]);
 
     const categories = Object.keys(METRICS);
-    const indexCategories = categories.slice(0, 1);
-    const indicatorCategories = categories.slice(1);
+    const indexCategories = categories.filter(cat => FIRST_TAB_CATEGORIES.includes(cat));
+    const indicatorCategories = categories.filter(cat => !FIRST_TAB_CATEGORIES.includes(cat));
 
     const handleToggle = () => setIsOpen?.(!isOpen);
 
@@ -387,9 +390,19 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                 <span>{m.icon}</span>
                                                                 <span className="truncate">{t(m.label)}</span>
                                                             </span>
-                                                            {isSelected && m.url && isLoadingRawLayer && (
-                                                                <Loader2 className="w-4 h-4 animate-spin flex-shrink-0 ml-2" />
-                                                            )}
+                                                            <span className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+                                                                {m.warning && (
+                                                                    <Tooltip
+                                                                        content={typeof m.warning === 'string' ? t(m.warning) : t('common.dummy_data_warning')}
+                                                                        isDarkMode={true}
+                                                                    >
+                                                                        <AlertTriangle className={`w-3.5 h-3.5 ${isSelected ? 'text-secondary-yellow' : 'text-amber-500'}`} />
+                                                                    </Tooltip>
+                                                                )}
+                                                                {isSelected && m.url && isLoadingRawLayer && (
+                                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                                )}
+                                                            </span>
                                                         </button>
 
                                                         {isSelected && m.id_variations && Object.values(m.id_variations).some(def => Array.isArray(def) || !def.options_icons) && (
@@ -520,6 +533,60 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                         </div>
                                                                     );
                                                                 })}
+                                                            </div>
+                                                        )}
+
+                                                        {isSelected && m.multiplier && (
+                                                            <div className={`mt-2 mb-3 p-3 rounded-2xl ${isDarkMode ? 'bg-neutral-950/50' : 'bg-white/50 border border-neutral-100'}`}>
+                                                                {(() => {
+                                                                    const cfg = m.multiplier!;
+                                                                    const minVal = cfg.min ?? 1;
+                                                                    const maxVal = cfg.max;
+                                                                    const stepVal = cfg.step ?? 1;
+                                                                    const defaultVal = cfg.defaultValue ?? 1;
+                                                                    const currentVal = metricMultipliers?.[m.id] ?? defaultVal;
+                                                                    const setVal = (next: number) => {
+                                                                        const clamped = maxVal !== undefined ? Math.min(maxVal, Math.max(minVal, next)) : Math.max(minVal, next);
+                                                                        setMetricMultipliers?.(prev => ({ ...prev, [m.id]: clamped }));
+                                                                    };
+                                                                    return (
+                                                                        <div className="flex items-center justify-between gap-2">
+                                                                            <label className={`text-[10px] font-black uppercase tracking-widest opacity-60 ${isDarkMode ? 'text-neutral-300' : 'text-neutral-600'}`}>
+                                                                                {t(cfg.label)}
+                                                                            </label>
+                                                                            <div className="flex items-center gap-1">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => setVal(currentVal - stepVal)}
+                                                                                    disabled={currentVal <= minVal}
+                                                                                    className={`w-7 h-7 rounded-lg text-xs font-black flex items-center justify-center border transition-colors disabled:opacity-35 ${isDarkMode ? 'bg-neutral-900 border-neutral-700 text-neutral-200 hover:bg-neutral-800' : 'bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-100'}`}
+                                                                                >
+                                                                                    −
+                                                                                </button>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    min={minVal}
+                                                                                    max={maxVal}
+                                                                                    step={stepVal}
+                                                                                    value={currentVal}
+                                                                                    onChange={(e) => {
+                                                                                        const parsed = Number(e.target.value);
+                                                                                        if (!isNaN(parsed)) setVal(parsed);
+                                                                                    }}
+                                                                                    className={`w-16 h-7 px-2 text-xs font-bold text-center tabular-nums rounded-lg border outline-none ${isDarkMode ? 'bg-neutral-900 border-neutral-700 text-neutral-100 focus:border-secondary-yellow/60' : 'bg-white border-neutral-200 text-neutral-900 focus:border-primary/50'}`}
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => setVal(currentVal + stepVal)}
+                                                                                    disabled={maxVal !== undefined && currentVal >= maxVal}
+                                                                                    className={`w-7 h-7 rounded-lg text-xs font-black flex items-center justify-center border transition-colors disabled:opacity-35 ${isDarkMode ? 'bg-neutral-900 border-neutral-700 text-neutral-200 hover:bg-neutral-800' : 'bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-100'}`}
+                                                                                >
+                                                                                    +
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })()}
                                                             </div>
                                                         )}
 

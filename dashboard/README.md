@@ -38,6 +38,7 @@ The file [`src/constants.tsx`](src/constants.tsx) serves as the central configur
 - **`REGIONS`**: Regional bounding boxes, map centers, default zoom levels, and filtering keys.
 - **`GLOBAL_FILTERS`** (formerly `MODES`): Context-agnostic global filter definitions and column suffixes (e.g. travel modes like `_pt`, `_bike`, `_car`, or bounds/scenarios like `_min`, `_max`).
 - **`THEME_COLORS`** & **`COLORS`**: UI theme tokens and color scale ramps.
+- **`FIRST_TAB_CATEGORIES`**: List of metric category keys displayed in the first sidebar tab (*Outputs*); all remaining categories in `METRIC_DATA` appear in the second tab (*Indicators*).
 - **`METRIC_DATA`** / **`METRICS`**: All indicator and model metric definitions displayed in the dashboard.
 - **`MAP_LAYERS`**: Base map tile providers (Carto/OpenFreeMap, Satellite, OSM).
 
@@ -71,11 +72,13 @@ Each metric object adheres to the `MetricDef` type (defined in [`src/types.ts`](
 | `description` | `string` | Translation key for the tooltip/description (e.g. `'metrics.models.mr.description'`). |
 | `format` | `(v, min, max, filter, variations?) => string` | Formatting function for display values (e.g. `(v) => (v \|\| 0).toFixed(1)` or switching based on `variations?.type`). |
 | `unit` | `(filter, v?, variations?) => string` | Optional. Display unit function (e.g. `() => 'min'`, `() => '%'`, `() => 'km'`). |
+| `multiplier` | `{ label, defaultValue?, min?, max?, step?, unit? }` | Optional. Renders a numeric `−` / input / `+` control in the left sidebar when the metric is selected, multiplying displayed values (map tooltips, legend, area details, regional contrasts, spread stats, and attribute table) by the user-entered quantity *X*. Supports an optional `unit(n, filter, v?, variations?)` formatter to adapt the unit label dynamically. |
 | `scaleMethod` | `ScaleMethod` | Scaling algorithm: `continuousScale`, `equalCountScale`, `equalIntervalScale`, or `logarithmicScale`. |
 | `pallete` | `string[]` | Color ramp array (from `COLORS`, e.g. `COLORS.WhiteToBlue` or `COLORS.Viridis`). |
 | `sources` | `string[]` | Optional. Source keys matched against `sources` in translation files (e.g. `['census', 'osm']`). |
 | `period` | `string` | Optional. Translation key for the data collection/reference period (e.g. `'metrics.contextual.gbfs.period'` or a key under `periods` in translation files). |
 | `default` | `boolean` | Set to `true` to make this the initial selected metric on dashboard load. |
+| `warning` | `boolean \| string` | Optional. Displays a warning icon (`AlertTriangle`) next to the metric in the left sidebar list. Pass `true` for the default warning tooltip (`common.dummy_data_warning`), or a translation key / string for a custom tooltip message. |
 | `showAlwaysOnDetails`| `boolean` | If `true`, this metric appears in the right "Area Details" sidebar even when not currently selected on the map. |
 | `filterValues` | `(properties, value?, filter?, variations?) => boolean` | Optional filter function returning `true` for features/rows to display (e.g. `(props, val, filter, variations) => variations?.group?.includes('percentage') ? props.dasymetric_population_adults > 1 : true`). If `false`, the feature is excluded from scale calculation and treated as having no data for this metric. |
 | `filterColorRamp` | `(properties, value?, filter?, variations?) => boolean` | Optional complementary filter function returning `true` for features/values to include when computing the color ramp scale domain (min/max or quantiles). If `false`, the feature's value is still displayed on the map, tooltips, and charts (clamped to the ramp bounds), but is excluded from the color ramp calculation (e.g. to prevent extreme outliers from skewing the color scale). |
@@ -333,6 +336,10 @@ The Regional Contrasts right sidebar displays **Measures of Central Tendency & S
 
 - On `municipality` and `freguesia` levels, the spread measures appear below the **Highest values** and **Lowest values** charts.
 - On the `hex` (`grid`) level, the Regional Contrasts sidebar displays the spread measures directly when matching `grid` statistics exist for the active metric.
+
+### Filter Performers
+
+The **Regional Contrasts** right sidebar includes a **Filter Performers** control ([`src/components/PerformerFilter.tsx`](src/components/PerformerFilter.tsx)) that restricts the visible polygons on the map (and rows in the Attribute Table) to `All`, `Lowest N`, or `Highest N` areas for the active metric, with a configurable `Top N` input (defaulting to `5` for municipalities, `15` for freguesias, and `100` for grid cells).
 
 ### Attribute Table
 

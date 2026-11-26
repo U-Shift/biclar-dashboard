@@ -14,7 +14,8 @@
     "fix": "Fix",
     "no_data": "No data",
     "source": "Source",
-    "period": "Period"
+    "period": "Period",
+    "dummy_data_warning": "Placeholder/dummy values for UX validation only"
   },
   "tooltips": {
     "toggle_theme": "Toggle Theme",
@@ -92,7 +93,14 @@
       "contextual": "Contextual data",
       "mobility": "Mobility",
       "raw": "Raw data layers",
-      "models_mr": "Minimum Ratios Model"
+      "models_mr": "Minimum Ratios Model",
+      "impacts": "Estimated Impacts"
+    },
+    "impacts": {
+      "savedCO2": {
+        "label": "Saved CO₂ emissions",
+        "description": "Estimated CO₂e emissions saved per year per installed bike rack. Note: placeholder/dummy values for UX validation only."
+      }
     },
     "models": {
       "mr": {
@@ -320,6 +328,9 @@
     "p95": "P95",
     "max": "Max",
     "sd": "Standard Deviation"
+  },
+  "multipliers": {
+    "bike_racks": "Bike racks"
   },
   "attribute_table": {
     "title": "Attribute table",

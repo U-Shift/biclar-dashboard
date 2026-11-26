@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, MUNICIPALITIES_LIMITS_FILE, SUMMARY_STATS_FILE } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, hasMetricInPropertyKeys, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor, mergeGeoJsonWithCsv, parseCsvToRecords } from './utils';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, getMetricUnit, hasMetricInPropertyKeys, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor, mergeGeoJsonWithCsv, parseCsvToRecords } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
     const map = useMap();
@@ -89,6 +89,7 @@ const Dashboard = () => {
     const [showAttributeTable, setShowAttributeTable] = useState(false);
     const [performerFilterMode, setPerformerFilterMode] = useState<PerformerFilterMode>('all');
     const [performerTopN, setPerformerTopN] = useState<number>(15);
+    const [metricMultipliers, setMetricMultipliers] = useState<Record<string, number>>({});
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isColorBlindMode, setIsColorBlindMode] = useState(false);
     const [isAHPModalOpen, setIsAHPModalOpen] = useState(false);
@@ -525,14 +526,14 @@ const Dashboard = () => {
         if (!computedGeoData?.features?.length) return [0, 1];
         const values = computedGeoData.features
             .map((f: any) => ({
-                val: getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations),
+                val: getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, metricMultipliers),
                 props: f.properties
             }))
             .filter(({ val, props }: any) => !isMetricValueExcludedFromColorRamp(val, selectedMetric, props, effectiveGlobalFilter, selectedVariations))
             .map(({ val }: any) => val);
 
         return getMetricDomain(values, selectedMetric);
-    }, [computedGeoData, selectedMetric, filteredRawData, effectiveGlobalFilter, selectedVariations, effectiveLevel]);
+    }, [computedGeoData, selectedMetric, filteredRawData, effectiveGlobalFilter, selectedVariations, effectiveLevel, metricMultipliers]);
 
     // Precompute domains for all metrics shown in details to support dynamic coloring
     const allDomains = useMemo(() => {
@@ -542,7 +543,7 @@ const Dashboard = () => {
             let filterToUse = effectiveGlobalFilter;
             let values = computedGeoData.features
                 .map((f: any) => ({
-                    val: getMetricValue(f.properties, m, filterToUse, effectiveLevel, selectedVariations),
+                    val: getMetricValue(f.properties, m, filterToUse, effectiveLevel, selectedVariations, metricMultipliers),
                     props: f.properties
                 }))
                 .filter(({ val, props }: any) => !isMetricValueExcludedFromColorRamp(val, m, props, filterToUse, selectedVariations))
@@ -550,12 +551,12 @@ const Dashboard = () => {
 
             if (values.length === 0 && m.showAlwaysOnDetails) {
                 const fallbackFilter = GLOBAL_FILTERS.find(f =>
-                    computedGeoData.features.some((feat: any) => !isMetricValueExcludedFromColorRamp(getMetricValue(feat.properties, m, f, effectiveLevel, selectedVariations), m, feat.properties, f, selectedVariations))
+                    computedGeoData.features.some((feat: any) => !isMetricValueExcludedFromColorRamp(getMetricValue(feat.properties, m, f, effectiveLevel, selectedVariations, metricMultipliers), m, feat.properties, f, selectedVariations))
                 );
                 if (fallbackFilter) {
                     values = computedGeoData.features
                         .map((f: any) => ({
-                            val: getMetricValue(f.properties, m, fallbackFilter, effectiveLevel, selectedVariations),
+                            val: getMetricValue(f.properties, m, fallbackFilter, effectiveLevel, selectedVariations, metricMultipliers),
                             props: f.properties
                         }))
                         .filter(({ val, props }: any) => !isMetricValueExcludedFromColorRamp(val, m, props, fallbackFilter, selectedVariations))
@@ -566,7 +567,7 @@ const Dashboard = () => {
             result[m.id] = getMetricDomain(values, m);
         });
         return result;
-    }, [computedGeoData, effectiveGlobalFilter, selectedVariations, selectedMetricId, effectiveLevel]);
+    }, [computedGeoData, effectiveGlobalFilter, selectedVariations, selectedMetricId, effectiveLevel, metricMultipliers]);
 
 
     const { validPerformerCount, visiblePerformerIds } = useMemo(() => {
@@ -617,7 +618,7 @@ const Dashboard = () => {
                 weight: 0,
             };
         }
-        const val = getMetricValue(feature.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
+        const val = getMetricValue(feature.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, metricMultipliers);
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
             fillColor: getColor(val, currentDomain, selectedMetric, isColorBlindMode),
@@ -627,13 +628,14 @@ const Dashboard = () => {
             fillOpacity: isSelected ? 3 : 0.75,
             dashArray: (effectiveLevel === 'freguesia' && !isSelected) ? '3' : '',
         };
-    }, [visiblePerformerIds, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, selectedFeature, currentDomain, isColorBlindMode]);
+    }, [visiblePerformerIds, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, metricMultipliers, selectedFeature, currentDomain, isColorBlindMode]);
 
     const tooltipContextRef = useRef({
         selectedMetric,
         effectiveGlobalFilter,
         effectiveLevel,
         selectedVariations,
+        metricMultipliers,
         currentDomain,
         isColorBlindMode,
         parentLookup: dataState.parentLookup,
@@ -645,6 +647,7 @@ const Dashboard = () => {
         effectiveGlobalFilter,
         effectiveLevel,
         selectedVariations,
+        metricMultipliers,
         currentDomain,
         isColorBlindMode,
         parentLookup: dataState.parentLookup,
@@ -660,13 +663,14 @@ const Dashboard = () => {
                 effectiveGlobalFilter: filter,
                 effectiveLevel: level,
                 selectedVariations: variations,
+                metricMultipliers: multipliers,
                 currentDomain: domain,
                 isColorBlindMode: colorBlind,
                 parentLookup,
                 t: translate
             } = tooltipContextRef.current;
 
-            const val = getMetricValue(props, metric, filter, level, variations);
+            const val = getMetricValue(props, metric, filter, level, variations, multipliers);
             const formattedVal = metric.format(val, domain[0], domain[domain.length - 1], filter.id, variations);
 
             const parentLevel = LEVEL_CONFIG[level]?.parent;
@@ -678,17 +682,21 @@ const Dashboard = () => {
             const contrastColor = getContrastColor(metricColor);
 
             const isIgnored = isMetricValueIgnored(val, metric);
+            const unitText = getMetricUnit(metric, filter.id, val, variations, multipliers);
 
             return `
                 <div style="font-family: sans-serif; padding: 6px; min-width: 140px;">
                     <div style="font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 2px;">${parentName}</div>
                     <div style="font-size: 13px; font-weight: 700; color: #111; line-height: 1.2;">${props.name || props.id}</div>
                     ${!isIgnored ? `
-                    <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                        <span style="font-size: 10px; font-weight: 700; color: #444; text-transform: uppercase;">${translate(metric.label)}</span>
-                        <span style="font-size: 11px; font-weight: 700; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.12); white-space: nowrap;">
-                            ${formattedVal}${metric.unit?.(filter.id, val, variations) ? ' ' + metric.unit(filter.id, val, variations) : ''}
-                        </span>
+                    <div style="margin-top: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                        <span style="font-size: 10px; font-weight: 700; color: #444; text-transform: uppercase; padding-top: 4px;">${translate(metric.label)}</span>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                            <span style="font-size: 11px; font-weight: 700; background-color: ${metricColor}; color: ${contrastColor}; padding: 3px 10px; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.12); white-space: nowrap;">
+                                ${formattedVal}
+                            </span>
+                            ${unitText ? `<span style="font-size: 9px; font-weight: 600; color: #777; margin-top: 3px; text-align: right; line-height: 1.2;">${unitText}</span>` : ''}
+                        </div>
                     </div>
                     ` : `<div style="margin-top: 8px; font-size: 9px; font-weight: 700; color: #bbb; text-transform: uppercase;">${translate('common.no_data')}</div>`}
                 </div>
@@ -752,26 +760,26 @@ const Dashboard = () => {
             .filter((f: any) => String(f.properties.group_id) === String(selectedFeature.id))
             .map((f: any) => f.properties)
             .filter((p: any) => {
-                const val = getMetricValue(p, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
+                const val = getMetricValue(p, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, metricMultipliers);
                 return !isMetricValueIgnored(val, selectedMetric);
             })
             .sort((a: any, b: any) => {
-                const valA = getMetricValue(a, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
-                const valB = getMetricValue(b, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
+                const valA = getMetricValue(a, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, metricMultipliers);
+                const valB = getMetricValue(b, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, metricMultipliers);
                 return (valB || 0) - (valA || 0);
             });
-    }, [effectiveLevel, selectedFeature, selectedMetric, effectiveGlobalFilter, dataState, selectedVariations]);
+    }, [effectiveLevel, selectedFeature, selectedMetric, effectiveGlobalFilter, dataState, selectedVariations, metricMultipliers]);
 
     const chartData = useMemo(() => {
         if (!computedGeoData?.features) return { bestPerformers: [], worstPerformers: [] };
         const parentLevel = LEVEL_CONFIG[effectiveLevel]?.parent;
         const feats = computedGeoData.features
             .filter((f: any) => {
-                const val = getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
+                const val = getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, metricMultipliers);
                 return !isMetricValueIgnored(val, selectedMetric);
             })
             .map((f: any) => {
-                const val = getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations) ?? 0;
+                const val = getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, metricMultipliers) ?? 0;
                 const groupName = (parentLevel && f.properties?.group_id)
                     ? (dataState.parentLookup[`${parentLevel}-${f.properties.group_id}`] || f.properties.group_id)
                     : 'LMA';
@@ -785,7 +793,7 @@ const Dashboard = () => {
             });
         const sorted = [...feats].sort((a, b) => b.value - a.value);
         return { bestPerformers: sorted.slice(0, 5), worstPerformers: [...sorted].reverse().slice(0, 5).reverse() };
-    }, [computedGeoData, selectedMetric, effectiveGlobalFilter, currentDomain, getColor, effectiveLevel, dataState.parentLookup, selectedVariations, isColorBlindMode]);
+    }, [computedGeoData, selectedMetric, effectiveGlobalFilter, currentDomain, getColor, effectiveLevel, dataState.parentLookup, selectedVariations, metricMultipliers, isColorBlindMode]);
 
     const resetWeights = () => {
         setWeights(defaultWeights);
@@ -913,6 +921,8 @@ const Dashboard = () => {
                 onZoomOut={() => mapInstance?.zoomOut()}
                 onDownloadAHP={handleDownloadAHP}
                 isLoadingRawLayer={isLoadingRawLayer}
+                metricMultipliers={metricMultipliers}
+                setMetricMultipliers={setMetricMultipliers}
             />
 
             <Tutorial
@@ -1058,7 +1068,7 @@ const Dashboard = () => {
                                     </div>
                                 )}
                                 <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                                    <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{t(selectedMetric.label)} {selectedMetric.unit?.(effectiveGlobalFilter.id, undefined, selectedVariations) ? `(${selectedMetric.unit(effectiveGlobalFilter.id, undefined, selectedVariations)})` : ''}</p>
+                                    <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{t(selectedMetric.label)} {getMetricUnit(selectedMetric, effectiveGlobalFilter.id, undefined, selectedVariations, metricMultipliers) ? `(${getMetricUnit(selectedMetric, effectiveGlobalFilter.id, undefined, selectedVariations, metricMultipliers)})` : ''}</p>
                                     <p className="text-[13px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description ? t(selectedMetric.description) : `Spatial distribution and variance of ${t(selectedMetric.label).toLowerCase()} across the ${t(`map.${effectiveLevel}`)} network.`}</p>
                                     {selectedMetric.sources && selectedMetric.sources.length > 0 && (
                                         <p className="text-[10px] opacity-40 mt-2 tracking-tight leading-snug">
@@ -1340,6 +1350,7 @@ const Dashboard = () => {
                     performerTopN={performerTopN}
                     setPerformerTopN={setPerformerTopN}
                     validPerformerCount={validPerformerCount}
+                    metricMultipliers={metricMultipliers}
                 />
             )}
 
@@ -1358,6 +1369,7 @@ const Dashboard = () => {
                 parentLookup={dataState.parentLookup}
                 selectedFeature={selectedFeature}
                 visiblePerformerIds={visiblePerformerIds}
+                metricMultipliers={metricMultipliers}
                 onSelectFeature={(props) => {
                     setSelectedFeature(props);
                     if (props?.id !== undefined) {

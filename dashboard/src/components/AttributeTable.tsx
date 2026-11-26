@@ -6,6 +6,8 @@ import { METRICS, LEVEL_CONFIG, RegionKey, REGIONS } from '../constants';
 import {
     discoverMetricVariations,
     getMetricCandidateIds,
+    getMetricMultiplier,
+    getMetricUnit,
     getVariationOptions,
     getVariationOptionLabel
 } from '../utils';
@@ -25,6 +27,7 @@ interface AttributeTableProps {
     parentLookup: Record<string, string>;
     selectedFeature: any;
     visiblePerformerIds?: Set<string> | null;
+    metricMultipliers?: Record<string, number>;
     onSelectFeature: (props: any) => void;
 }
 
@@ -74,6 +77,7 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
     parentLookup,
     selectedFeature,
     visiblePerformerIds,
+    metricMultipliers,
     onSelectFeature,
 }) => {
     const { t } = useTranslation();
@@ -223,14 +227,18 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
                 if (!resolvedKey || addedPropKeys.has(resolvedKey)) return;
                 addedPropKeys.add(resolvedKey);
 
-                const unitStr = metric.unit?.(selectedGlobalFilter.id, undefined, selectedVariations);
+                const mult = getMetricMultiplier(metric, metricMultipliers);
+                const unitStr = getMetricUnit(metric, selectedGlobalFilter.id, undefined, selectedVariations, metricMultipliers);
                 cols.push({
                     key: resolvedKey,
                     label: t(metric.label),
                     unit: unitStr,
                     isNumeric: true,
                     isActive: resolvedKey === activeMapPropKey,
-                    getRawValue: (p) => p?.[resolvedKey],
+                    getRawValue: (p) => {
+                        const v = p?.[resolvedKey];
+                        return (mult !== 1 && typeof v === 'number' && !isNaN(v)) ? v * mult : v;
+                    },
                     formatValue: (v) => {
                         if (v === null || v === undefined || isNaN(Number(v))) return '-';
                         return metric.format(Number(v), 0, 1, selectedGlobalFilter.id, selectedVariations);
@@ -276,7 +284,8 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
                     }
                 });
 
-                const unitStr = metric.unit?.(selectedGlobalFilter.id, undefined, combo);
+                const mult = getMetricMultiplier(metric, metricMultipliers);
+                const unitStr = getMetricUnit(metric, selectedGlobalFilter.id, undefined, combo, metricMultipliers);
 
                 cols.push({
                     key: resolvedKey,
@@ -285,7 +294,10 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
                     unit: unitStr,
                     isNumeric: true,
                     isActive: resolvedKey === activeMapPropKey,
-                    getRawValue: (p) => p?.[resolvedKey],
+                    getRawValue: (p) => {
+                        const v = p?.[resolvedKey];
+                        return (mult !== 1 && typeof v === 'number' && !isNaN(v)) ? v * mult : v;
+                    },
                     formatValue: (v) => {
                         if (v === null || v === undefined || isNaN(Number(v))) return '-';
                         return metric.format(Number(v), 0, 1, selectedGlobalFilter.id, combo);
@@ -307,6 +319,7 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
         selectedGlobalFilter,
         selectedVariations,
         activeMapPropKey,
+        metricMultipliers,
         t
     ]);
 

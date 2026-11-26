@@ -262,11 +262,43 @@ export const hasMetricInPropertyKeys = (propertyKeys: Set<string> | undefined, m
 };
 
 /**
- * Resolves the value of a metric from a feature's properties, considering 
- * global filter suffixes (e.g. modes, bounds), fallbacks, and optional alternative IDs.
+ * Returns the active numeric multiplier for a metric (defaults to 1 if none configured).
  */
-export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
+export const getMetricMultiplier = (metric: MetricDef, metricMultipliers?: Record<string, number>): number => {
+    if (!metric.multiplier) return 1;
+    const raw = metricMultipliers?.[metric.id] ?? metric.multiplier.defaultValue ?? 1;
+    const min = metric.multiplier.min ?? 1;
+    if (typeof raw !== 'number' || isNaN(raw)) return Math.max(min, metric.multiplier.defaultValue ?? 1);
+    const clamped = metric.multiplier.max !== undefined ? Math.min(metric.multiplier.max, raw) : raw;
+    return Math.max(min, clamped);
+};
+
+/**
+ * Resolves the display unit for a metric, taking into account any active multiplier unit formatter.
+ */
+export const getMetricUnit = (
+    metric: MetricDef,
+    filterId: any,
+    value?: number,
+    variations?: Record<string, string>,
+    metricMultipliers?: Record<string, number>
+): string | undefined => {
+    if (metric.multiplier?.unit) {
+        const mult = getMetricMultiplier(metric, metricMultipliers);
+        return metric.multiplier.unit(mult, filterId, value, variations);
+    }
+    return metric.unit?.(filterId, value, variations);
+};
+
+/**
+ * Resolves the value of a metric from a feature's properties, considering 
+ * global filter suffixes (e.g. modes, bounds), fallbacks, optional alternative IDs, and metric multipliers.
+ */
+export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>, metricMultipliers?: Record<string, number>): any => {
     if (!properties) return undefined;
+
+    const mult = getMetricMultiplier(metric, metricMultipliers);
+    const applyMult = (val: any) => (mult !== 1 && typeof val === 'number' && !isNaN(val)) ? val * mult : val;
 
     const filterId = filter?.id;
     const effectiveVariations: Record<string, string> = { ...variations };
@@ -285,7 +317,7 @@ export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?
         if (metric.filterValues && !metric.filterValues(properties, val, filterId, effectiveVariations)) {
             return undefined;
         }
-        return val;
+        return applyMult(val);
     }
 
     const idsToTry = getMetricCandidateIds(metric, filter, viewLevel, variations);
@@ -297,7 +329,7 @@ export const getMetricValue = (properties: any, metric: MetricDef, filter: { id?
             if (metric.filterValues && !metric.filterValues(properties, val, filterId, effectiveVariations)) {
                 return undefined;
             }
-            return val;
+            return applyMult(val);
         }
     }
     return undefined;
