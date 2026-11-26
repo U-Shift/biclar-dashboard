@@ -22,6 +22,7 @@
     "toggle_theme": "Alternar Tema",
     "toggle_colorblind": "Modo daltónico",
     "download_data": "Descarregar Dados",
+    "attribute_table": "Tabela de Atributos",
     "download_results": "Descarregar Resultados",
     "about": "Sobre",
     "tutorial": "Fazer a visita guiada"
@@ -546,6 +547,34 @@
     "subtitle": "Obtenha os dados em bruto para análises adicionais",
     "about_data": "Sobre os dados",
     "description": "Todos os conjuntos de dados são fornecidos em {{format1}} para análise espacial e {{format2}} para processamento tabular. As coordenadas utilizam {{crs}}. O atributo {{attribute}} deve ser utilizado para relacionar os ficheiros."
+  },
+  "table": {
+    "title": "Tabela de atributos",
+    "id": "ID",
+    "name": "Nome",
+    "search_placeholder": "Pesquisar...",
+    "show": "Mostrar",
+    "entries": "registos",
+    "rows_count": "{{count}} linhas",
+    "showing_entries": "A mostrar {{start}} a {{end}} de {{total}} registos",
+    "filtered_from": "(filtrado de {{total}} registos no total)",
+    "no_matching_records": "Nenhum registo encontrado",
+    "all_columns": "Todas as colunas",
+    "active_filter": "Filtro ativo"
+  },
+  "attribute_table": {
+    "title": "Tabela de atributos",
+    "search_placeholder": "Pesquisar...",
+    "show": "Mostrar",
+    "entries": "registos",
+    "id": "ID",
+    "cell_id": "ID Célula",
+    "name": "Nome",
+    "rows_count": "A mostrar {{shown}} de {{total}} linhas",
+    "showing_entries": "A mostrar {{from}} a {{to}} de {{total}} registos",
+    "showing_zero": "A mostrar 0 registos",
+    "filtered_from": "filtrado de {{total}} registos totais",
+    "no_entries": "Nenhum registo encontrado"
   },
   "variations": {
     "poi_type": "Serviços",

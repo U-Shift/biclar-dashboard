@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle, Loader2 } from 'lucide-react';
+import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Eye, EyeOff, Layers, Menu, X, Globe, HelpCircle, Loader2, Table2 } from 'lucide-react';
 import { MetricDef } from '../types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, GLOBAL_FILTERS } from '../constants';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,8 @@ interface SidebarLeftProps {
     setIsColorBlindMode: (val: boolean) => void;
     setShowDownload: (val: boolean) => void;
     setShowAbout: (val: boolean) => void;
+    showAttributeTable?: boolean;
+    setShowAttributeTable?: (val: boolean) => void;
     startTutorial?: (type: 'main' | 'dynamic') => void;
     selectedMetric: MetricDef;
     selectedMetricId: string;
@@ -83,6 +85,7 @@ const AuxiliaryDataRenderer: React.FC<{
 
 export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     isDarkMode, setIsDarkMode, isColorBlindMode, setIsColorBlindMode, setShowDownload, setShowAbout,
+    showAttributeTable, setShowAttributeTable,
     startTutorial,
     selectedMetric, selectedMetricId, setSelectedMetricId,
     collapsedSections, toggleSection,
@@ -254,6 +257,22 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                 </button>
                             </Tooltip>
                             */}
+                            <Tooltip content={t('tooltips.attribute_table')} isDarkMode={true}>
+                                <button
+                                    data-tour="attribute-table-btn"
+                                    onClick={() => {
+                                        setShowAttributeTable?.(!showAttributeTable);
+                                        if (isMobile && !showAttributeTable) setIsOpen?.(false);
+                                    }}
+                                    className={`p-2.5 rounded-xl transition-all ${
+                                        showAttributeTable
+                                            ? (isDarkMode ? 'bg-primary text-secondary-yellow ring-1 ring-secondary-yellow/30' : 'bg-primary text-white shadow-sm')
+                                            : (isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500')
+                                    }`}
+                                >
+                                    <Table2 className="w-5 h-5" />
+                                </button>
+                            </Tooltip>
                             <Tooltip content={t('tooltips.download_data')} isDarkMode={true}>
                                 <button data-tour="download-modal-btn" onClick={() => setShowDownload(true)} className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
                                     <Download className="w-5 h-5" />

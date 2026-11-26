@@ -33,6 +33,7 @@ import { SidebarLeft } from './components/SidebarLeft';
 import { SidebarRight } from './components/SidebarRight';
 import { AboutModal } from './components/AboutModal';
 import { DownloadModal } from './components/DownloadModal';
+import { AttributeTable } from './components/AttributeTable';
 import { MapFilterDropdown } from './components/MapFilterDropdown';
 import { GlobalFilterSelector } from './components/GlobalFilterSelector';
 import { MapTools } from './components/MapTools';
@@ -84,6 +85,7 @@ const Dashboard = () => {
     const [weights, setWeights] = useState<Record<string, number>>(defaultWeights);
     const [showAbout, setShowAbout] = useState(false);
     const [showDownload, setShowDownload] = useState(false);
+    const [showAttributeTable, setShowAttributeTable] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isColorBlindMode, setIsColorBlindMode] = useState(false);
     const [isAHPModalOpen, setIsAHPModalOpen] = useState(false);
@@ -798,6 +800,8 @@ const Dashboard = () => {
                 setIsColorBlindMode={setIsColorBlindMode}
                 setShowDownload={setShowDownload}
                 setShowAbout={setShowAbout}
+                showAttributeTable={showAttributeTable}
+                setShowAttributeTable={setShowAttributeTable}
                 startTutorial={startTutorial}
                 selectedMetric={selectedMetric}
                 selectedMetricId={selectedMetricId}
@@ -1252,6 +1256,28 @@ const Dashboard = () => {
                     isMobile={isMobile}
                 />
             )}
+
+            <AttributeTable
+                isOpen={showAttributeTable}
+                onClose={() => setShowAttributeTable(false)}
+                isDarkMode={isDarkMode}
+                isMobile={isMobile}
+                viewLevel={effectiveLevel}
+                nutFilter={nutFilter}
+                selectedMetric={selectedMetric}
+                selectedGlobalFilter={effectiveGlobalFilter}
+                selectedVariations={selectedVariations}
+                computedGeoData={computedGeoData}
+                filteredRawData={filteredRawData}
+                parentLookup={dataState.parentLookup}
+                selectedFeature={selectedFeature}
+                onSelectFeature={(props) => {
+                    setSelectedFeature(props);
+                    if (props?.id !== undefined) {
+                        setZoomRequest({ id: props.id, timestamp: Date.now() });
+                    }
+                }}
+            />
 
             <AboutModal
                 showAbout={showAbout}
