@@ -40,6 +40,7 @@
     "regional_contrast": "Contrastes Regionais",
     "top_performers": "Valores mais elevados",
     "low_performers": "Valores mais baixos",
+    "spread_measures": "Medidas de Tendência Central e Dispersão",
     "map_settings": "Configurar mapa",
     "map_layers": "Camadas",
     "dimension_weighting_note": "Nota: Quando todas as dimensões tiverem pesos iguais, obterá o IMPT \"Político\". Não recomendamos o seu uso para a tomada de decisão, pois pressupõe que todas as dimensões são igualmente importantes, o que pode mascarar desigualdades. Recomendamos o uso da metodologia AHP para determinar os pesos que melhor se adequam ao seu contexto local."
@@ -561,6 +562,17 @@
     "no_matching_records": "Nenhum registo encontrado",
     "all_columns": "Todas as colunas",
     "active_filter": "Filtro ativo"
+  },
+  "stats": {
+    "mean": "Média",
+    "min": "Mínimo",
+    "p5": "P5",
+    "p25": "P25",
+    "median": "Mediana",
+    "p75": "P75",
+    "p95": "P95",
+    "max": "Máximo",
+    "sd": "Desvio Padrão"
   },
   "attribute_table": {
     "title": "Tabela de atributos",

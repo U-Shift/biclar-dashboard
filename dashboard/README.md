@@ -32,7 +32,8 @@ npm run preview
 ## Configuration & Maintenance (`src/constants.tsx`)
 
 The file [`src/constants.tsx`](src/constants.tsx) serves as the central configuration registry for the dashboard. It defines:
-- **`LEVEL_CONFIG`**: Hierarchy levels (e.g. hex grid, parishes/freguesias, municipalities), data endpoints, and download links.
+- **`LEVEL_CONFIG`**: Hierarchy levels (e.g. hex grid, parishes/freguesias, municipalities), data endpoints, `scale` identifiers (mapping to `SUMMARY_STATS_FILE`), and download links.
+- **`SUMMARY_STATS_FILE`**: Path or URL to the summary statistics CSV (`dashboard_summary_stats.csv`) used to display measures of central tendency and spread in the Regional Contrasts sidebar.
 - **`MUNICIPALITIES_LIMITS_FILE`**: Path or URL to the GeoJSON boundary limits for municipalities (`municipios_limits.json`). This layer is overlaid as a visual boundary outline on finer zoom levels (`hex` and `freguesia`), and filtered dynamically by region.
 - **`REGIONS`**: Regional bounding boxes, map centers, default zoom levels, and filtering keys.
 - **`GLOBAL_FILTERS`** (formerly `MODES`): Context-agnostic global filter definitions and column suffixes (e.g. travel modes like `_pt`, `_bike`, `_car`, or bounds/scenarios like `_min`, `_max`).
@@ -302,8 +303,9 @@ For the dashboard to correctly visualize features, drill down through subareas, 
 ### Supported Geographic Levels (`LEVEL_CONFIG`)
 
 Configured in `LEVEL_CONFIG` in [`src/constants.tsx`](src/constants.tsx):
-- `freguesia` (parishes): parent level is `municipality`.
-- `hex` (H3 hex grid cells): parent level is `freguesia`.
+- `municipality`: `scale: 'municipality'`.
+- `freguesia` (parishes): `scale: 'parish'`, parent level is `municipality`.
+- `hex` (H3 hex grid cells): `scale: 'grid'`, parent level is `freguesia`.
 
 ### Required Feature Properties (`properties`)
 
@@ -318,6 +320,23 @@ Each feature (across the merged GeoJSON + CSV dataset) **must** contain:
 | `group_id` | `string \| number` | **CSV only** *(mandatory for child levels)* | Identifier of the parent feature in the level above. For example: hex features must have a `group_id` matching their containing `freguesia.id`. This powers:<br>1. **Subareas drilldown**: Clicking a parish displays its constituent hexes.<br>2. **Performer charts**: Child rows display their parent group name via `dataState.parentLookup`. |
 | `region_id` / `nuts2` | `string` | **CSV only** *(mandatory)* | Regional code matching keys in `REGIONS` in `constants.tsx` (e.g. `'PT1A'` for Grande Lisboa, `'PT1B'` for Península de Setúbal, or `'metropolis'`). When the user selects a region filter, features are filtered by `f.properties?.region_id === nutFilter \|\| f.properties?.nuts2 === REGIONS[nutFilter].name`. |
 | Metric columns | `number \| string` | **CSV only** | Attribute keys must exactly match the resolved metric IDs (e.g. `model_mr_parking_residential_min`, `dasymetric_population`, `mobility_infrastructure_length`). |
+
+### Summary Statistics CSV (`SUMMARY_STATS_FILE`)
+
+The Regional Contrasts right sidebar displays **Measures of Central Tendency & Spread** loaded from `SUMMARY_STATS_FILE` (`${DATA_BASE_URL}dashboard_summary_stats.csv`). Each row provides distribution metrics for one dataset column at a given geographic scale:
+
+| Column | Type | Requirement | Purpose |
+| :--- | :--- | :--- | :--- |
+| `scale` | `string` | **Mandatory** | Geographic level identifier matching `LEVEL_CONFIG[level].scale` (`municipality`, `parish`, or `grid`). |
+| `column` *(or `col`)* | `string` | **Mandatory** | Exact dataset column name matching the resolved metric ID (e.g. `dasymetric_population`, `cycleways_length_protected`, `model_mr_parking_total_min`). |
+| `mean`, `min`, `p5`, `p25`, `median`, `p75`, `p95`, `max`, `sd` | `number` | Optional | Summary statistics rendered in the Regional Contrasts sidebar (`Mean`, `Min`, `P5`, `P25`, `Median`, `P75`, `P95`, `Max`, and `Standard Deviation`). Any missing or `NA` statistic is omitted automatically. |
+
+- On `municipality` and `freguesia` levels, the spread measures appear below the **Highest values** and **Lowest values** charts.
+- On the `hex` (`grid`) level, the Regional Contrasts sidebar displays the spread measures directly when matching `grid` statistics exist for the active metric.
+
+### Attribute Table
+
+An interactive **Attribute Table** ([`src/components/AttributeTable.tsx`](src/components/AttributeTable.tsx)) can be toggled from the top toolbar in the left sidebar. It displays every element of the currently selected scale (filtered by the active region) alongside all available columns of the currently selected metric group, with search, sorting, pagination (25 entries per page by default), and click-to-select map centering.
 
 ### Required Municipalities Limits Properties (`MUNICIPALITIES_LIMITS_FILE`)
 

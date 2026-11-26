@@ -1,11 +1,11 @@
 import React from 'react';
 import { MapPin, TrendingUp } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, LabelList } from 'recharts';
-import { MetricDef } from '../types';
+import { MetricDef, ViewLevel } from '../types';
 import { DetailCard } from './DetailCard';
 import { MiniBarChart } from './MiniBarChart';
 import { LEVEL_CONFIG, FLAT_METRICS, GLOBAL_FILTERS } from '../constants';
-import { getColor, isMetricValueIgnored, getMetricValue, getVariationOptions, getVariationOptionLabel } from '../utils';
+import { getColor, isMetricValueIgnored, getMetricValue, getMetricCandidateIds, getVariationOptions, getVariationOptionLabel } from '../utils';
 import { useTranslation } from 'react-i18next';
 
 interface SidebarRightProps {
@@ -38,7 +38,20 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
     const { t } = useTranslation();
     const isIMPT = ['IMPT_entropy_pca', 'IMPT_score_pca_geom', 'IMPT_dynamic'].includes(selectedMetricId);
 
+    const spreadStats = React.useMemo(() => {
+        const statsMap = dataState?.summaryStats;
+        const scaleKey = LEVEL_CONFIG[viewLevel as ViewLevel]?.scale;
+        if (!statsMap || !scaleKey) return null;
+        const candidateIds = getMetricCandidateIds(selectedMetric, activeFilter, viewLevel, selectedVariations);
+        for (const id of candidateIds) {
+            const match = statsMap[`${scaleKey}::${id}`];
+            if (match) return match;
+        }
+        return null;
+    }, [dataState?.summaryStats, viewLevel, selectedMetric, activeFilter, selectedVariations]);
+
     if (isMobile && !selectedFeature) return null;
+    if (!selectedFeature && viewLevel === 'hex' && !spreadStats) return null;
 
     return (
         <div data-tour="sidebar-right" className={`
@@ -268,46 +281,88 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                             <TrendingUp className={`w-3.5 h-3.5 ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`} /> {t('sidebar.regional_contrast')}
                         </h3>
                         <div className="space-y-8">
-                            <div>
-                                <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">{t('sidebar.top_performers')}</p>
-                                <div className={`h-44 rounded-[28px] p-5 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
-                                    <MiniBarChart
-                                        data={chartData.bestPerformers}
-                                        metric={selectedMetric}
-                                        selectedFilter={activeFilter.id}
-                                        selectedVariations={selectedVariations}
-                                        isDark={isDarkMode}
-                                        type="highest"
-                                        onSelect={(id) => {
-                                            const f = computedGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
-                                            if (f) {
-                                                setSelectedFeature(f.properties);
-                                                setZoomRequest({ id, timestamp: Date.now() });
-                                            }
-                                        }}
-                                    />
+                            {viewLevel !== 'hex' && (
+                                <>
+                                    <div>
+                                        <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">{t('sidebar.top_performers')}</p>
+                                        <div className={`h-44 rounded-[28px] p-5 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
+                                            <MiniBarChart
+                                                data={chartData.bestPerformers}
+                                                metric={selectedMetric}
+                                                selectedFilter={activeFilter.id}
+                                                selectedVariations={selectedVariations}
+                                                isDark={isDarkMode}
+                                                type="highest"
+                                                onSelect={(id) => {
+                                                    const f = computedGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
+                                                    if (f) {
+                                                        setSelectedFeature(f.properties);
+                                                        setZoomRequest({ id, timestamp: Date.now() });
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">{t('sidebar.low_performers')}</p>
+                                        <div className={`h-44 rounded-[28px] p-5 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
+                                            <MiniBarChart
+                                                data={chartData.worstPerformers}
+                                                metric={selectedMetric}
+                                                selectedFilter={activeFilter.id}
+                                                selectedVariations={selectedVariations}
+                                                isDark={isDarkMode}
+                                                type="lowest"
+                                                onSelect={(id) => {
+                                                    const f = computedGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
+                                                    if (f) {
+                                                        setSelectedFeature(f.properties);
+                                                        setZoomRequest({ id, timestamp: Date.now() });
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {spreadStats && (
+                                <div>
+                                    <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">{t('sidebar.spread_measures')}</p>
+                                    <div className={`rounded-[28px] p-5 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
+                                        <div className={`divide-y ${isDarkMode ? 'divide-neutral-800/60' : 'divide-neutral-200/60'}`}>
+                                            {([
+                                                ['mean', 'stats.mean'],
+                                                ['min', 'stats.min'],
+                                                ['p5', 'stats.p5'],
+                                                ['p25', 'stats.p25'],
+                                                ['median', 'stats.median'],
+                                                ['p75', 'stats.p75'],
+                                                ['p95', 'stats.p95'],
+                                                ['max', 'stats.max'],
+                                                ['sd', 'stats.sd'],
+                                            ] as const).map(([key, labelKey]) => {
+                                                const rawVal = spreadStats[key];
+                                                if (rawVal === undefined || rawVal === null || isNaN(Number(rawVal))) return null;
+                                                const formatted = Number(rawVal).toLocaleString(undefined, {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                });
+                                                return (
+                                                    <div key={key} className="flex items-center justify-between py-1.5 first:pt-0 last:pb-0 text-[12px]">
+                                                        <span className={`font-semibold ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                                                            {t(labelKey)}
+                                                        </span>
+                                                        <span className={`font-bold tabular-nums ${isDarkMode ? 'text-neutral-100' : 'text-neutral-900'}`}>
+                                                            {formatted}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">{t('sidebar.low_performers')}</p>
-                                <div className={`h-44 rounded-[28px] p-5 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
-                                    <MiniBarChart
-                                        data={chartData.worstPerformers}
-                                        metric={selectedMetric}
-                                        selectedFilter={activeFilter.id}
-                                        selectedVariations={selectedVariations}
-                                        isDark={isDarkMode}
-                                        type="lowest"
-                                        onSelect={(id) => {
-                                            const f = computedGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
-                                            if (f) {
-                                                setSelectedFeature(f.properties);
-                                                setZoomRequest({ id, timestamp: Date.now() });
-                                            }
-                                        }}
-                                    />
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </section>
                 )}

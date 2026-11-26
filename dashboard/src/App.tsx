@@ -18,8 +18,8 @@ import { Loader2, Activity, Layers, Globe, Info, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
-import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, MUNICIPALITIES_LIMITS_FILE } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, hasMetricInPropertyKeys, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor, mergeGeoJsonWithCsv } from './utils';
+import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, GLOBAL_FILTERS, RegionKey, GlobalFilterId, LEVEL_CONFIG, MAP_LAYERS, MUNICIPALITIES_LIMITS_FILE, SUMMARY_STATS_FILE } from './constants';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, isMetricValueExcludedFromColorRamp, getMetricValue, hasMetricInPropertyKeys, discoverMetricVariations, getVariationOptions, getRawFeatureColor, getContrastColor, mergeGeoJsonWithCsv, parseCsvToRecords } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
     const map = useMap();
@@ -183,7 +183,8 @@ const Dashboard = () => {
     const [dataState, setDataState] = useState<{
         geo: Record<string, any>; limits: any; loading: boolean; error: string | null;
         parentLookup: Record<string, string>;
-    }>({ geo: {}, limits: null, loading: true, error: null, parentLookup: {} });
+        summaryStats: Record<string, Record<string, any>>;
+    }>({ geo: {}, limits: null, loading: true, error: null, parentLookup: {}, summaryStats: {} });
 
     useEffect(() => {
         if (Object.keys(dataState.geo).length > 0) return;
@@ -191,7 +192,7 @@ const Dashboard = () => {
         const load = async () => {
             try {
                 const levels = (Object.keys(LEVEL_CONFIG) as ViewLevel[]).filter(l => Boolean(LEVEL_CONFIG[l]?.file));
-                const [levelData, limits] = await Promise.all([
+                const [levelData, limits, summaryStatsText] = await Promise.all([
                     Promise.all(levels.map(async (l) => {
                         const cfg = LEVEL_CONFIG[l]!;
                         const csvUrl = cfg.csv || cfg.download_csv;
@@ -201,11 +202,24 @@ const Dashboard = () => {
                         ]);
                         return csvText ? mergeGeoJsonWithCsv(geoJson, csvText) : geoJson;
                     })),
-                    fetch(MUNICIPALITIES_LIMITS_FILE).then(r => r.json())
+                    fetch(MUNICIPALITIES_LIMITS_FILE).then(r => r.json()),
+                    fetch(SUMMARY_STATS_FILE).then(r => r.ok ? r.text() : '').catch(() => '')
                 ]);
 
                 const geo: Record<string, any> = {};
                 levels.forEach((l, i) => { geo[l] = levelData[i]; });
+
+                // Index summary statistics by `${scale}::${column}`
+                const summaryStats: Record<string, Record<string, any>> = {};
+                if (summaryStatsText) {
+                    parseCsvToRecords(summaryStatsText).forEach((row) => {
+                        const scale = row.scale;
+                        const col = row.column ?? row.col;
+                        if (scale && col) {
+                            summaryStats[`${scale}::${col}`] = row;
+                        }
+                    });
+                }
 
                 // Create parent lookups for each level that serves as a parent
                 const parentLookup: Record<string, string> = {};
@@ -220,7 +234,7 @@ const Dashboard = () => {
                     }
                 });
 
-                setDataState({ geo, limits, loading: false, error: null, parentLookup });
+                setDataState({ geo, limits, loading: false, error: null, parentLookup, summaryStats });
             } catch (err) {
                 console.error(err);
                 setDataState(s => ({ ...s, loading: false, error: "System encountered a data loading error." }));
@@ -1235,7 +1249,7 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {(selectedFeature || (!isMobile && viewLevel !== 'hex')) && !selectedMetric.url && (
+            {(selectedFeature || !isMobile) && !selectedMetric.url && (
                 <SidebarRight
                     isDarkMode={isDarkMode}
                     isColorBlindMode={isColorBlindMode}

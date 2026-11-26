@@ -40,6 +40,7 @@
     "regional_contrast": "Regional Contrasts",
     "top_performers": "Highest values",
     "low_performers": "Lowest values",
+    "spread_measures": "Measures of Central Tendency & Spread",
     "map_settings": "Map Settings",
     "map_layers": "Map Layers",
     "dimension_weighting_note": "Note: When all dimensions have equal weights you will get the \"Political\" IMPT. We do not recommended using it for decision making, as it assumes that all dimensions are equally important, which can mask inequalities. We reccomend the usage of AHP methodology to determine the weights that best suit your local context."
@@ -340,6 +341,17 @@
     "no_matching_records": "No matching records found",
     "all_columns": "All columns",
     "active_filter": "Active filter"
+  },
+  "stats": {
+    "mean": "Mean",
+    "min": "Min",
+    "p5": "P5",
+    "p25": "P25",
+    "median": "Median",
+    "p75": "P75",
+    "p95": "P95",
+    "max": "Max",
+    "sd": "Standard Deviation"
   },
   "attribute_table": {
     "title": "Attribute table",
