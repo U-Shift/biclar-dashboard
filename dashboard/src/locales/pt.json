@@ -1,9 +1,9 @@
 {
   "common": {
-    "impt_0": "biclar",
+    "impt_0": "bicla",
     "impt_1": "R",
     "impt_2": "PARKING",
-    "loading": "A carregar o dashboard...",
+    "loading": "A carregar...",
     "loading_note": "Da primeira vez demora um pouco mais",
     "lma": "Área Metropolitana de Lisboa",
     "close": "Fechar",
@@ -26,7 +26,7 @@
     "tutorial": "Fazer a visita guiada"
   },
   "sidebar": {
-    "index": "Índice",
+    "index": "Resultados",
     "indicators": "Indicadores",
     "dimension_weighting": "Ponderação de Dimensões",
     "ahp_methodology": "Metodologia AHP",
@@ -34,7 +34,7 @@
     "start_ahp": "Iniciar Inquérito AHP",
     "area_details": "Detalhes da área",
     "mobility_profile": "Repartição Modal",
-    "constituent_dynamics": "Freguesias",
+    "constituent_dynamics": "Subáreas",
     "regional_contrast": "Contrastes Regionais",
     "top_performers": "Valores mais elevados",
     "low_performers": "Valores mais baixos",
@@ -44,7 +44,7 @@
     "dimension_weighting_note": "Nota: Quando todas as dimensões tiverem pesos iguais, obterá o IMPT \"Político\". Não recomendamos o seu uso para a tomada de decisão, pois pressupõe que todas as dimensões são igualmente importantes, o que pode mascarar desigualdades. Recomendamos o uso da metodologia AHP para determinar os pesos que melhor se adequam ao seu contexto local."
   },
   "map": {
-    "view_level": "Visualização",
+    "view_level": "Escala",
     "region": "Região",
     "mode": "Modo",
     "local_rescaling": "Reescalonamento Local",
@@ -54,7 +54,7 @@
     "municipality": "Município",
     "zoom_in": "Aproximar",
     "zoom_out": "Afastar",
-    "layers": "Mapa",
+    "layers": "Mapa base",
     "layer_carto": "Simplificado",
     "layer_satellite": "Satélite",
     "layer_osm": "OpenStreetMap"
@@ -66,23 +66,139 @@
     "ansr": "ANSR",
     "pmus": "TML - PMUS 2025",
     "gba": "Global Building Atlas",
-    "gtfs": "GTFS"
+    "gtfs": "GTFS",
+    "ruma": "RUMA (Almada)",
+    "rumus": "RUMUS (Seixal)",
+    "psp": "Polícia de Segurança Pública",
+    "gnr": "Guarda Nacional Republicana",
+    "TML": "TML",
+    "BIRD": "BIRD (Almada, Cascais, Lisboa)",
+    "LIME": "LIME (Almada, Lisboa, Oeiras)",
+    "GIRA": "GIRA (Lisboa)",
+    "dgeec": "Direção-Geral de Estatísticas da Educação e Ciência",
+    "celis_ladegaard_2008": "Celis e Bølling-Ladegaard (2008)",
+    "kuster_peters_2018": "Küster e Peters (2018)"
   },
   "metrics": {
     "categories": {
-      "mobility_poverty_index": "Índice Pobreza nos Transportes",
+      "ratios": "Rácios de estacionamento",
+      "census": "Censos",
+      "land_use": "Uso do solo",
+      "contextual": "Dados contextuais",
       "mobility": "Mobilidade",
-      "raw": "Dados Geográficos"
-    },
-    "cycle_segregation": {
-      "protected_active": "Ativa Protegida",
-      "cycle_track_lane": "Pista/Faixa Ciclável",
-      "advisory_lane": "Faixa Sugerida"
+      "raw": "Dados geográficos",
+      "models_mr": "Modelo de Rácios Mínimos"
     },
     "models": {
       "mr": {
-        "label": "Modelo de Procura de Estacionamento para Bicicletas",
-        "description": "Procura estimada para estacionamento de bicicletas com base em modelos de mobilidade pendular"
+        "label": "Rácios Mínimos (Agregado)",
+        "description": "Número de lugares de estacionamento para bicicletas de acordo com o uso do solo e os respetivos rácios (mínimo e máximo)"
+      },
+      "mr_residential": {
+        "label": "Rácios Mínimos (Residencial)",
+        "description": "Número de lugares de estacionamento para bicicletas com base no uso residencial do solo"
+      },
+      "mr_pois": {
+        "label": "Rácios Mínimos (POIs)",
+        "description": "Número de lugares de estacionamento para bicicletas com base em serviços e outros pontos de interesse"
+      },
+      "mr_pt": {
+        "label": "Rácios Mínimos (Transporte Público)",
+        "description": "Número de lugares de estacionamento para bicicletas com base na procura de transporte público"
+      },
+      "mr_schools": {
+        "label": "Rácios Mínimos (Escolas)",
+        "description": "Número de lugares de estacionamento para bicicletas com base no número de alunos de escolas e universidades"
+      },
+      "mr_ratio_residential": {
+        "label": "Residencial",
+        "description": "Número de lugares de estacionamento (mínimo e máximo) por alojamento"
+      },
+      "mr_ratio_pois": {
+        "label": "Pontos de Interesse",
+        "description": "Número de lugares de estacionamento (mínimo e máximo) por metro quadrado de uso do solo"
+      },
+      "mr_ratio_pt": {
+        "label": "Transporte Público",
+        "description": "Número de lugares de estacionamento (mínimo e máximo) por passageiro"
+      },
+      "mr_ratio_schools": {
+        "label": "Escolas",
+        "description": "Número de lugares de estacionamento (mínimo e máximo) por aluno"
+      }
+    },
+    "contextual": {
+      "thefts_n": {
+        "label": "Furtos de bicicletas",
+        "description": "Número de furtos de bicicletas participados às autoridades",
+        "period": "2021–Set 2026"
+      },
+      "gbfs": {
+        "label": "Veículos de mobilidade partilhada",
+        "description": "Número médio de veículos estacionados (fora de viagem). Dados em falta para BOLT (Lisboa, Almada) e BIRD (Oeiras).",
+        "filters": {
+          "all": "Todos os modos",
+          "bikes": "Bicicletas",
+          "scooters": "Trotinetes"
+        },
+        "period": "26 de set. a 26 de out. de 2026"
+      }
+    },
+    "mobility": {
+      "cycleways_length": {
+        "label": "Extensão de ciclovias",
+        "description": "Extensão da rede ciclável"
+      },
+      "parking": {
+        "label": "Estacionamento",
+        "description": "Número de pontos de estacionamento e respetiva capacidade"
+      },
+      "cycle_segregation": {
+        "label": "Ciclovias",
+        "description": "Rede ciclável classificada por tipo de segregação"
+      },
+      "parking_capacity": {
+        "label": "Estacionamento",
+        "description": "Capacidade dos pontos de estacionamento para bicicletas"
+      },
+      "ticketing_n": {
+        "label": "Validações de bilhética",
+        "description": "Número de validações de títulos de transporte público num dia útil",
+        "period": "6 de maio de 2026"
+      }
+    },
+    "cycle_segregation": {
+      "protected_active": "Ativa Protegida",
+      "cycle_track_lane": "Pista ou Faixa Ciclável",
+      "advisory_lane": "Faixa Sugerida"
+    },
+    "census": {
+      "dasymetric_population": {
+        "label": "População",
+        "description": "Número de residentes"
+      },
+      "dasymetric_population_dependency_ratio": {
+        "label": "Índice de dependência",
+        "description": "Rácio entre a população dependente (jovens e idosos) e a população em idade ativa"
+      },
+      "dasymetric_households": {
+        "label": "Alojamentos",
+        "description": "Número de agregados familiares"
+      }
+    },
+    "land_use": {
+      "dasymetric_buildings": {
+        "label": "Edifícios",
+        "description": "Número de edifícios"
+      },
+      "pois_n": {
+        "label": "Número de POIs",
+        "description": "Número de pontos de interesse, desagregado por categoria"
+      },
+      "pois_n_school_students": {
+        "label": "Alunos escolares",
+        "description": "Número de alunos em estabelecimentos de ensino (públicos e privados)",
+        "period": "Ano letivo 2024/25"
       }
     }
   },
@@ -96,12 +212,19 @@
     "min": "Mínimo",
     "max": "Máximo",
     "buildings_pre1945": "Construção anterior a 1945",
+    "buildings_pre1945_percentage": "% construção anterior a 1945",
     "adults": "Adultos (15-64)",
     "youth": "Jovens (0-14)",
+    "youth_percentage": "% Jovens (0-14)",
     "elderly": "Idosos (65+)",
+    "elderly_percentage": "% Idosos (65+)",
     "women": "Mulheres",
-    "psp": "PSP",
-    "gnr": "GNR",
+    "women_percentage": "% Mulheres",
+    "psp": "Polícia de Segurança Pública",
+    "gnr": "Guarda Nacional Republicana",
+    "protected": "Protegida",
+    "advisory": "Sugerida",
+    "active": "Ativa",
     "n_points": "Nº de pontos",
     "n_capacity": "Capacidade",
     "train": "Comboio",
@@ -117,7 +240,7 @@
     "walk": "Pedonal"
   },
   "about": {
-    "p1": "Informação a disponibilizar na próxima versão...",
+    "p1": "Disponível brevemente...",
     "p2": "",
     "about_section": "Sobre",
     "useful_links": "Ligações úteis",
@@ -186,7 +309,7 @@
     "title": "Descarregar Dados",
     "subtitle": "Obtenha os dados em bruto para análises adicionais",
     "about_data": "Sobre os dados",
-    "description": "Todos os conjuntos de dados são fornecidos em {{format1}} para análise espacial e {{format2}} para processamento tabular. As coordenadas utilizam {{crs}}. O atributo {{attribute}} deve ser utilizado para relacionar os ficheiros."
+    "description": "As geometrias são fornecidas em {{format1}} ({{crs}}) e as métricas em {{format2}}. O atributo 'id' deve ser utilizado para relacionar os ficheiros de cada nível geográfico. Diferentes níveis podem ser relacionados através do atributo 'group_id'."
   },
   "stats": {
     "mean": "Média",
@@ -214,8 +337,12 @@
     "no_entries": "Nenhum registo encontrado"
   },
   "variations": {
-    "poi_type": "Serviços",
+    "poi_type": "POIs",
     "n_transfers": "Transbordos (TP)",
+    "period": "Período de análise",
+    "all": "Qualquer",
+    "week": "Dias úteis",
+    "weekend": "Fim de semana",
     "_active": "População Ativa",
     "_youth": "Jovens",
     "_elderly": "Idosos",
@@ -243,7 +370,38 @@
     "20.21": "20h às 21h",
     "21.22": "21h às 22h",
     "22.23": "22h às 23h",
-    "23.24": "23h às 24h"
+    "23.24": "23h às 24h",
+    "category": "Categoria",
+    "category_poi": "Categoria",
+    "category_pt": "Categoria",
+    "category_schools": "Categoria",
+    "total": "Total",
+    "poi_total": "Todas as categorias",
+    "poi_schools": "Escolas",
+    "poi_faculties": "Faculdades",
+    "poi_retail": "Comércio",
+    "poi_healthcare_centres": "Centros de Saúde",
+    "poi_cultural": "Cultura",
+    "poi_hotel_hostel": "Hotéis e Hostels",
+    "poi_cafe_restaurant": "Cafés e Restaurantes",
+    "poi_sports_facility": "Equipamentos Desportivos",
+    "poi_office": "Escritórios",
+    "poi_industry": "Indústria",
+    "pt_total": "Todos os modos",
+    "pt_bus": "Paragens de Autocarro",
+    "pt_train": "Estações de Comboio",
+    "pt_metro": "Estações de Metro",
+    "pt_ltr": "Estações de Metro Ligeiro",
+    "pt_boat": "Terminais Fluviais",
+    "schools_total": "Todos (Escolas + Universidades)",
+    "schools_childcare": "Creches e Jardins de Infância",
+    "schools_primary": "Escolas Básicas",
+    "schools_secondary": "Escolas Secundárias",
+    "schools_university": "Universidades",
+    "school_childcare": "Creche / Jardim de Infância",
+    "school_primary_school": "Escola Básica",
+    "school_secondary_school": "Escola Secundária",
+    "university": "Universidade"
   },
   "tutorial": {
     "title_welcome": "Bem-vindo(a)!",
@@ -269,7 +427,7 @@
     "step_17": "Descarregar dados.",
     "step_18": "Saber mais sobre o projeto.",
     "step_19": "Para repetir este tutorial.",
-    "step_10_mobile": "No mapa, ao clicar sobre uma área, pode ver os seus detalhes",
+    "step_10_mobile": "No mapa, ao clicar sobre uma área, pode ver os seus detalhes.",
     "dynamic_step_1": "Pode definir os seus próprios pesos para cada dimensão. Utilize estes seletores para ajustar quanto cada dimensão contribui para o seu índice personalizado.",
     "dynamic_step_1_note": "Por favor tenha em conta esta nota antes de avançar.",
     "dynamic_step_2": "Se não tiver a certeza sobre os pesos, faça o questionário AHP. Ajuda-o a derivar pesos consistentes através de simples comparações paritárias.",
