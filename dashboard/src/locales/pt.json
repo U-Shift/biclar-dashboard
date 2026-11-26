@@ -253,8 +253,8 @@
     "walk": "Pedonal"
   },
   "about": {
-    "p1": "Disponível brevemente...",
-    "p2": "",
+    "p1": "O biclaR Parking é uma ferramenta de apoio ao planeamento e à decisão desenvolvida para identificar e hierarquizar uma rede de estacionamentos para bicicletas na Área Metropolitana de Lisboa (amL), numa lógica de hierarquia, priorização e equidade socioterritorial.",
+    "p2": "Combinando fontes de dados abertas e oficiais agregadas em três escalas geográficas (grelha H3, freguesia e município), o projeto integra quatro modelos de dimensionamento (rácios mínimos, diurno (curta/média duração), noturno (longa duração) e intermodal), bem como a avaliação dos seus impactos socioterritoriais, ambientais e de saúde.",
     "about_section": "Sobre",
     "useful_links": "Ligações úteis",
     "authors_section": "Autores",

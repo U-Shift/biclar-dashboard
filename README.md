@@ -8,7 +8,9 @@ https://ushift.pt/apps/biclar
 
 ## About 
 
-Avaliable soon...
+biclaR Parking is a planning and decision-support tool developed to identify and prioritize a bicycle parking network across the Lisbon Metropolitan Area (LMA), following a logic of hierarchy, prioritization, and socio-territorial equity.
+
+Combining open and official datasets aggregated across three geographic scales (H3 grid, parish/freguesia, and municipality), the project integrates four sizing models (minimum ratios, daytime (short/medium-term), overnight (long-term), and intermodal) with an assessment of their socio-territorial, environmental, and health impacts.
 
 ## Data 
 

@@ -247,8 +247,8 @@
     "boat": "Ferry"
   },
   "about": {
-    "p1": "Available soon....",
-    "p2": "",
+    "p1": "biclaR Parking is a planning and decision-support tool developed to identify and prioritize a bicycle parking network across the Lisbon Metropolitan Area (LMA), following a logic of hierarchy, prioritization, and socio-territorial equity.",
+    "p2": "Combining open and official datasets aggregated across three geographic scales (H3 grid, parish/freguesia, and municipality), the project integrates four sizing models (minimum ratios, daytime (short/medium-term), overnight (long-term), and intermodal) with an assessment of their socio-territorial, environmental, and health impacts.",
     "about_section": "About",
     "useful_links": "Useful links",
     "authors_section": "Authors",
