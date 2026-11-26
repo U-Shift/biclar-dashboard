@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCont
 import { MetricDef, ViewLevel } from '../types';
 import { DetailCard } from './DetailCard';
 import { MiniBarChart } from './MiniBarChart';
+import { PerformerFilter, PerformerFilterMode } from './PerformerFilter';
 import { LEVEL_CONFIG, FLAT_METRICS, GLOBAL_FILTERS } from '../constants';
 import { getColor, isMetricValueIgnored, getMetricValue, getMetricCandidateIds, getVariationOptions, getVariationOptionLabel } from '../utils';
 import { useTranslation } from 'react-i18next';
@@ -26,13 +27,19 @@ interface SidebarRightProps {
     setViewLevel: (l: any) => void;
     selectedVariations: Record<string, string>;
     isMobile?: boolean;
+    performerFilterMode: PerformerFilterMode;
+    setPerformerFilterMode: (mode: PerformerFilterMode) => void;
+    performerTopN: number;
+    setPerformerTopN: (n: number) => void;
+    validPerformerCount: number;
 }
 
 export const SidebarRight: React.FC<SidebarRightProps> = ({
     isDarkMode, isColorBlindMode, selectedFeature, viewLevel, selectedMetric, selectedMetricId,
     selectedGlobalFilter, dataState, allDomains, subLevelData, chartData,
     setSelectedFeature, computedGeoData, setZoomRequest, setViewLevel,
-    selectedVariations, isMobile
+    selectedVariations, isMobile,
+    performerFilterMode, setPerformerFilterMode, performerTopN, setPerformerTopN, validPerformerCount
 }) => {
     const activeFilter = selectedGlobalFilter || { id: 'all' };
     const { t } = useTranslation();
@@ -51,7 +58,6 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
     }, [dataState?.summaryStats, viewLevel, selectedMetric, activeFilter, selectedVariations]);
 
     if (isMobile && !selectedFeature) return null;
-    if (!selectedFeature && viewLevel === 'hex' && !spreadStats) return null;
 
     return (
         <div data-tour="sidebar-right" className={`
@@ -281,6 +287,16 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                             <TrendingUp className={`w-3.5 h-3.5 ${isDarkMode ? 'text-secondary-green' : 'text-primary'}`} /> {t('sidebar.regional_contrast')}
                         </h3>
                         <div className="space-y-8">
+                            {validPerformerCount > 0 && (
+                                <PerformerFilter
+                                    mode={performerFilterMode}
+                                    onModeChange={setPerformerFilterMode}
+                                    topN={performerTopN}
+                                    onTopNChange={setPerformerTopN}
+                                    maxCount={validPerformerCount}
+                                    isDark={isDarkMode}
+                                />
+                            )}
                             {viewLevel !== 'hex' && (
                                 <>
                                     <div>

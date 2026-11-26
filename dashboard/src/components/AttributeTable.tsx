@@ -24,6 +24,7 @@ interface AttributeTableProps {
     filteredRawData: any;
     parentLookup: Record<string, string>;
     selectedFeature: any;
+    visiblePerformerIds?: Set<string> | null;
     onSelectFeature: (props: any) => void;
 }
 
@@ -72,6 +73,7 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
     filteredRawData,
     parentLookup,
     selectedFeature,
+    visiblePerformerIds,
     onSelectFeature,
 }) => {
     const { t } = useTranslation();
@@ -89,8 +91,12 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
         if (isRawLayer) {
             return filteredRawData?.features || [];
         }
-        return computedGeoData?.features || [];
-    }, [isOpen, isRawLayer, filteredRawData, computedGeoData]);
+        const all = computedGeoData?.features || [];
+        if (visiblePerformerIds) {
+            return all.filter((f: any) => visiblePerformerIds.has(String(f?.properties?.id)));
+        }
+        return all;
+    }, [isOpen, isRawLayer, filteredRawData, computedGeoData, visiblePerformerIds]);
 
     // Resolve property keys set for fast column existence checks
     const propertyKeys: Set<string> = useMemo(() => {

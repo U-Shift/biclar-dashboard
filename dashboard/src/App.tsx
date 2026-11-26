@@ -34,6 +34,7 @@ import { SidebarRight } from './components/SidebarRight';
 import { AboutModal } from './components/AboutModal';
 import { DownloadModal } from './components/DownloadModal';
 import { AttributeTable } from './components/AttributeTable';
+import { PerformerFilterMode } from './components/PerformerFilter';
 import { MapFilterDropdown } from './components/MapFilterDropdown';
 import { GlobalFilterSelector } from './components/GlobalFilterSelector';
 import { MapTools } from './components/MapTools';
@@ -86,6 +87,8 @@ const Dashboard = () => {
     const [showAbout, setShowAbout] = useState(false);
     const [showDownload, setShowDownload] = useState(false);
     const [showAttributeTable, setShowAttributeTable] = useState(false);
+    const [performerFilterMode, setPerformerFilterMode] = useState<PerformerFilterMode>('all');
+    const [performerTopN, setPerformerTopN] = useState<number>(15);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isColorBlindMode, setIsColorBlindMode] = useState(false);
     const [isAHPModalOpen, setIsAHPModalOpen] = useState(false);
@@ -566,7 +569,54 @@ const Dashboard = () => {
     }, [computedGeoData, effectiveGlobalFilter, selectedVariations, selectedMetricId, effectiveLevel]);
 
 
+    const { validPerformerCount, visiblePerformerIds } = useMemo(() => {
+        if (!computedGeoData?.features?.length) {
+            return { validPerformerCount: 0, visiblePerformerIds: null as Set<string> | null };
+        }
+        const scored: { id: string; val: number }[] = [];
+        for (let i = 0; i < computedGeoData.features.length; i++) {
+            const f = computedGeoData.features[i];
+            const val = getMetricValue(f.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
+            if (!isMetricValueIgnored(val, selectedMetric, f.properties, effectiveGlobalFilter, selectedVariations)) {
+                scored.push({ id: String(f.properties.id), val: Number(val) });
+            }
+        }
+        if (performerFilterMode === 'all') {
+            return { validPerformerCount: scored.length, visiblePerformerIds: null as Set<string> | null };
+        }
+        scored.sort((a, b) => performerFilterMode === 'highest' ? b.val - a.val : a.val - b.val);
+        const limit = Math.max(1, Math.min(performerTopN, scored.length));
+        const ids = new Set<string>();
+        for (let i = 0; i < limit; i++) {
+            ids.add(scored[i].id);
+        }
+        return { validPerformerCount: scored.length, visiblePerformerIds: ids };
+    }, [computedGeoData, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, performerFilterMode, performerTopN]);
+
+    // Update default Top N sensibly when switching scale (and clamp when count shrinks)
+    useEffect(() => {
+        const defaultByLevel: Record<ViewLevel, number> = {
+            municipality: 5,
+            freguesia: 15,
+            hex: 100,
+        };
+        setPerformerTopN(defaultByLevel[effectiveLevel] ?? 15);
+    }, [effectiveLevel]);
+
+    useEffect(() => {
+        if (validPerformerCount > 0 && performerTopN > validPerformerCount) {
+            setPerformerTopN(validPerformerCount);
+        }
+    }, [validPerformerCount, performerTopN]);
+
     const getStyle = useCallback((feature: any) => {
+        if (visiblePerformerIds && !visiblePerformerIds.has(String(feature.properties.id))) {
+            return {
+                fillOpacity: 0,
+                opacity: 0,
+                weight: 0,
+            };
+        }
         const val = getMetricValue(feature.properties, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations);
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
@@ -577,7 +627,7 @@ const Dashboard = () => {
             fillOpacity: isSelected ? 3 : 0.75,
             dashArray: (effectiveLevel === 'freguesia' && !isSelected) ? '3' : '',
         };
-    }, [selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, selectedFeature, currentDomain, isColorBlindMode]);
+    }, [visiblePerformerIds, selectedMetric, effectiveGlobalFilter, effectiveLevel, selectedVariations, selectedFeature, currentDomain, isColorBlindMode]);
 
     const tooltipContextRef = useRef({
         selectedMetric,
@@ -587,6 +637,7 @@ const Dashboard = () => {
         currentDomain,
         isColorBlindMode,
         parentLookup: dataState.parentLookup,
+        visiblePerformerIds,
         t
     });
     tooltipContextRef.current = {
@@ -597,6 +648,7 @@ const Dashboard = () => {
         currentDomain,
         isColorBlindMode,
         parentLookup: dataState.parentLookup,
+        visiblePerformerIds,
         t
     };
 
@@ -645,11 +697,26 @@ const Dashboard = () => {
 
         layer.on({
             mouseover: () => {
+                const { visiblePerformerIds: visibleIds } = tooltipContextRef.current;
+                if (visibleIds && !visibleIds.has(String(feature.properties.id))) {
+                    if (layer.getTooltip()) layer.closeTooltip();
+                    return;
+                }
                 if (!layer.getTooltip()) {
                     layer.bindTooltip(buildTooltipHtml, { sticky: true, opacity: 0.98, direction: 'top', offset: [0, -10] }).openTooltip();
                 }
             },
+            tooltipopen: () => {
+                const { visiblePerformerIds: visibleIds } = tooltipContextRef.current;
+                if (visibleIds && !visibleIds.has(String(feature.properties.id))) {
+                    layer.closeTooltip();
+                }
+            },
             click: (e: L.LeafletMouseEvent) => {
+                const { visiblePerformerIds: visibleIds } = tooltipContextRef.current;
+                if (visibleIds && !visibleIds.has(String(feature.properties.id))) {
+                    return;
+                }
                 L.DomEvent.stopPropagation(e);
                 setSelectedFeature(feature.properties);
             }
@@ -1268,6 +1335,11 @@ const Dashboard = () => {
                     setZoomRequest={setZoomRequest}
                     setViewLevel={setViewLevel}
                     isMobile={isMobile}
+                    performerFilterMode={performerFilterMode}
+                    setPerformerFilterMode={setPerformerFilterMode}
+                    performerTopN={performerTopN}
+                    setPerformerTopN={setPerformerTopN}
+                    validPerformerCount={validPerformerCount}
                 />
             )}
 
@@ -1285,6 +1357,7 @@ const Dashboard = () => {
                 filteredRawData={filteredRawData}
                 parentLookup={dataState.parentLookup}
                 selectedFeature={selectedFeature}
+                visiblePerformerIds={visiblePerformerIds}
                 onSelectFeature={(props) => {
                     setSelectedFeature(props);
                     if (props?.id !== undefined) {
