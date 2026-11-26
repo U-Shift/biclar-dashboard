@@ -302,6 +302,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                     <div className="px-6 py-4">
                         <div className={`p-1 rounded-2xl flex gap-1 ${isDarkMode ? 'bg-neutral-800/50' : 'bg-neutral-100/50'} backdrop-blur-sm`}>
                             <button
+                                data-tour="tab-outputs"
                                 onClick={() => setActiveTab('index')}
                                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'index'
                                     ? (isDarkMode ? 'bg-primary text-secondary-yellow border border-secondary-yellow/30 shadow-lg shadow-primary/40' : 'bg-primary text-white shadow-md shadow-primary/20')

@@ -37,33 +37,29 @@ export const Tutorial: React.FC<TutorialProps> = ({
             content: t('tutorial.step_1'),
             sidebar: 'closed'
         } as any,
-        /*
         ...(isMobile ? [{
             target: '[data-tour="mobile-menu-btn"]',
             content: t('tutorial.mobile_step_menu'),
-            placement: 'right' as Placement,
+            placement: 'right' as const,
             sidebar: 'closed'
         } as any] : [
             {
                 target: '[data-tour="sidebar-left"]',
                 content: t('tutorial.step_2'),
-                placement: "right",
+                placement: 'right' as const,
                 sidebar: 'open'
             } as any
         ]),
         {
-            target: '[data-tour="section-metrics.categories.mobility_poverty_index"]',
+            target: '[data-tour="tab-outputs"]',
             content: t('tutorial.step_3'),
-            sidebar: 'open'
-        } as any,
-        {
-            target: '[data-tour="section-metrics.categories.dimensions"]',
-            content: t('tutorial.step_4'),
+            placement: 'right' as const,
             sidebar: 'open'
         } as any,
         {
             target: '[data-tour="tab-indicators"]',
             content: t('tutorial.step_5'),
+            placement: 'right' as const,
             sidebar: 'open'
         } as any,
         {
@@ -89,6 +85,7 @@ export const Tutorial: React.FC<TutorialProps> = ({
             {
                 target: '[data-tour="sidebar-right"]',
                 content: t('tutorial.step_9'),
+                placement: 'left' as const,
             }
         ] : []),
         {
@@ -99,7 +96,7 @@ export const Tutorial: React.FC<TutorialProps> = ({
         {
             target: isMobile ? '[data-tour="mobile-map-legend"]' : '[data-tour="map-legend"]',
             content: t('tutorial.step_11'),
-            placement: 'top',
+            placement: 'top' as const,
             sidebar: 'closed'
         } as any,
         {
@@ -123,6 +120,11 @@ export const Tutorial: React.FC<TutorialProps> = ({
             sidebar: 'open'
         } as any,
         {
+            target: '[data-tour="attribute-table-btn"]',
+            content: t('tutorial.step_attribute_table'),
+            sidebar: 'open'
+        } as any,
+        {
             target: '[data-tour="download-modal-btn"]',
             content: t('tutorial.step_17'),
             sidebar: 'open'
@@ -141,9 +143,8 @@ export const Tutorial: React.FC<TutorialProps> = ({
             target: 'body',
             content: t('tutorial.step_10_mobile'),
             sidebar: 'closed',
-            placement: 'center'
+            placement: 'center' as const
         } as any
-         */
     ];
 
     const dynamicSteps: Step[] = [
