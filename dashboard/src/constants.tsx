@@ -132,6 +132,24 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             showAlwaysOnDetails: true
         },
         {
+            id: 'model_mr_parking_necessary_{min_max}',
+            id_variations: {
+                'min_max': {
+                    options_icons: [
+                        { id: 'min', label: 'filters_global.min', suffix: '_min', icon: '⬇️' },
+                        { id: 'max', label: 'filters_global.max', suffix: '_max', icon: '⬆️' },
+                    ]
+                }
+            },
+            label: 'metrics.models.mr_necessary.label',
+            description: 'metrics.models.mr_necessary.description',
+            format: (v) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            default: true,
+            showAlwaysOnDetails: true
+        },
+        {
             id: 'model_mr_parking_residential_{min_max}',
             id_variations: {
                 'min_max': {
@@ -313,7 +331,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.models.mr_ratio_pois.description',
             format: (v) => String(v ?? 0),
             scaleMethod: continuousScale,
-            sources: ['celis_ladegaard_2008', 'kuster_peters_2018'],
+            sources: ['celis_ladegaard_2008', 'kuster_peters_2018', 'idae_2009', 'boston_2021'],
             pallete: COLORS.WhiteToGreen,
             default: true,
             showAlwaysOnDetails: true

@@ -83,7 +83,9 @@
     "GIRA": "GIRA (Lisbon)",
     "dgeec": "Direção-Geral de Estatísticas da Educação e Ciência",
     "celis_ladegaard_2008": "Celis and Bølling-Ladegaard (2008)",
-    "kuster_peters_2018": "Küster and Peters (2018)"
+    "kuster_peters_2018": "Küster and Peters (2018)",
+    "idae_2009": "Idae (2009)",
+    "boston_2021": "City of Boston (2021)"
   },
   "metrics": {
     "categories": {
@@ -105,7 +107,11 @@
     "models": {
       "mr": {
         "label": "Minimum Ratios (Aggregated)",
-        "description": "Number of bicycle parking spots according to land use and associated (minimum and maximum) ratios"
+        "description": "Number of bicycle parking spots according to land use and associated (minimum and maximum) ratios. This model doesn't take into account demand variations nor distinguishes between public and private parking spaces."
+      },
+      "mr_necessary": {
+        "label": "Minimum Ratios (Necessary)",
+        "description": "Difference between computed and existing number of parking spaces"
       },
       "mr_residential": {
         "label": "Minimum Ratios (Residential)",
@@ -121,7 +127,7 @@
       },
       "mr_schools": {
         "label": "Minimum Ratios (Schools)",
-        "description": "Number of bicycle parking spots based on schools and university students"
+        "description": "Number of bicycle parking spots based on school and university students"
       },
       "mr_ratio_residential": {
         "label": "Residential",
@@ -133,7 +139,7 @@
       },
       "mr_ratio_pt": {
         "label": "Public Transport",
-        "description": "Number of (minimum and maximum) parking spots per passenger"
+        "description": "Number of (minimum and maximum) parking spots per peak hour passenger"
       },
       "mr_ratio_schools": {
         "label": "Schools",
